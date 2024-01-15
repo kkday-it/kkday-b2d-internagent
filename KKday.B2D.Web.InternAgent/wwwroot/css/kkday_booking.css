@@ -1,0 +1,1445 @@
+﻿header.fix {
+    position: absolute
+}
+
+.booking-wrap {
+    min-height: calc(100vh - 135px)
+}
+
+.booking-wrap__redeem {
+    padding-top: 50px
+}
+
+.booking-wrap small {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    color: #666
+}
+
+.booking-wrap .coupon-customize-lg {
+    width: 800px
+}
+
+.board-group-title {
+    color: #666;
+    font-size: 1.8rem;
+    margin-top: 40px;
+    margin-bottom: 5px
+}
+
+.board {
+    margin-bottom: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px
+}
+
+.board-title {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative
+}
+
+    .board-title[data-toggle=collapse] {
+        cursor: pointer
+    }
+
+    .board-title i.expand-icon, .board-title i.finish-icon {
+        font-size: 2.6rem;
+        line-height: 28px
+    }
+
+    .board-title i.expand-icon {
+        position: static;
+        margin-right: 15px;
+        transform-origin: 20% 50%
+    }
+
+    .board-title i.finish-icon {
+        color: #79c4c9
+    }
+
+    .board-title .txt {
+        flex-grow: 1;
+        font-size: 1.8rem;
+        font-weight: 700
+    }
+
+    .board-title .txt__hint {
+        font-size: 1.4rem;
+        font-weight: 400;
+        color: #666;
+        margin: 10px
+    }
+
+    .board-title .cart-item {
+        flex-grow: 1;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: 0
+    }
+
+        .board-title .cart-item .product-name {
+            font-size: 1.6rem
+        }
+
+        .board-title .cart-item .product-option {
+            font-size: 1.4rem
+        }
+
+    .board-title .payment-info {
+        margin-right: 10px;
+        line-height: 28px
+    }
+
+    .board-title + hr {
+        display: none
+    }
+
+.board.active .board-title i.expand-icon {
+    transform: rotate(90deg)
+}
+
+.board.active .board-title + hr {
+    display: block
+}
+
+.board.active .con {
+    display: block
+}
+
+.board .con {
+    display: none
+}
+
+    .board .con .sub-title {
+        position: relative
+    }
+
+        .board .con .sub-title .tip {
+            padding-left: 14px;
+            font-weight: 400
+        }
+
+        .board .con .sub-title .input-dropdown {
+            height: 38px;
+            margin-top: -10px
+        }
+
+    .board .con .traveler-con {
+        margin-bottom: 30px
+    }
+
+        .board .con .traveler-con .board {
+            border-top: 1px solid #f4f4f4;
+            box-shadow: 0 2px 4px rgba(0,0,0,.15)
+        }
+
+            .board .con .traveler-con .board > .link-secondary.pull-right {
+                position: relative;
+                z-index: 9
+            }
+
+            .board .con .traveler-con .board .sub-title {
+                margin-top: 5px;
+                font-size: 1.6rem
+            }
+
+                .board .con .traveler-con .board .sub-title:before {
+                    display: none
+                }
+
+                .board .con .traveler-con .board .sub-title span {
+                    font-weight: 400
+                }
+
+                .board .con .traveler-con .board .sub-title .gap {
+                    vertical-align: top
+                }
+
+            .board .con .traveler-con .board:last-child {
+                margin-bottom: 50px
+            }
+
+    .board .con .coupon-con .sub-title {
+        margin-bottom: 10px
+    }
+
+    .board .con .coupon-con .payment-list > li:first-child {
+        padding-top: 0
+    }
+
+    .board .con .coupon-con a.delete-discount {
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: #999;
+        font-size: 1.4rem
+    }
+
+    .board .con .contact-app .info .title {
+        font-size: 1.5rem;
+        border: none;
+        padding: 0;
+        font-weight: 400
+    }
+
+    .board .con .contact-app .info .text {
+        font-size: 1.3rem;
+        color: #666
+    }
+
+    .board .con .coupon-input .form-control {
+        font-weight: 400;
+        display: inline-block;
+        width: 200px
+    }
+
+    .board .con .coupon-input .btn-add-coupon {
+        padding-right: 10px;
+        padding-left: 10px
+    }
+
+.board .con__product-info {
+    padding: 15px;
+    background-color: #f7f7f7;
+    font-size: 1.4rem;
+    border-radius: 6px
+}
+
+.board .con__product-info--group {
+    padding: 10px 0
+}
+
+.board .con__product-info--group-bottom-line {
+    border-bottom: 1px solid #ddd
+}
+
+.board .con__product-info--prod-name {
+    color: #333
+}
+
+.board .con__product-info--pkg-name {
+    color: #666
+}
+
+.board .con .dropdown {
+    margin-bottom: 20px;
+    float: none;
+    padding: 0
+}
+
+/*.board .con .row {
+    margin-left: 0
+}
+*/
+.board .con .field-section {
+    padding: 0
+}
+
+    .board .con .field-section label {
+        display: block
+    }
+
+.board .con__coupon .btn {
+    border: 1px solid #138184;
+    color: #138184;
+    background-color: #fff;
+    margin: 20px 20px 0 0
+}
+
+    .board .con__coupon .btn:hover {
+        background-color: #f4f4f4
+    }
+
+.board .con__coupon .btn--clear {
+    color: #666;
+    border: 1px solid #e1e1e1
+}
+
+.board .con__coupon .btn--active {
+    background-color: #138184;
+    color: #fff
+}
+
+    .board .con__coupon .btn--active:hover {
+        background-color: #138184
+    }
+
+.board .con__coupon .icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: text-bottom
+}
+
+.board .point-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 1.6rem
+}
+
+    .board .point-block .point-text {
+        color: #333
+    }
+
+    .board .point-block .point-price {
+        font-family: Arial Rounded MT Bold,Arial Rounded MT,sans-serif;
+        color: #26bec9;
+        letter-spacing: 0
+    }
+
+.point-num {
+    color: #ffb400;
+    font-weight: 700
+}
+
+.ic-point {
+    position: relative;
+    bottom: 1px;
+    max-height: 16px
+}
+
+.cart-result {
+    margin-bottom: 20px;
+    border-radius: 6px;
+    background: #fff
+}
+
+    .cart-result .point-detail {
+        line-height: .88;
+        letter-spacing: .4px;
+        color: #333;
+        font-size: 1.6rem;
+        padding: 20px;
+        border-bottom: 1px solid #eaeaea
+    }
+
+        .cart-result .point-detail .point-checked {
+            margin: 0 0 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.6rem
+        }
+
+            .cart-result .point-detail .point-checked.checked .text {
+                color: #333
+            }
+
+            .cart-result .point-detail .point-checked.checked .point-price {
+                display: block
+            }
+
+            .cart-result .point-detail .point-checked i {
+                display: inline-block;
+                margin-right: 10px
+            }
+
+                .cart-result .point-detail .point-checked i.disabled {
+                    color: hsla(0,0%,60%,.15);
+                    cursor: not-allowed
+                }
+
+                .cart-result .point-detail .point-checked i.loading {
+                    display: inline-block;
+                    margin: 0 4px 0 0
+                }
+
+            .cart-result .point-detail .point-checked .point-price {
+                display: none;
+                font-family: Arial Rounded MT Bold,Arial Rounded MT,sans-serif;
+                color: #26bec9;
+                letter-spacing: 0
+            }
+
+        .cart-result .point-detail .point-info {
+            font-size: 1.4rem;
+            letter-spacing: .54px;
+            color: #666;
+            border-radius: 6px;
+            background-color: hsla(0,0%,78%,.15);
+            margin: 10px 0 10px 30px;
+            padding: 15px
+        }
+
+            .cart-result .point-detail .point-info .tip-title {
+                margin: 0 2px
+            }
+
+            .cart-result .point-detail .point-info .tip-info {
+                margin: 10px 2px
+            }
+
+                .cart-result .point-detail .point-info .tip-info li {
+                    margin: 16px 0 0;
+                    line-height: 1.5
+                }
+
+    .cart-result .cart-button {
+        padding: 20px
+    }
+
+        .cart-result .cart-button .cart-total {
+            text-align: right;
+            margin-right: 20px
+        }
+
+        .cart-result .cart-button .product-pricing h4 {
+            font-size: 2rem
+        }
+
+    .cart-result .loading {
+        color: #ddd
+    }
+
+    .cart-result .dot-load {
+        display: inline;
+        position: relative;
+        bottom: 4px;
+        margin-left: 6px
+    }
+
+.ani-success {
+    animation: success .5s .2s 1 backwards
+}
+
+@keyframes success {
+    0% {
+        transform: scale(0)
+    }
+
+    50% {
+        transform: scale(1.2)
+    }
+
+    to {
+        transform: scale(1)
+    }
+}
+
+.buddy-dropdown .btn {
+    background-color: #f4f4f4;
+    color: #333;
+    padding-top: 0;
+    padding-bottom: 0
+}
+
+    .buddy-dropdown .btn:active {
+        background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_dropdown.svg)
+    }
+
+.buddy-dropdown .input-dropdown-menu {
+    width: auto
+}
+
+    .buddy-dropdown .input-dropdown-menu > li.active .editor-logo {
+        box-shadow: 0 0 0 3px rgba(19,129,132,.3)
+    }
+
+    .buddy-dropdown .input-dropdown-menu > li.disabled {
+        opacity: .5
+    }
+
+.buddy-dropdown .editor-logo {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+    line-height: 1;
+    font-weight: 400;
+    color: #fff;
+    border: 0
+}
+
+.coupon-success .coupon-ticket {
+    display: inline-block;
+    padding: 5px 10px;
+    background: #f4f4f4;
+    border: 2px solid #eee;
+    border-radius: 4px;
+    position: relative;
+    text-align: center;
+    min-width: 160px;
+    color: #666;
+    font-weight: 700
+}
+
+    .coupon-success .coupon-ticket .title {
+        font-size: 1rem;
+        color: #aaa;
+        padding: 0 10px 10px;
+        margin: 0 -10px 10px;
+        border: none;
+        border-bottom: 1px dashed #ddd;
+        height: auto;
+        line-height: 1
+    }
+
+        .coupon-success .coupon-ticket .title .num {
+            font-size: 1.6rem;
+            font-family: Arial Rounded MT Bold,sans-serif;
+            color: #ffb400;
+            margin-top: 5px
+        }
+
+    .coupon-success .coupon-ticket .circle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #fff;
+        top: 43px
+    }
+
+    .coupon-success .coupon-ticket .circle1 {
+        left: -5px
+    }
+
+    .coupon-success .coupon-ticket .circle2 {
+        right: -5px
+    }
+
+    .coupon-success .coupon-ticket a.btn-del-coupon {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        line-height: 35px;
+        text-align: center;
+        background: #fff;
+        color: #999;
+        box-shadow: 0 0 5px rgba(0,0,0,.1)
+    }
+
+ul.payment-list {
+    padding: 0;
+    margin: 0;
+    list-style: none
+}
+
+    ul.payment-list > li {
+        border-bottom: 1px solid #eee
+    }
+
+        ul.payment-list > li:last-child {
+            border: none
+        }
+
+        ul.payment-list > li > label {
+            display: block;
+            margin: 0;
+            padding: 15px 0;
+            cursor: pointer
+        }
+
+            ul.payment-list > li > label > input {
+                margin: 0 8px 0 0;
+                vertical-align: middle
+            }
+
+            ul.payment-list > li > label .checkbox-title {
+                display: inline-block;
+                min-width: 150px;
+                vertical-align: middle;
+                color: #333;
+                font-size: 1.5rem
+            }
+
+            ul.payment-list > li > label > input:checked + .checkbox-title {
+                font-weight: 700
+            }
+
+        ul.payment-list > li .card-group {
+            display: inline-block;
+            margin: 0
+        }
+
+        ul.payment-list > li .collapse-content {
+            margin-left: 25px;
+            padding: 20px 0;
+            border-top: 1px solid #eee
+        }
+
+.card-group {
+    margin: 10px 0 20px 80px
+}
+
+.pay-kind-img {
+    width: 40px;
+    height: 26px;
+    border: 1px solid #eee;
+    margin-right: 5px;
+    border-radius: 2px
+}
+
+.ic-wechatpay, .linepay-point {
+    height: 18px;
+    width: auto
+}
+
+.ic-momowallet {
+    height: 28px;
+    width: auto
+}
+
+.ic-grabpay {
+    height: 21px;
+    width: auto
+}
+
+.cart-item .product-detail > .product-option, .cart-item .product-detail > h3 {
+    display: block;
+    max-height: none;
+    font-weight: 700
+}
+
+.cart-item .product-detail > .sku-option {
+    font-weight: 400
+}
+
+.cart-item .product-detail > h3 {
+    font-size: 1.6rem
+}
+
+.board .cart-group {
+    margin: 0 -20px;
+    padding: 0 20px;
+    border-bottom: 2px dashed #eee
+}
+
+    .board .cart-group > .cart-item {
+        padding-top: 5px;
+        padding-bottom: 15px
+    }
+
+        .board .cart-group > .cart-item .product-option {
+            margin-top: 5px
+        }
+
+        .board .cart-group > .cart-item .price-detail {
+            margin-top: 15px;
+            color: #666
+        }
+
+            .board .cart-group > .cart-item .price-detail hr {
+                margin: 12px 0
+            }
+
+.point .ic-point {
+    width: 20px;
+    margin-top: -2px
+}
+
+.booking-msg {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-top: 20px;
+    padding-bottom: 20px
+}
+
+    .booking-msg > i {
+        margin-right: 10px;
+        font-size: 5.6rem
+    }
+
+    .booking-msg .txt {
+        flex-grow: 1;
+        margin-right: 30px
+    }
+
+        .booking-msg .txt h3 {
+            margin: 0
+        }
+
+        .booking-msg .txt p {
+            margin-bottom: 0;
+            color: #666
+        }
+
+    .booking-msg > .btn {
+        align-self: flex-end
+    }
+
+    .booking-msg + .cart-group {
+        margin-top: 10px;
+        padding-bottom: 5px
+    }
+
+.order-card {
+    margin-bottom: 15px;
+    border: 1px solid #eaeaea;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1)
+}
+
+    .order-card:hover {
+        opacity: 1;
+        transform: translateY(-2px)
+    }
+
+    .order-card .card-head {
+        padding: 8px 15px;
+        border-bottom: 1px solid #eaeaea;
+        color: #999;
+        font-size: 1.2rem
+    }
+
+    .order-card .cart-item {
+        padding: 15px
+    }
+
+    .order-card .product-pricing {
+        align-self: flex-end;
+        margin-bottom: -5px
+    }
+
+        .order-card .product-pricing h4 {
+            font-size: 1.5rem
+        }
+
+.booking-wrap .login-board {
+    position: relative;
+    max-width: 500px;
+    margin: 15px auto 0;
+    background-color: #fff;
+    border-radius: 6px
+}
+
+    .booking-wrap .login-board:before {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        border-radius: 4px 4px 0 0;
+        background: linear-gradient(65deg,#64b3f4,#26bec9 60%)
+    }
+
+.booking-footer {
+    background-color: #444;
+    margin-top: 30px;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 1.3rem
+}
+
+.login-kkday h4 {
+    font-size: 1.6rem;
+    line-height: 1.7
+}
+
+.email-block {
+    position: relative
+}
+
+    .email-block .email-list {
+        position: absolute;
+        top: 50px;
+        width: 100%;
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 2px 15px 0 rgba(0,0,0,.15);
+        z-index: 9;
+        padding: 10px;
+        list-style: none
+    }
+
+        .email-block .email-list li {
+            text-align: left;
+            padding: 5px 10px
+        }
+
+            .email-block .email-list li:hover {
+                width: 100%;
+                border-radius: 4px;
+                background: #f5f5f5
+            }
+
+            .email-block .email-list li i {
+                margin-right: 10px;
+                position: relative;
+                top: 0;
+                left: 0
+            }
+
+                .email-block .email-list li i.google-icon {
+                    color: #dd4b39
+                }
+
+                .email-block .email-list li i.qq-icon {
+                    color: #399ad9
+                }
+
+                .email-block .email-list li i.icon {
+                    width: 14px;
+                    height: 14px
+                }
+
+.modal--basic .modal-content:before {
+    display: none
+}
+
+.modal--basic .modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #eaeaea
+}
+
+    .modal--basic .modal-header .modal-title {
+        font-size: 2.4rem
+    }
+
+    .modal--basic .modal-header .close {
+        top: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%
+    }
+
+        .modal--basic .modal-header .close:hover {
+            background-color: #f4f4f4
+        }
+
+.modal--basic .modal-body {
+    height: 70vh;
+    overflow-y: scroll
+}
+
+.modal--basic .modal-footer {
+    padding: 12px 24px;
+    background-color: #f4f4f4;
+    border-radius: 0 0 6px 6px;
+    border-top: 1px solid #eaeaea
+}
+
+    .modal--basic .modal-footer .btn-default {
+        border: 1px solid #e1e1e1
+    }
+
+.icon {
+    display: inline-block;
+    margin-right: 10px;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background-size: 100%;
+    background-repeat: no-repeat
+}
+
+.theme-icon-gift {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_gift.svg)
+}
+
+.theme-icon-hotel {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_hotel.svg)
+}
+
+.theme-icon-food {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_food.svg)
+}
+
+.theme-icon-park {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_park.svg)
+}
+
+.theme-icon-transport {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_transport.svg)
+}
+
+.theme-icon-wifi {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_wifi.svg)
+}
+
+.theme-icon-DIY {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_DIY.svg)
+}
+
+.theme-icon-rent {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_rent.svg)
+}
+
+.theme-icon-family {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_family.svg)
+}
+
+.theme-icon-outdoor2 {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_outdoor2.svg)
+}
+
+.theme-icon-outdoor {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_outdoor.svg)
+}
+
+.theme-icon-attraction {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_attraction.svg)
+}
+
+.theme-icon-covid19 {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_covid19.svg)
+}
+
+.theme-icon-gift2 {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_gift2.svg)
+}
+
+.theme-icon-hotel2 {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_hotel2.svg)
+}
+
+.theme-icon-travel {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/theme_icon/ic_theme_travel.svg)
+}
+
+.plug-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_plug.svg)
+}
+
+.tickets-services-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_traffic.svg)
+}
+
+.wifi-sim-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_wifi.svg)
+}
+
+.tour-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_tour.svg)
+}
+
+.hot-ticket-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_ticket.svg)
+}
+
+.themepark-ticket-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_themepark.svg)
+}
+
+.food-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_food.svg)
+}
+
+.hotairballoon-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_hotairballoon.svg)
+}
+
+.guild-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_guild.svg)
+}
+
+.ferry-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_ferry.svg)
+}
+
+.workshop-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_workshop.svg)
+}
+
+.spa-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_spa.svg)
+}
+
+.shop-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_shop.svg)
+}
+
+.hotel-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_hotel.svg)
+}
+
+.car-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic-car.svg)
+}
+
+.cruise-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic-cruise.svg)
+}
+
+.outdoor-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_outdoor.svg)
+}
+
+.grey-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/city_theme_page/ic_grey.svg)
+}
+
+.yahoo-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sns/yahoo_purple.svg)
+}
+
+.hotmail-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sns/outlook.svg)
+}
+
+.naver-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sns/naver.svg)
+}
+
+.coupon-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_coupon_default.svg)
+}
+
+.coupon-used-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_coupon_used.svg)
+}
+
+.asiamile-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_asiamile_default.svg)
+}
+
+.asiamile-used-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_asiamile_used.svg)
+}
+
+.checked-white-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_checked_white.svg)
+}
+
+.info-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_info.svg)
+}
+
+.icloud-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sns/icloud.svg)
+}
+
+.docomo-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sns/docomo.svg)
+}
+
+.ezweb-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sns/ezweb.svg)
+}
+
+.daum-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sns/daum.png)
+}
+
+.nate-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sns/nate.png)
+}
+
+.one-six-three-icon {
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sns/163.png)
+}
+
+.coupon__card {
+    position: relative;
+    width: 50%;
+    padding: 12px
+}
+
+.coupon__card--inside {
+    overflow: hidden;
+    position: relative
+}
+
+.coupon__card--available .coupon__content--name {
+    color: #666
+}
+
+.coupon__card--available .coupon__action:hover {
+    background-color: #ffb400
+}
+
+.coupon__card--unavailable .coupon__content--date, .coupon__card--unavailable .coupon__content--discount, .coupon__card--unavailable .coupon__content--name, .coupon__card--unavailable .coupon__content--rule, .coupon__card--used .coupon__content--date, .coupon__card--used .coupon__content--discount, .coupon__card--used .coupon__content--name, .coupon__card--used .coupon__content--rule {
+    color: #ccc
+}
+
+.coupon__card--unavailable .coupon__action, .coupon__card--used .coupon__action {
+    border-radius: 0 0 6px 6px;
+    border: 1px solid #ddd;
+    border-top-style: dashed;
+    background-color: #fff;
+    cursor: auto
+}
+
+.coupon__card--unavailable .coupon__action {
+    color: #ccc;
+    text-align: left;
+    font-size: 1.4rem
+}
+
+.coupon__card--used .coupon__action {
+    background-color: #ccc
+}
+
+.coupon__card--order_amount_insufficient .coupon__content--date, .coupon__card--order_amount_insufficient .coupon__content--discount, .coupon__card--order_amount_insufficient .coupon__content--name, .coupon__card--order_amount_insufficient .coupon__content--rule {
+    color: #999
+}
+
+.coupon__card--order_amount_insufficient .coupon__action {
+    border-radius: 0 0 6px 6px;
+    border: 1px solid #ddd;
+    border-top-style: dashed;
+    background-color: #fff;
+    color: #999;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-align: left;
+    cursor: auto
+}
+
+.coupon__card--static .coupon__content {
+    border-bottom: 0;
+    border-radius: 6px 6px 0 0
+}
+
+.coupon__card--static .coupon__action {
+    border: 1px solid #ddd;
+    border-radius: 0 0 6px 6px;
+    border-top: 0;
+    background-color: #fff;
+    font-size: 12px;
+    font-weight: 400;
+    color: #999;
+    text-align: left;
+    cursor: auto
+}
+
+    .coupon__card--static .coupon__action:hover {
+        background-color: #fff
+    }
+
+.coupon__card--new-added .coupon__action, .coupon__card--new-added .coupon__content {
+    transition: all .2s ease-in-out
+}
+
+    .coupon__card--new-added .coupon__action:after, .coupon__card--new-added .coupon__action:before {
+        background-color: #eee
+    }
+
+.coupon__card--new-added .coupon__card--shadow {
+    transition: all .2s ease-in-out;
+    box-shadow: 0 9px 28px 8px rgba(0,0,0,.05),0 6px 16px 0 rgba(0,0,0,.08),0 3px 6px -4px rgba(0,0,0,.12)
+}
+
+.coupon__card--AVAILABLE-new-added .coupon__content {
+    border-color: #ffc612;
+    background-color: #fffbf0
+}
+
+.coupon__card--AVAILABLE-new-added.coupon__card--static .coupon__action {
+    border: 1px solid #ffc612;
+    border-top: 0;
+    background-color: #fffbf0
+}
+
+.coupon__card--UNAVAILABLE-new-added {
+    animation: unavailable-shake 1s ease-out 0s;
+    animation-iteration-count: 1;
+    animation-fill-mode: both
+}
+
+    .coupon__card--UNAVAILABLE-new-added .coupon__action, .coupon__card--UNAVAILABLE-new-added .coupon__content {
+        border-color: #ddd
+    }
+
+.coupon__card--ORDER_AMOUNT_INSUFFICIENT-new-added {
+    animation: unavailable-shake 1s ease-out 0s;
+    animation-iteration-count: 1;
+    animation-fill-mode: both
+}
+
+.coupon__card--selected .coupon__action, .coupon__card--selected .coupon__content {
+    transition: none
+}
+
+.coupon__card--selected .coupon__content {
+    border: 1px solid #ffb400;
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_coupon_selected.svg);
+    background-size: 166px 126px;
+    background-repeat: no-repeat;
+    background-position: 170px 20px
+}
+
+.coupon__card--selected .coupon__action {
+    background-color: #ffb400
+}
+
+    .coupon__card--selected .coupon__action:after, .coupon__card--selected .coupon__action:before {
+        border: 1px solid #ffb400
+    }
+
+.coupon__card--selected.coupon__card--static .coupon__action {
+    background-color: #fff;
+    border: 1px solid #ffb400;
+    border-top: 0
+}
+
+.coupon__card--shadow {
+    transition: all .2s ease-in-out;
+    box-shadow: none;
+    border-radius: 6px
+}
+
+.coupon__card--decorate {
+    width: 240px;
+    height: 65px;
+    position: absolute;
+    bottom: 0;
+    right: 30px;
+    background: url(https://cdn.kkday.com/pc-web/assets/img/img_coupon_nobtn.svg);
+    background-size: contain
+}
+
+.coupon__content {
+    position: relative;
+    height: 168px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    transition: all .2s ease-in-out
+}
+
+.coupon__content--discount {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffc612
+}
+
+.coupon__content--rule {
+    font-size: 14px;
+    color: #ffc612;
+    -webkit-line-clamp: 1;
+    font-size: 1.4rem;
+    max-height: 2.38rem;
+    box-sizing: content-box;
+    white-space: nowrap
+}
+
+.coupon__content--name, .coupon__content--rule {
+    font-weight: 700;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    overflow: hidden
+}
+
+.coupon__content--name {
+    height: 40px;
+    font-size: 14px;
+    color: #999;
+    line-height: 1.43;
+    white-space: normal;
+    -webkit-line-clamp: 2
+}
+
+.coupon__content--date {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #999
+}
+
+.coupon__content--info {
+    position: absolute;
+    padding: 16px;
+    width: 48px;
+    height: 48px;
+    top: 10px;
+    right: 8px;
+    border-radius: 25px;
+    text-align: center;
+    color: #aaa;
+    transition: all .2s ease-in-out;
+    cursor: pointer
+}
+
+    .coupon__content--info .icon {
+        width: 16px;
+        height: 16px;
+        margin: auto
+    }
+
+    .coupon__content--info:hover {
+        background-color: #f4f4f4
+    }
+
+.coupon__action {
+    position: relative;
+    padding: 0 16px;
+    margin-top: -1px;
+    height: 52px;
+    line-height: 52px;
+    background-color: #ffc612;
+    border-radius: 6px;
+    border: 0;
+    border-top: 1px dashed #fff;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s ease-in-out
+}
+
+    .coupon__action .icon {
+        width: 18px;
+        height: 18px
+    }
+
+    .coupon__action:after, .coupon__action:before {
+        content: "";
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        position: absolute;
+        top: -10px;
+        right: -11px;
+        border: 1px solid #ddd;
+        z-index: 100;
+        transition: all .2s ease-in-out
+    }
+
+    .coupon__action:after {
+        left: -11px
+    }
+
+@keyframes unavailable-shake {
+    0% {
+        transform: translateX(0)
+    }
+
+    12% {
+        transform: translateX(-4px)
+    }
+
+    25% {
+        transform: translateX(8px)
+    }
+
+    37% {
+        transform: translateX(-6px)
+    }
+
+    50% {
+        transform: translateX(5px)
+    }
+
+    62% {
+        transform: translateX(-4px)
+    }
+
+    75% {
+        transform: translateX(3px)
+    }
+
+    87% {
+        transform: translateX(-2px)
+    }
+
+    to {
+        transform: translateX(0)
+    }
+}
+
+#coupon-detail .modal-header {
+    border-bottom: 1px solid #ddd
+}
+
+.coupon-detail__body {
+    color: #333
+}
+
+.coupon-detail__body--title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.89;
+    margin: 0 0 20px
+}
+
+.coupon-detail__body--sub-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 8px
+}
+
+.coupon-detail__body--sub-block {
+    margin-bottom: 24px
+}
+
+.coupon-detail__body--content {
+    font-size: 1.4rem
+}
+
+.coupon-detail__body--list-block {
+    margin-top: 10px;
+    padding: 0 20px
+}
+
+.coupon-detail__body--list {
+    margin-bottom: 0
+}
+
+.coupon-detail__footer .btn-default:hover {
+    background-color: #fff;
+    opacity: .7
+}
+
+.modal__coupon .modal-body {
+    height: auto;
+    overflow-y: visible;
+    padding: 0
+}
+
+.coupon-list__body .page-tab {
+    margin-top: -10px;
+    padding: 8px 24px 0;
+    border-bottom: 1px solid #eaeaea;
+    background-color: #fff
+}
+
+.coupon-list__body .empty-list {
+    border: 0
+}
+
+.coupon-list__panel {
+    position: relative;
+    height: 70vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 9px
+}
+
+.coupon-list__retain {
+    padding: 0;
+    margin-top: 20px;
+    margin-left: 0;
+    margin-right: 0
+}
+
+.coupon-list__footer--discount-info {
+    position: absolute;
+    bottom: 22px;
+    left: 35px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #138184
+}
+
+.coupon-detail__body {
+    height: 70vh;
+    overflow-y: scroll;
+    padding: 0 24px
+}
+
+.modal__asiamile .modal-header {
+    border-bottom: 1px solid #ddd
+}
+
+.modal__asiamile .modal-body {
+    height: auto;
+    overflow-y: auto
+}

@@ -1,0 +1,413 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using KKday.B2D.Web.InternAgent.AppCode
+
+@inject IViewLocalizer Localizer
+@{
+    Layout = "_KKdayLayout";
+    ViewData["Title"] = Localizer["Search_Title"].Value;
+
+    var locale = CultureInfo.CurrentCulture;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/kkday_search.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/kkday_search.css" />
+    <link rel="stylesheet" href="~/lib/ion-rangeSlider/css/ion.rangeSlider.min.css" />
+    <link rel="stylesheet" href="~/lib/jquery-daterangepicker/daterangepicker-bs3.css" />
+    <link rel="stylesheet" href="~/lib/jquery-daterangepicker/daterangepicker.css" />
+
+    <style type="text/css">
+        .modal-backdrop {
+            z-index: 1;
+        }
+
+        .input-group2 {
+            position: relative;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            -webkit-box-align: stretch;
+            -ms-flex-align: stretch;
+            align-items: stretch;
+            width: 100%;
+        }
+
+            .input-group2 > .form-control2 {
+                position: relative;
+                -webkit-box-flex: 1;
+                -ms-flex: 1 1 auto;
+                flex: 1 1 auto;
+                width: 1%;
+                margin-bottom: 0;
+            }
+
+        .form-control2 {
+            display: block;
+            width: 100%;
+            padding: .375rem .75rem;
+            font-size: 1.16rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        }
+
+        .input-group-text2 {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            padding: .375rem .75rem;
+            margin-bottom: 0;
+            font-size: 1.16rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            text-align: center;
+            white-space: nowrap;
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+        }
+
+        .irs--flat {
+            z-index: 10;
+        }
+
+            .irs--flat .irs-handle.state_hover > i:first-child, .irs--flat .irs-handle:hover > i:first-child {
+                background-color: #fff;
+            }
+
+            .irs--flat .irs-handle > i:first-child {
+                left: unset;
+                width: 16px;
+                background-color: #fff;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+            }
+
+            .irs--flat .irs-from, .irs--flat .irs-to, .irs--flat .irs-single {
+                background-color: #f2f2f2;
+                color: #333;
+                font-size: 13px;
+            }
+
+                .irs--flat .irs-from:before, .irs--flat .irs-to:before, .irs--flat .irs-single:before {
+                    border-top-color: #f2f2f2;
+                }
+
+        .calendar-table {
+            padding-bottom: 30px;
+        }
+    </style>
+}
+@section Scripts {
+    <script src="~/lib/ion-rangeSlider/js/ion.rangeSlider.min.js"></script>
+    <script src="~/js/moment-with-locales.js"></script>
+    <script src="~/lib/jquery-daterangepicker/daterangepicker.js"></script>
+}
+
+
+<div id="App" class="container">
+
+    <!-- Keywords -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Where do you want to go?" aria-label="Username" aria-describedby="basic-addon1">
+                @*<span class="input-group-text" id="basic-addon2" v-on:click="Query"><i class="ri-search-line"></i></span>*@
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Result -->
+    <div class="row">
+
+        <div class="col-12 m-2 d-block d-sm-none sm-filter">
+
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+                <i class="fa fa-filter" aria-hidden="true"></i> Filter
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" style="font-size:18px; font-weight:bold;">Filter Condition</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body"></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            @*<button type="button" class="btn btn-primary" onclick="UpdateFilter();"> OK </button>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- filter -->
+        <div class="col-3 d-none d-sm-block filter">
+            <div class="filter-container">
+                <div class="filter-group">
+                    <div class="filter-box" is-show-filter="A01-001">
+                        <h4 class="collapsable collapsed">
+                            @Localizer["Destination"]<i class="fa fa-caret-up pull-right"></i>
+                        </h4>
+                        <ul class="filter-list collapse">
+                            @*<div class="chip-city-group">
+                    <template v-for="city in cities">
+                        <span class="chip chip-city">
+                            <a class="" v-html="city.name"></a>
+                        </span>
+                    </template>
+                </div>*@
+                        </ul>
+                    </div>
+                    <div class="checkbox-filter-box">
+                        <h4>@Localizer["All_Categories"]</h4>
+                        <template v-for="tags in facets.tag">
+                            <div>
+                                <div :value="tags.id" class="drop-title">
+                                    <h5 v-html="tags.name">
+                                        <div class="pull-right"><i class="fa fa-lg fa-angle-down"></i></div>
+                                        <div class="clearfix"></div>
+                                    </h5>
+                                </div>
+                                <ul class="checkbox-dropdown-list" style="display:none;">
+                                    <li class="checkbox"><i class="fa fa-square-o fa-lg"></i> <span class="checkbox-title">@Localizer["All"]</span></li>
+                                    <template v-for="sub_item in tags.sub_tags">
+                                        <li class="checkbox" v-if="sub_item.count > 0">
+                                            <i class="fa fa-square-o fa-lg"></i> <span :data-val="`cat|${sub_item.id}`" class="checkbox-title" v-html="`${sub_item.name} (${sub_item.count})`"></span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="filter-box">
+                        <h4>@Localizer["Price_Range"] ({{currency}})</h4>
+                        <div>
+                            <input type="text" id="js-range-slider" name="range" data-min="{{stats.price.min}}"
+                                   data-max="{{stats.price.max}}" data-from="{{stats.price.min}}"
+                                   data-to="{{stats.price.max}}" @@change="rangeChanged" />
+                        </div>
+                    </div>
+
+                    <div class="filter-box">
+                        <h4 class="collapsable">
+                            @Localizer["Journey_Time"] <i class="fa fa-caret-up pull-right"></i>
+                        </h4>
+                        <ul class="filter-list collapse in">
+                            <li class="checkbox"><i class="fa fa-lg fa-square-o"></i> <span data-val="time|8h" class="checkbox-title">@Localizer["Journey_Time_0h_8h"]</span></li>
+                            <li class="checkbox"><i class="fa fa-lg fa-square-o"></i> <span data-val="time|1d" class="checkbox-title">@Localizer["Journey_Time_8h_1d"]</span></li>
+                            <li class="checkbox"><i class="fa fa-lg fa-square-o"></i> <span data-val="time|2d" class="checkbox-title">@Localizer["Journey_Time_1d_2d"]</span></li>
+                            <li class="checkbox"><i class="fa fa-lg fa-square-o"></i> <span data-val="time|*" class="checkbox-title">@Localizer["Journey_Time_2d_more"]</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- product-list -->
+        <div class="col-md-9 product-list">
+            <template v-for="pd in prods">
+                <div class="product-listview search-info">
+                    <a :id="`product-card-${pd.prod_no}`" :href="`${_root_path}Product/${pd.prod_no}`" target="_blank" rel="noopener">
+                        <div class="row">
+                            <div class="col-sm-5 col-lg-4">
+                                <div class="img-bg" lazy="loaded" :style="{ backgroundImage: 'url(' + pd.prod_img_url + ')' }"></div>
+                            </div>
+                            <div class="col-sm-7 col-lg-8">
+                                <div class="product-detail">
+                                    <div class="card-point">
+                                        <span class="label label-warning mr-5" v-if="pd.instant_booking"> @Localizer["Instant_Confirm"] </span>
+                                    </div>
+                                    <h3 v-html="pd.prod_name"></h3>
+                                    <p class="description" v-html="pd.introduction"></p>
+                                    <div class="product-place">
+                                        <i class="fa fa-map-marker"></i>
+
+                                    </div>
+                                    <div class="product-footer">
+                                        <div class="product-star">
+                                        </div>
+                                        <span class="divider"></span>
+                                        <div class="product-pricing">
+                                            <div class="origin-price" v-html="pd.b2c_price"></div>
+                                            <span v-html="currency"></span> <h4 class="text-primary" v-html="pd.b2b_price"></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </template>
+
+            <div class="overflow-auto" v-if="prods.length > 0">
+                <b-pagination v-model="currentPage" @@change="Query"
+                              :total-rows="totalRows"
+                              :per-page="perPage"
+                              :limit="limit"
+                              align="center" class="page-nav d-flex"></b-pagination>
+                <p class="mt-3" v-html="`@Localizer["Current_Page"]: ${currentPage}`"></p>
+
+            </div>
+            <div v-if="prods.length==0" v-html="'@Localizer["Search_Loading"]'"></div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    let app = new Vue({
+        //el: '#App',
+        data() {
+            return {
+                currentPage: 1,
+                totalRows: 0,
+                perPage: 25,
+                limit: 8,
+                isLoading: false,
+                locale: '@locale',
+                price_range: { min: null, max: null },
+                currency: '@Localizer[Website.Instance.Currency]',
+                sliderVal: null,
+                show: true,
+                facets: {},
+                stats: {},
+                prods: [],
+            }
+        },
+        created: function () {
+            this.Query();
+        },
+        //components: {
+        //    'prod-list': {
+        //        template: `<div>{{text}}</div>`,
+        //        data() {
+        //            return {
+        //                text: '我是局部註冊'
+        //            }
+        //        }
+        //    }
+        //},
+        computed: {
+
+        },
+        methods: {
+            Query() {
+                if (this.isLoading) {
+                    return;
+                }
+                this.isLoading = true;
+                setTimeout(() => {
+                    this.Fetch();
+                    this.isLoading = false
+                }, 1000)
+            },
+            Fetch() {
+                let vm = this;
+                let req = { page: this.currentPage, size: this.perPage, range: this.sliderVal };
+                console.log(`Fetch => ${JSON.stringify(req)}`);
+                let uri = `${_root_path}Search/Query`;
+                fetch(uri, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(req)
+                    })
+                    .then(response => {
+                        // console.log(response.status);
+                        return response.json()
+                    })
+                    .then(result => {
+                        console.log(`${JSON.stringify(result)}`);
+                        if (result.data) {
+                            this.totalRows = result.data.metadata.total_count;
+                            this.facets = result.data.facets;
+                            this.stats = result.data.stats;
+                            this.prods = result.data.prods;
+
+                            $('#js-range-slider').ionRangeSlider({
+                                type: "double",
+                                grid: false,
+                                prettify_separator: ","
+                            });
+
+                            let range = $("#js-range-slider").data("ionRangeSlider");
+                            if (range) range.update({ min: this.stats.price.min, max: this.stats.price.max });
+                            $("#js-range-slider").on('change', function () {
+                                if (vm.sliderVal == null) vm.sliderVal = this.value; // prevent first time
+                                else vm.rangeChanged(this.value);
+                            });
+
+                        }
+                        else {
+                            this.facets = {};
+                            this.stats = {};
+                            this.prods = [];
+                        }
+                    })
+                    .catch(error => console.error('Unable to search.', error));
+
+            },
+            rangeChanged(val) {
+                this.sliderVal = val;                
+                this.Query();
+            }
+        }
+    });
+
+    @*Vue.component("prod-list", {
+        template: `<div class="product-listview search-info">
+            <a id="product-card-{{prod.prod_no}}"" href="" target="_blank" rel="noopener">
+                <div class="row">
+                    <div class="col-sm-5 col-lg-4">
+                        <div class="img-bg" lazy="loaded" style="background-image: url({{prod.prod_img_url}}) ;"></div>
+                    </div>
+                    <div class="col-sm-7 col-lg-8">
+                        <div class="product-detail">
+                            <div class="card-point">
+                                <span class="label label-warning mr-5" v-if="prod.instant_booking"> @Localizer["Instant_Confirm"] </span>
+                            </div>
+                            <h3 v-html="prod.prod_name">/h3>
+                            <p class="description" v-html="prod.introduction"></p>
+                            <div class="product-place">
+                                <i class="fa fa-map-marker"></i>
+
+                            </div>
+                            <div class="product-footer">
+                                <div class="product-star">
+                                </div>
+                                <span class="divider"></span>
+                                <div class="product-pricing">
+                                    <div class="origin-price" v-html="prod.b2c_price"></div>
+                                    <span v-html="currency">/span> <h4 class="text-primary" x-html="prod.b2b_price"></h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>`
+    });*@
+
+
+    app.$mount('#App');
+
+</script>

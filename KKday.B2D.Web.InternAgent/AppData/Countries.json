@@ -1,0 +1,796 @@
+﻿{
+    "countries": [
+        {
+            "code": "AF",
+            "name": "Afghanistan(阿富汗)"
+        },
+        {
+            "code": "AL",
+            "name": "Albania(阿爾巴尼亞)"
+        },
+        {
+            "code": "DZ",
+            "name": "Algeria(阿爾及利亞)"
+        },
+        {
+            "code": "AD",
+            "name": "Andorra(安道爾)"
+        },
+        {
+            "code": "AO",
+            "name": "Angola(安哥拉)"
+        },
+        {
+            "code": "AI",
+            "name": "Anguilla(安圭拉)"
+        },
+        {
+            "code": "AQ",
+            "name": "Antarctica(南極洲)"
+        },
+        {
+            "code": "AG",
+            "name": "Antigua and Barbuda(安地卡及巴布達)"
+        },
+        {
+            "code": "AR",
+            "name": "Argentina(阿根廷)"
+        },
+        {
+            "code": "AM",
+            "name": "Armenia(亞美尼亞)"
+        },
+        {
+            "code": "AW",
+            "name": "Aruba(阿魯巴)"
+        },
+        {
+            "code": "AU",
+            "name": "Australia(澳洲)"
+        },
+        {
+            "code": "AT",
+            "name": "Austria(奥地利)"
+        },
+        {
+            "code": "AZ",
+            "name": "Azerbaijan(亞塞拜然)"
+        },
+        {
+            "code": "BS",
+            "name": "Bahamas(巴哈馬)"
+        },
+        {
+            "code": "BH",
+            "name": "Bahrain(巴林)"
+        },
+        {
+            "code": "BD",
+            "name": "Bangladesh(孟加拉)"
+        },
+        {
+            "code": "BB",
+            "name": "Barbados(巴貝多)"
+        },
+        {
+            "code": "BY",
+            "name": "Belarus(白俄羅斯)"
+        },
+        {
+            "code": "BE",
+            "name": "Belgium(比利時)"
+        },
+        {
+            "code": "BZ",
+            "name": "Belize(貝里斯)"
+        },
+        {
+            "code": "BJ",
+            "name": "Benin(貝南)"
+        },
+        {
+            "code": "BM",
+            "name": "Bermuda(百慕達)"
+        },
+        {
+            "code": "BT",
+            "name": "Bhutan(不丹)"
+        },
+        {
+            "code": "BO",
+            "name": "Bolivia(玻利維亞)"
+        },
+        {
+            "code": "BA",
+            "name": "Bosnia and Herzegovina(波士尼亞與赫塞哥維納)"
+        },
+        {
+            "code": "BW",
+            "name": "Botswana(波札那)"
+        },
+        {
+            "code": "BR",
+            "name": "Brazil(巴西)"
+        },
+        {
+            "code": "BN",
+            "name": "Brunei(汶萊)"
+        },
+        {
+            "code": "BG",
+            "name": "Bulgaria(保加利亞)"
+        },
+        {
+            "code": "BF",
+            "name": "Burkina Faso(布吉納法索)"
+        },
+        {
+            "code": "BI",
+            "name": "Burundi(蒲隆地)"
+        },
+        {
+            "code": "KH",
+            "name": "Cambodia(柬埔寨)"
+        },
+        {
+            "code": "CM",
+            "name": "Cameroon(喀麥隆)"
+        },
+        {
+            "code": "CA",
+            "name": "Canada(加拿大)"
+        },
+        {
+            "code": "CF",
+            "name": "Central African Republic(中非共和國)"
+        },
+        {
+            "code": "TD",
+            "name": "Chad(查德)"
+        },
+        {
+            "code": "CL",
+            "name": "Chile(智利)"
+        },
+        {
+            "code": "CN",
+            "name": "China(中國)"
+        },
+        {
+            "code": "CX",
+            "name": "Christmas Island(聖誕島)"
+        },
+        {
+            "code": "CO",
+            "name": "Colombia(哥倫比亞)"
+        },
+        {
+            "code": "KM",
+            "name": "Comoros(葛摩)"
+        },
+        {
+            "code": "CK",
+            "name": "Cook Islands(庫克群島)"
+        },
+        {
+            "code": "CR",
+            "name": "Costa Rica(哥斯大黎加)"
+        },
+        {
+            "code": "CI",
+            "name": "Côte dIvoire(科特迪瓦(象牙海岸))"
+        },
+        {
+            "code": "HR",
+            "name": "Croatia(克羅埃西亞)"
+        },
+        {
+            "code": "CU",
+            "name": "Cuba(古巴)"
+        },
+        {
+            "code": "CY",
+            "name": "Cyprus(賽普勒斯)"
+        },
+        {
+            "code": "CZ",
+            "name": "Czech Republic(捷克共和國)"
+        },
+        {
+            "code": "DK",
+            "name": "Denmark(丹麥)"
+        },
+        {
+            "code": "DJ",
+            "name": "Djibouti(吉布地)"
+        },
+        {
+            "code": "DM",
+            "name": "Dominica(多明尼加共和國)"
+        },
+        {
+            "code": "DO",
+            "name": "Dominican Republic(多明尼加共和國)"
+        },
+        {
+            "code": "EC",
+            "name": "Ecuador(厄瓜多)"
+        },
+        {
+            "code": "EG",
+            "name": "Egypt(埃及)"
+        },
+        {
+            "code": "SV",
+            "name": "El Salvador(薩爾瓦多)"
+        },
+        {
+            "code": "EE",
+            "name": "Estonia(愛沙尼亞)"
+        },
+        {
+            "code": "ET",
+            "name": "Ethiopia(衣索比亞)"
+        },
+        {
+            "code": "FK",
+            "name": "Falkland Islands(英屬福克蘭群島)"
+        },
+        {
+            "code": "SO",
+            "name": "Federal Republic of Somalia(索馬利亞聯邦共和國)"
+        },
+        {
+            "code": "FJ",
+            "name": "Fiji(斐濟)"
+        },
+        {
+            "code": "FI",
+            "name": "Finland(芬蘭)"
+        },
+        {
+            "code": "FR",
+            "name": "France(法國)"
+        },
+        {
+            "code": "GF",
+            "name": "French Guiana(法屬圭亞那)"
+        },
+        {
+            "code": "PF",
+            "name": "French Polynesia(法屬玻里尼西亞)"
+        },
+        {
+            "code": "GA",
+            "name": "Gabon(加彭)"
+        },
+        {
+            "code": "GM",
+            "name": "Gambia(甘比亞)"
+        },
+        {
+            "code": "GE",
+            "name": "Georgia(喬治亞)"
+        },
+        {
+            "code": "DE",
+            "name": "Germany(德國)"
+        },
+        {
+            "code": "GH",
+            "name": "Ghana(迦納)"
+        },
+        {
+            "code": "GI",
+            "name": "Gibraltar(直布羅陀)"
+        },
+        {
+            "code": "GR",
+            "name": "Greece(希臘)"
+        },
+        {
+            "code": "GL",
+            "name": "Greenland(格陵蘭)"
+        },
+        {
+            "code": "GD",
+            "name": "Grenada(格瑞那達)"
+        },
+        {
+            "code": "GU",
+            "name": "Guam(關島)"
+        },
+        {
+            "code": "GT",
+            "name": "Guatemala(瓜地馬拉)"
+        },
+        {
+            "code": "GN",
+            "name": "Guinea(幾內亞)"
+        },
+        {
+            "code": "GY",
+            "name": "Guyana(蓋亞那)"
+        },
+        {
+            "code": "HT",
+            "name": "Haiti(海地)"
+        },
+        {
+            "code": "VA",
+            "name": "Vatican City, Holy See(梵諦岡(教廷))"
+        },
+        {
+            "code": "HN",
+            "name": "Honduras(宏都拉斯)"
+        },
+        {
+            "code": "HK",
+            "name": "Hong Kong(香港)"
+        },
+        {
+            "code": "HU",
+            "name": "Hungary(匈牙利)"
+        },
+        {
+            "code": "IS",
+            "name": "Iceland(冰島)"
+        },
+        {
+            "code": "IN",
+            "name": "India(印度)"
+        },
+        {
+            "code": "ID",
+            "name": "Indonesia(印尼)"
+        },
+        {
+            "code": "IR",
+            "name": "Iran(伊朗)"
+        },
+        {
+            "code": "IQ",
+            "name": "Iraq(伊拉克)"
+        },
+        {
+            "code": "IE",
+            "name": "Ireland(愛爾蘭)"
+        },
+        {
+            "code": "IL",
+            "name": "Israel(以色列)"
+        },
+        {
+            "code": "IT",
+            "name": "Italy(義大利)"
+        },
+        {
+            "code": "JM",
+            "name": "Jamaica(牙買加)"
+        },
+        {
+            "code": "JP",
+            "name": "Japan(日本)"
+        },
+        {
+            "code": "JO",
+            "name": "Jordan(約旦)"
+        },
+        {
+            "code": "KZ",
+            "name": "Kazakhstan(哈薩克)"
+        },
+        {
+            "code": "KE",
+            "name": "Kenya(肯亞)"
+        },
+        {
+            "code": "KW",
+            "name": "Kuwait(科威特)"
+        },
+        {
+            "code": "KG",
+            "name": "Kyrgyzstan(吉爾吉斯坦)"
+        },
+        {
+            "code": "LA",
+            "name": "Laos(寮國)"
+        },
+        {
+            "code": "LV",
+            "name": "Latvia(拉脫維亞)"
+        },
+        {
+            "code": "LB",
+            "name": "Lebanon(黎巴嫩)"
+        },
+        {
+            "code": "LS",
+            "name": "Lesotho(賴索托)"
+        },
+        {
+            "code": "LR",
+            "name": "Liberia(賴比瑞亞)"
+        },
+        {
+            "code": "LY",
+            "name": "Libya(利比亞)"
+        },
+        {
+            "code": "LI",
+            "name": "Liechtenstein(列支敦斯登)"
+        },
+        {
+            "code": "LT",
+            "name": "Lithuania(立陶宛)"
+        },
+        {
+            "code": "LU",
+            "name": "Luxembourg(盧森堡)"
+        },
+        {
+            "code": "MO",
+            "name": "Macau(澳門)"
+        },
+        {
+            "code": "MK",
+            "name": "Macedonia(馬其頓)"
+        },
+        {
+            "code": "MG",
+            "name": "Madagascar(馬達加斯加)"
+        },
+        {
+            "code": "MW",
+            "name": "Malawi(馬拉威)"
+        },
+        {
+            "code": "MY",
+            "name": "Malaysia(馬來西亞)"
+        },
+        {
+            "code": "MV",
+            "name": "Maldives(馬爾地夫)"
+        },
+        {
+            "code": "ML",
+            "name": "Mali(馬利)"
+        },
+        {
+            "code": "MT",
+            "name": "Malta(馬爾他)"
+        },
+        {
+            "code": "MU",
+            "name": "Mauritius(模里西斯)"
+        },
+        {
+            "code": "MX",
+            "name": "Mexico(墨西哥)"
+        },
+        {
+            "code": "MD",
+            "name": "Moldova(摩爾多瓦)"
+        },
+        {
+            "code": "MC",
+            "name": "Monaco(摩納哥)"
+        },
+        {
+            "code": "MN",
+            "name": "Mongolia(蒙古)"
+        },
+        {
+            "code": "ME",
+            "name": "Montenegro(蒙特內哥羅)"
+        },
+        {
+            "code": "MS",
+            "name": "Montserrat(蒙塞拉特)"
+        },
+        {
+            "code": "MA",
+            "name": "Morocco(摩洛哥)"
+        },
+        {
+            "code": "MZ",
+            "name": "Mozambique(莫三比克)"
+        },
+        {
+            "code": "MM",
+            "name": "Myanmar(緬甸)"
+        },
+        {
+            "code": "NA",
+            "name": "Namibia(那米比亞)"
+        },
+        {
+            "code": "NR",
+            "name": "Nauru(諾魯)"
+        },
+        {
+            "code": "NP",
+            "name": "Nepal(尼泊爾)"
+        },
+        {
+            "code": "NL",
+            "name": "Netherlands(荷蘭)"
+        },
+        {
+            "code": "NZ",
+            "name": "New Zealand(紐西蘭)"
+        },
+        {
+            "code": "NI",
+            "name": "Nicaragua(尼加拉瓜)"
+        },
+        {
+            "code": "NE",
+            "name": "Niger(尼日)"
+        },
+        {
+            "code": "NG",
+            "name": "Nigeria(奈及利亞)"
+        },
+        {
+            "code": "MP",
+            "name": "Northern Mariana Islands(北馬里安納群島)"
+        },
+        {
+            "code": "KP",
+            "name": "North Korea(北韓)"
+        },
+        {
+            "code": "NO",
+            "name": "Norway(挪威)"
+        },
+        {
+            "code": "OM",
+            "name": "Oman(阿曼)"
+        },
+        {
+            "code": "PK",
+            "name": "Pakistan(巴基斯坦)"
+        },
+        {
+            "code": "PA",
+            "name": "Panama(巴拿馬)"
+        },
+        {
+            "code": "PG",
+            "name": "Papua New Guinea(巴布亞紐幾內亞)"
+        },
+        {
+            "code": "PY",
+            "name": "Paraguay(巴拉圭)"
+        },
+        {
+            "code": "PE",
+            "name": "Peru(秘魯)"
+        },
+        {
+            "code": "PH",
+            "name": "Philippines(菲律賓)"
+        },
+        {
+            "code": "PL",
+            "name": "Poland(波蘭)"
+        },
+        {
+            "code": "PT",
+            "name": "Portugal(葡萄牙)"
+        },
+        {
+            "code": "PR",
+            "name": "Puerto Rico(波多黎各)"
+        },
+        {
+            "code": "QA",
+            "name": "Qatar(卡達)"
+        },
+        {
+            "code": "PW",
+            "name": "Republic of Palau(帛琉)"
+        },
+        {
+            "code": "CG",
+            "name": "Republic of the Congo(剛果共和國)"
+        },
+        {
+            "code": "RE",
+            "name": "Réunion(留尼旺)"
+        },
+        {
+            "code": "RO",
+            "name": "Romania(羅馬尼亞)"
+        },
+        {
+            "code": "RU",
+            "name": "Russia(俄羅斯)"
+        },
+        {
+            "code": "RW",
+            "name": "Rwanda(盧安達)"
+        },
+        {
+            "code": "SM",
+            "name": "San Marino(聖馬里諾)"
+        },
+        {
+            "code": "ST",
+            "name": "Sao Tome and Principe(聖多美普林西比)"
+        },
+        {
+            "code": "SA",
+            "name": "Saudi Arabia(沙烏地阿拉伯)"
+        },
+        {
+            "code": "SN",
+            "name": "Senegal(塞內加爾)"
+        },
+        {
+            "code": "RS",
+            "name": "Serbia(塞爾維亞)"
+        },
+        {
+            "code": "SC",
+            "name": "Seychelles(塞席爾)"
+        },
+        {
+            "code": "SL",
+            "name": "Sierra Leone(獅子山)"
+        },
+        {
+            "code": "SG",
+            "name": "Singapore(新加坡)"
+        },
+        {
+            "code": "SK",
+            "name": "Slovakia(斯洛伐克)"
+        },
+        {
+            "code": "SI",
+            "name": "Slovenia(斯洛維尼亞)"
+        },
+        {
+            "code": "SB",
+            "name": "Solomon Islands(索羅門群島)"
+        },
+        {
+            "code": "ZA",
+            "name": "South Africa(南非)"
+        },
+        {
+            "code": "KR",
+            "name": "South Korea(南韓)"
+        },
+        {
+            "code": "ES",
+            "name": "Spain(西班牙)"
+        },
+        {
+            "code": "LK",
+            "name": "Sri Lanka(斯里蘭卡)"
+        },
+        {
+            "code": "LC",
+            "name": "St. Lucia(聖露西亞)"
+        },
+        {
+            "code": "VC",
+            "name": "St. Vincent and the Grenadines(聖文森及格瑞那丁)"
+        },
+        {
+            "code": "SD",
+            "name": "Sudan(蘇丹)"
+        },
+        {
+            "code": "SR",
+            "name": "Suriname(蘇利南)"
+        },
+        {
+            "code": "SZ",
+            "name": "Swaziland(史瓦濟蘭)"
+        },
+        {
+            "code": "SE",
+            "name": "Sweden(瑞典)"
+        },
+        {
+            "code": "CH",
+            "name": "Switzerland(瑞士)"
+        },
+        {
+            "code": "SY",
+            "name": "Syria(希利亞)"
+        },
+        {
+            "code": "TW",
+            "name": "Taiwan(台灣)"
+        },
+        {
+            "code": "TJ",
+            "name": "Tajikistan(塔吉克)"
+        },
+        {
+            "code": "TZ",
+            "name": "Tanzania(坦尚尼亞)"
+        },
+        {
+            "code": "TH",
+            "name": "Thailand(泰國)"
+        },
+        {
+            "code": "TG",
+            "name": "Togo(多哥)"
+        },
+        {
+            "code": "TO",
+            "name": "Tonga(東加)"
+        },
+        {
+            "code": "TT",
+            "name": "Trinidad and Tobago(千里達及托巴哥)"
+        },
+        {
+            "code": "TN",
+            "name": "Tunisia(突尼西亞)"
+        },
+        {
+            "code": "TR",
+            "name": "Turkey(土耳其)"
+        },
+        {
+            "code": "TM",
+            "name": "Turkmenistan(土庫曼)"
+        },
+        {
+            "code": "UG",
+            "name": "Uganda(烏干達)"
+        },
+        {
+            "code": "UA",
+            "name": "Ukraine(烏克蘭)"
+        },
+        {
+            "code": "AE",
+            "name": "United Arab Emirates(阿拉伯聯合大公國)"
+        },
+        {
+            "code": "GB",
+            "name": "United Kingdom(英國)"
+        },
+        {
+            "code": "US",
+            "name": "United States of America(美國)"
+        },
+        {
+            "code": "UY",
+            "name": "Uruguay(烏拉圭)"
+        },
+        {
+            "code": "UZ",
+            "name": "Uzbekistan(烏茲別克)"
+        },
+        {
+            "code": "VE",
+            "name": "Venezuela(委內瑞拉)"
+        },
+        {
+            "code": "VN",
+            "name": "Vietnam(越南)"
+        },
+        {
+            "code": "YE",
+            "name": "Yemen(葉門)"
+        },
+        {
+            "code": "ZM",
+            "name": "Zambia(尚比亞)"
+        },
+        {
+            "code": "ZW",
+            "name": "Zimbabwe(辛巴威)"
+        }
+    ]
+}

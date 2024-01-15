@@ -1,0 +1,1556 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using KKday.B2D.Web.InternAgent.AppCode
+
+@inject IViewLocalizer Localizer
+@{
+    Layout = "_KKdayLayout";
+    ViewData["Title"] = "Product";
+
+    var locale = CultureInfo.CurrentCulture;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.css" />
+    <style type="text/css">
+        [v-cloak] > * {
+            display: none
+        }
+
+        [v-cloak]::before {
+            content: "Loading…"
+        }
+    </style>
+}
+@section Scripts {
+    <script src="https://unpkg.com/mitt/dist/mitt.umd.js"></script>
+    <script src="~/js/moment-with-locales.js"></script>
+    <script src="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.js"></script>
+
+}
+
+<div id="App" class="product-detail-wrap">
+    <div class="container">
+        <div>
+            <div class="text-right text-grey-light pull-right text-xs mt-15">
+                @Localizer["Product_No"] ＃{{prod.prod_no}}
+            </div>
+            <div class="cut-bread">
+                <ol class="breadcrumb">
+                    <li>
+                        <span v-if="prod.cities" v-html="country_cities.find(c=> c.country_code === prod.cities[0].country_code)?.country_name"></span>
+                    </li>
+                    <li>
+                        <span v-if="prod.cities" v-html="country_cities.map(c => c.cities.map(ct => ct.city_code === prod.cities[0].city_code ? ct.city_name : null).filter(ct => ct != null)).filter(c => c != '').join(',')"></span>
+                    </li>
+                    <li class="active">
+                        {{prod.prod_name}}
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div id="product-banner" v-if="prod.img_list" class="product-banner" :style="{ backgroundImage: 'url(' + prod.img_list[0] + ')' }">
+            <div class="container more-photo">
+                <button class="btn btn-white btn-sm" @@click="galleryPopup(event)"><i class="fa fa-image"></i> @Localizer["View_Image"] </button>
+            </div>
+            <div class="gallery">
+                <template v-for="video in prod.video_list">
+                    <a :href="`${video.replace(`embed/`, `embed/?v=`)}`" class="video" alt="" style="display:none;"></a>
+                </template>
+                <template v-for="img in prod.img_list">
+                    <a :href="img" alt="" style="display:none;"></a>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Overview -->
+    <div class="product-overview">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <div id="prodInfo">
+                        <div class="product-name">
+                            <h1>{{ prod.prod_name }} </h1>
+                            <ul class="product-action list-unstyled">
+                                <li><div id="product-action-add-to-wish-list" class="btn-wish"><i class="fa fa-heart-o"></i></div></li>
+                            </ul>
+                        </div>
+
+                        <div class="critical-info">
+                            <i class="icons icon-location-pin"></i>
+                            <a href="javascript:;" v-if="prod.cities"><span v-html="prod.cities.map(c=> c.name.replace(',', '-')).join(', ')"></span></a>
+                        </div> <hr>
+                        <div class="product-benefit">
+                            <div class="critical-info" v-if="prod.days != 0 || prod.hours != 0 || prod.duration != 0">
+                                <i class="icons icon-clock"></i>
+                                <span v-html="journeyTime()"></span>
+                            </div>
+
+                            <div class="critical-info" v-if="prod.guide_lang_list && prod.guide_lang_list.length > 0">
+                                <i class="icons icon-globe"></i> <span v-html="`${prod.guide_lang_list.join('/')} @Localizer["Guide"]`"></span>
+                            </div>
+
+                            <div class="critical-info">
+                                <div v-if="prod.is_cancel_free || prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">
+                                    <img src="https://cdn.kkday.com/pc-web/assets/img/ic_cancellation.svg" />
+                                    <span v-if="prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">@Localizer["Cancel_By_Condtion"]</span>
+                                    <!-- Free Cancel -->
+                                    <span v-if="prod.is_cancel_free">@Localizer["Cancel_Free"]</span>
+                                </div>
+                                <div v-else>
+                                    <!-- Non Cancellable-->
+                                    <i class="icons icon-close"></i><span>@Localizer["NonCancellable"]</span>
+                                </div>
+                            </div>
+
+                            <div class="critical-info"><i class="icons icon-screen-smartphone"></i><span>@Localizer["Present_eVocuher"]</span></div>
+                        </div>
+                        <hr> <p class="pre-line">
+
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="col-md-4">
+                    <div id="booking-bar" class="product-bar-content">
+                        <div class="price-bar">
+                            <div class="container">
+                                <div class="price-info">
+                                    <div class="product-pricing text-left">
+                                        <h2 class="text-heavy" v-html="'@Localizer[Website.Instance.Currency] ' + (prod.b2b_min_price ? prod.b2b_min_price : '-')"></h2> <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span> <!---->
+                                    </div>
+
+                                    <div class="product-score" v-if="prod.prod_comment_info && prod.prod_comment_info.avg_scores != '0'">
+                                        <div class="product-star text-sm">
+                                            <b class="text-primary" v-html="prod.prod_comment_info.avg_scores"></b>
+                                            <template v-for="item in startScore()">
+                                                <svg :class="'kk-icon star star-'+ item"><use xlink:href="#ic_star"></use></svg>
+                                            </template>
+                                            <span class="text-grey-light" v-html="`(${prod.prod_comment_info.comment_record})`"></span>
+                                        </div>
+                                        @*<span class="gap">|</span>*@
+                                    </div>
+                                </div>
+
+                                <a class="btn btn-primary btn-block" :class="{ disabled: prod.is_all_sold_out || (prod.prod_marketing && eval(`prod.prod_marketing.${'@Website.Instance.Marketing'}.purchase_type`)) }"
+                                   onclick="scrollToElement('#option-sec', { scrollOffset: 0 /*$('header').outerHeight()*/ } );">
+                                    <span v-if="prod.prod_marketing && eval(`prod.prod_marketing.${'@Website.Instance.Marketing'}.purchase_type`)" v-html="'@Localizer["Comming_Soon"]'"></span> @*_actionName*@
+                                    <span v-else-if="prod.is_all_sold_out" v-html="'@Localizer["Sold_Out"]'"></span>
+                                    <span v-else v-html="'@Localizer["Select_Package"]'"></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="status-info"><!----></div>
+                        <div class="critical-info" v-if="prod.confirm_order_time">
+                            <i class="fa fa-flash text-primary fa-lg"></i><span v-html="'@Localizer["Confirm_Immediately"]'"></span>
+                        </div>
+
+                        @*<div class="booking-hint">
+                                <div class="booking-hint__item"> </div>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Packages -->
+    <div id="option-sec" class="new-product option-section" v-if="pkg && Object.keys(pkg).length > 0">
+        <div class="container">
+            <h3 class="info-title" v-html="'@Localizer["Select_Package"]'"></h3>
+            <template v-for="item in pkg">
+                <div class="option-item" :id="'pkg_' + item.pkg_no" :data-pkgno="item.pkg_no">
+                    <div class="option-head">
+                        <div class="option-content">
+                            <h3>
+                                <span class="pkg-name" v-html="item.pkg_name"></span>
+                                <span class="label label-danger" v-html="``"></span>
+                                <span v-if="item.policy_type == '1'" class="label label-danger" v-html="'@Localizer["Free_Cancel_Title"]'"></span>
+
+                            </h3>
+                            <ul v-if="item.description_module?.PMDL_PACKAGE_DESC?.content?.list">
+                                <template v-for="lst in item.description_module?.PMDL_PACKAGE_DESC?.content?.list">
+                                    <li><span class="break-word" v-html="lst.desc"></span></li>
+                                </template>
+                            </ul>
+                        </div>
+                        <div class="option-action" v-show="item.selectable">
+                            <span v-if="isSoldout(item)">@Localizer["Sold_Out"]</span>
+                            <div class="product-pricing" v-if="!isSoldout(item)">
+                                <h4>
+                                    <span class="text-grey" v-html="`@Localizer[Website.Instance.Currency] ${item.b2b_min_price}`"></span>
+                                    <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span>
+                                </h4>
+                            </div>
+                            <a class="btn btn-success select-option" :class="{ disabled: !item.loaded }" @@click="selectPackage(item.pkg_no)" v-if="!isSoldout(item)">
+                                <span v-if="!item.show">@Localizer["Select"]</span>
+                                <span v-if="item.show">@Localizer["Cancel"]</span>
+                            </a>
+                            <img id="loading" src="@Url.Content("~/images/loading.gif")" style="width: 32px; position: absolute; right: 60px; top: 32px;" />
+                            <div v-if="moment(pkg.sale_s_date).isBefore(new Date())" class="tip text-blue" v-html="`@Localizer["Earliest_Bookable_Date"]: ${item.sale_s_date}`"></div>
+                        </div>
+                    </div>
+                    <div class="option-booking">
+                        <h4>
+                            <div class="pull-right">
+                                <a class="link-secondary a-reload" @@click="optionReload">
+                                    <i class="icons icon-reload"></i>
+                                    @Localizer["Reset_All"]
+                                </a>
+                            </div>
+                            <!-- Date Picker & Options -->
+                            <div class="choose-date-title">@Localizer["Select_DateAndOptions"]</div>
+                        </h4>
+                        <div class="row"> 
+                            <div class="col-md-6">
+                                <calendar-section :pkg="item"></calendar-section>
+                            </div>
+                            <div class="col-md-6">
+                                <spec-section :pkg="item" :prod_no="prod.prod_no" :prod_name="prod.prod_name"></spec-section>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+
+            </template>
+
+        </div>
+    </div>
+
+    <!-- Product Details -->
+    <div class="new-product product-info-wrap">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <div>
+                        <!-- Introduction -->
+                        <div id="product-info-sec" class="info-section" v-if="prod.description_module.PMDL_INTRODUCE_SUMMARY">
+                            <h3 class="info-title" v-html="prod.description_module.PMDL_INTRODUCE_SUMMARY.module_title">H3</h3>
+                            <div v-if="prod.description_module.PMDL_INTRODUCE_SUMMARY.content">
+                                <div class="info-sec-collapsable expand">
+                                    <div v-html="prod.description_module.PMDL_INTRODUCE_SUMMARY.content.desc"></div>
+                                    <div v-if="prod.description_module.PMDL_GRAPHIC">
+                                        <div class="pd-photo-info">
+                                            <template v-for="pmdl in prod.description_module.PMDL_GRAPHIC.content.list">
+                                                <p v-html="pmdl.Desc"></p>
+                                                <template v-for="media in pmdl.Media">
+                                                    <div class="pd-info-img"><img alt="" :src="media.SourceContent" lazy="loaded"></div>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div class="overlap"><a href="javascript:;" class="link-secondary text-md">@Localizer["Collapse_Product_Desc"] <i class="fa fa-angle-up"></i></a></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Itinerary Schedule -->
+                        <div id="schedule-sec" class="info-section" v-if="prod.description_module.PMDL_SCHEDULE">
+                            <h3 class="info-title" v-html="prod.description_module.PMDL_SCHEDULE.module_title"></h3>
+                            <div class="info-sec-collapsable expand">
+                                <div class="critical-info">
+                                    <i class="icons icon-clock"></i>
+                                    <span v-html="`${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.title} : ${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.desc}`"></span>
+                                </div>
+                                <template v-for="sch_item in prod.description_module.PMDL_SCHEDULE.content.properties.schedule_list.list">
+                                    <div>
+                                        <h4 class="info-subtitle" v-html="sch_item.daily_title.Desc"></h4>
+                                        <div class="critical-info mb-20" v-if="sch_item.meals && sch_item.meals.list.length > 0"><i class="fa fa-cutlery"></i> <span v-html="`@Localizer["Meals_Of_Today"]： ${sch_item.meals.list.join(',')}`"></span></div>
+                                        <ul class="time-info">
+                                            <template v-for="tm in sch_item.daily_schedule_list.List">
+                                                <li class="time-info-spot">
+                                                    <div class="time-info-title"> <div class="txt" v-html="`${tm.time.Desc} ${tm.Content.Desc}`"></div></div>
+                                                    <div class="pd-info-img" v-if="tm.media">
+                                                        <template v-for="_mdeia in tm.media.media">
+                                                            <img data-target="#sche-modal-0-0-0" alt="" data-toggle="modal" :data-src="_mdeia.source_content" :src="_mdeia.source_content" lazy="loaded" />
+                                                        </template>
+                                                    </div>
+                                                </li>
+                                            </template>
+
+                                        </ul>
+                                    </div>
+                                </template>
+
+                                <div class="overlap">
+                                    <a href="javascript:;" class="link-secondary text-md">@Localizer["Collapse_Itinerary"] <i class="fa fa-angle-up"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Purchase Summary & Include/Exclude -->
+                        <div id="notice-sec" class="info-section">
+                            <h3 class="info-title" v-if="prod.description_module.PMDL_PURCHASE_SUMMARY || prod.description_module.PMDL_INC_NINC || prod.description_module.PMDL_EXTRA_FEE || prod.description_module.PMDL_NOTICE"
+                                v-html="'@Localizer["Purchase_Notes"]'"></h3>
+                            <div>
+                                <div v-if="prod.description_module.PMDL_PURCHASE_SUMMARY" v-html="prod.description_module.PMDL_PURCHASE_SUMMARY.content.desc"></div>
+
+                                <div v-if="prod.description_module.PMDL_INC_NINC">
+                                    <h4 class="info-subtitle" v-html="prod.description_module.PMDL_INC_NINC.module_title"></h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul class="price-include">
+                                                <template v-for="item in prod.description_module.PMDL_INC_NINC.content.properties.include_item?.list">
+                                                    <li><img src="https://cdn.kkday.com/pc-web/assets/img/ic_include.svg">{{item.desc}}</li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="price-not">
+                                                <template v-for="item in prod.description_module.PMDL_INC_NINC.content.properties.not_include_item?.list">
+                                                    <li><img src="https://cdn.kkday.com/pc-web/assets/img/ic_notinclude.svg">{{ item.desc }}</li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div v-if="prod.description_module.PMDL_EXTRA_FEE">
+                                    <h4 class="info-subtitle" v-html="prod.description_module.PMDL_EXTRA_FEE.module_title"></h4>
+                                    <div>
+                                        <div>
+                                            <h5 class="break-word" v-html="prod.description_module.PMDL_EXTRA_FEE.content.title"></h5>
+                                            <p class="pre-line">
+                                                <template v-for="item in prod.description_module.PMDL_EXTRA_FEE.content.list">
+                                                    {{ item.desc }}
+                                                </template>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="board bg-highlihgt mt-20" v-if="prod.description_module.PMDL_NOTICE">
+                                    <h4 class="info-subtitle mt-0" v-html="prod.description_module.PMDL_NOTICE.module_title"></h4>
+                                    <div class="mt-10" v-if="prod.description_module.PMDL_NOTICE.content.properties.reminds">
+                                        <ul>
+                                            <template v-for="item in prod.description_module.PMDL_NOTICE.content.properties.reminds.list">
+                                                <li><p v-html="item.desc"></p></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+
+                                    <div class="mt-10" v-if="prod.description_module.PMDL_NOTICE.content.properties.cust_reminds">
+                                        <ul>
+                                            <template v-for="item in prod.description_module.PMDL_NOTICE.content.properties.cust_reminds.list">
+                                                <li><p v-html="item.desc"></p></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+
+
+                                    <div class="mt-10" v-if="prod.description_module.PMDL_NOTICE.content.properties.cust_reminds_after">
+                                        <ul>
+                                            <template v-for="item in prod.description_module.PMDL_NOTICE.content.properties.cust_reminds_after.list">
+                                                <li><p v-html="item.desc"></p></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- How To Use -->
+                        <div id="usage-sec" class="info-section" v-if="prod.description_module.PMDL_EXCHANGE || prod.description_module.PMDL_USE_VALID">
+                            <h3 class="info-title" v-html="'@Localizer["How_To_Use"]'"></h3>
+                            <div>
+                                <div v-if="prod.description_module.PMDL_EXCHANGE">
+                                    <h4 class="info-subtitle" v-html="prod.description_module.PMDL_EXCHANGE.module_title"></h4>
+                                    <ul><li v-html="prod.description_module.PMDL_EXCHANGE.content.properties.exchange_type.desc"></li></ul>
+                                </div>
+
+                                <div v-if="prod.description_module.PMDL_USE_VALID">
+                                    <h4 class="info-subtitle" v-html="prod.description_module.PMDL_USE_VALID.module_title"></h4>
+                                    <ul><li v-html="prod.description_module.PMDL_USE_VALID.content.properties.exchange.desc"></li></ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Venue Location -->
+                        <div id="meeting-sec" class="info-section" v-if="prod.description_module.PMDL_VENUE_LOCATION">
+                            <h3 class="info-title" v-html="prod.description_module.PMDL_VENUE_LOCATION.module_title"></h3>
+                            <div>
+                                <template v-for="item in prod.description_module.PMDL_VENUE_LOCATION.content.list">
+                                    <div class="board map-board">
+                                        <div class="board-title">
+                                            <h4 class="break-word" v-html="`${prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.location_name} : ${item.location_name?.desc}`"></h4>
+                                            <div class="text-grey break-word" v-html="`${prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.latlng} : ${item.latlng?.desc}`"></div>
+                                        </div>
+                                        <hr>
+                                        <div class="con">
+                                            <div class="row" v-if="item.gather">
+                                                <div class="col-md-3"><b>{{ prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.gather }}</b></div> <div class="col-md-6"><b class="text-lg bg-highlihgt pd-10">{{ item.gather.desc }}</b></div>
+                                            </div>
+                                            <hr v-if="item.gather && item.setout" />
+                                            <div class="row" v-if="item.Setout"><div class="col-md-3"><b>{{ prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.setout }}</b></div> <div class="col-md-6"><b class="text-md">{{ item.setout.desc }}</b></div></div>
+                                            <div class="pd-info-img">
+                                                <div class="embed-responsive embed-responsive-16by9">
+                                                    <iframe :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&amp;q=${ item.latlng.latitude},${item.latlng.longitude}&amp;zoom=17&amp;language=zh-tw`"
+                                                            frameborder="0" allowfullscreen="allowfullscreen" style="border: 0px;"></iframe>
+                                                </div>
+                                            </div>
+                                            <ul class="photo-group" v-if="item.Photo">
+                                                <template v-for="img in item.photo.media">
+                                                    <li class="photo-item">
+                                                        <div data-target="#venue-photo-modal-0" data-toggle="modal" class="img-bg" :style="`background-image: url(&quot;${img.SourceContent}&quot;);`"></div>
+                                                    </li>
+                                                </template>
+                                                <li class="clearfix"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </template>
+
+                            </div>
+                        </div>
+
+                        <!-- Experience Location -->
+                        <div id="map-sec" class="info-section" v-if="prod.description_module.PMDL_EXPERIENCE_LOCATION">
+                            <h3 class="info-title" v-html="prod.description_module.PMDL_EXPERIENCE_LOCATION.module_title"></h3>
+                            <div>
+                                <template v-for="item in prod.description_module.PMDL_EXPERIENCE_LOCATION.content.list">
+                                    <div class="board map-board">
+                                        <div class="board-title" v-if="item.location_name">
+                                            <h4 class="break-word" v-html="`${prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.location_name}：${item.location_name.desc}`"></h4>
+                                            <div class="text-grey break-word" v-html="`${prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.latlng} : ${item.latlng.des}`"></div>
+                                        </div>
+                                        <hr>
+                                        <div class="con">
+                                            <div class="pd-info-img">
+                                                <div class="embed-responsive embed-responsive-16by9">
+                                                    <iframe :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&amp;q=${item.latlng.latitude},${item.latlng.longitude}&amp;zoom=13&amp;language=zh-tw`" frameborder="0" allowfullscreen="allowfullscreen" style="border: 0px;"></iframe>
+                                                </div>
+                                            </div>
+                                            <ul class="photo-group"><li class="clearfix"></li></ul>
+                                            <div class="row" v-if="item.arrival_desc">
+                                                <div class="col-md-3"><b>{{ prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.arrival_desc }}</b></div>
+                                                <div class="col-md-9 pre-line" v-html="item.arrival_desc.desc"></div>
+                                            </div>
+
+                                            <hr style="display: none;">
+                                            <div class="row" v-if="item.active_time_desc">
+                                                <div class="col-md-3"><b>{{ prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.active_time_desc }}</b></div>
+                                                <div class="col-md-9">
+                                                    <div class="break-word" v-html="item.active_time_desc.desc"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+
+                            </div>
+                        </div>
+
+                        <!-- Cancellation Policy -->
+                        <div id="policy-sec" class="info-section" v-if="prod.description_module.PMDL_REFUND_POLICY">
+                            <h3 class="info-title" v-html="prod.description_module.PMDL_REFUND_POLICY.module_title"></h3> <div>
+                                <p v-if="prod.description_module.PMDL_REFUND_POLICY.content.properties.policy_type"
+                                   v-html="prod.description_module.PMDL_REFUND_POLICY.content.properties.policy_type.Desc"></p>
+                                <ul v-if="prod.description_module.PMDL_REFUND_POLICY.content.properties.partial_refund">
+                                    <template v-for="item in prod.description_module.PMDL_REFUND_POLICY.content.properties.partial_refund.list">
+                                        <li v-html="item.desc"></li>
+                                    </template>
+                                </ul>
+                                <div class="tip mt-20">
+                                    <i class="icons icon-info"></i>@Localizer["Refund_Desc"]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+ 
+<script type="text/javascript">
+    const scrollToElement = ($element, {
+        scrollOffset = 0,
+        offset = 0,
+        duration = 500,
+        start = () => { },
+        complete = () => { },
+    } = {}) => {
+        if (!$element) {
+            return;
+        }
+        $('html,body').animate({
+            scrollTop: $($element).offset().top - scrollOffset + offset,
+        }, {
+            duration: duration,
+            start: start,
+            complete: complete,
+        });
+    };
+    const emitter = mitt();
+
+    let app = new Vue({
+        //el: '#App',
+        data() {
+            return {
+                isLoading: false,
+                prod_no: null,
+                prod_marketing: {},
+                prod: { description_module: {} },
+                pkg: [],
+                country_cities: []
+            }
+        },
+        created: function () {
+            this.prod_no = parseInt(location.href.substring(location.href.lastIndexOf('/') + 1));
+            console.log(`prod_no=${this.prod_no}`)
+
+            this.Query();
+        },
+        computed: {
+
+        },
+        methods: {
+            Query() {
+                if (this.isLoading) {
+                    return;
+                }
+                this.isLoading = true;
+
+                // Load country-info
+                fetch(`${_root_path}Common/QueryCountryInfo/@locale`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // console.log(`countries => ${JSON.stringify(data)}`);
+                        this.country_cities = data.countries;
+                    });
+
+                setTimeout(() => {
+                    this.Fetch();
+                    this.isLoading = false
+                }, 100);
+
+            },
+            Fetch() {
+                let vm = this;
+                let uri = `${_root_path}Product/GetData/${this.prod_no}`;
+                fetch(uri)
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(`${JSON.stringify(data)}`);
+                        this.prod_marketing = data.prod_marketing;
+                        this.prod = data.prod;
+                        document.title = this.prod.prod_name;
+                        data.pkg.forEach(pkg => { pkg.loaded = false; pkg.show = false; pkg.selectable = true; });
+                        this.pkg = data.pkg;
+
+                        $('.parent-container').magnificPopup({
+                            delegate: 'a', // child items selector, by clicking on it popup will open
+                            type: 'image'
+                            // other options
+                        });
+
+                        this.loadPackages();
+                    })
+                    .catch(error => console.error('Unable to get items.', error));
+            },
+            loadPackages() {
+                const uri = `${_root_path}Product/GetPackage`;
+
+                this.pkg.forEach(pkg => {
+                    let req = {
+                        prod_no: this.prod.prod_no,
+                        pkg_no: pkg.pkg_no
+                    };
+
+                    console.log(`load pkg req => ${JSON.stringify(req)}`);
+
+                    fetch(uri, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json;charset=utf-8',
+                            'Content-Type': 'application/json;charset=UTF-8'
+                        },
+                        body: JSON.stringify(req)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            // console.log(`pkg[${pkg.pkg_no}] => ${JSON.stringify(data)}`);
+
+                            pkg.guid = data.guid;
+                            pkg.exchange_type = data.exchange_type;
+                            pkg.confirm_time = data.confirm_time;
+                            pkg.confirm_time_unit = data.confirm_time_unit;
+                            pkg.policy_type = data.policy_type;
+                            pkg.refund_type = data.refund_type;
+                            pkg.partial_refund = data.partial_refund;
+                            pkg.lead_day_timezone = data.lead_day_timezone;
+                            pkg.b2c_min_price = data.b2c_min_price;
+                            pkg.b2b_min_price = data.b2b_min_price;
+                            pkg.item_no = data.item_no;
+                            pkg.sale_s_date = data.sale_s_date;
+                            pkg.sale_e_date = data.sale_e_date;
+                            pkg.description_module = data.description_module;
+                            pkg.item = data.item;
+
+                            pkg.loaded = true;
+                            pkg.selectable = pkg.item && pkg.item.length > 0;
+
+                            $('#pkg_' + pkg.pkg_no).find('#loading').hide();
+
+                            const av_dates = [...new Set([].concat(...pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+                            this.fetchAllotment(pkg.pkg_no, av_dates[0]);
+                        })
+                        .catch(error => {
+                            console.error(`Unable to load pkg(${pkg.pkg_no}) => `, error);
+                        });
+                });
+
+            },
+            FetchPackage(pkg_no, s_date) {
+                const uri = `${_root_path}Product/GetPackage`;
+
+                let req = {
+                    prod_no: this.prod.prod_no,
+                    pkg_no: pkg_no,
+                    s_date: s_date
+                };
+
+                fetch(uri, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json;charset=utf-8',
+                        'Content-Type': 'application/json;charset=UTF-8'
+                    },
+                    body: JSON.stringify(req)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // console.log(`load more pkg => ${JSON.stringify(data)}`);
+                        let pkg = this.pkg.find(p => p.pkg_no === pkg_no);
+                        data.item[0].skus.forEach(s => {
+                            let sku = pkg.item[0].skus.find(s2 => s2.sku_id === s.sku_id);
+                            Object.keys(s.calendar_detail).forEach(dt => {
+                                sku.calendar_detail[dt] = s.calendar_detail[dt];
+                            });
+
+                            this.fetchAllotment(pkg_no, s_date);
+                        });
+                      
+                        emitter.emit('load-package-complete', pkg_no);
+                    })
+                    .catch(error => {
+                        console.error(`Unable to load pkg(${pkg.pkg_no}) `, error);
+                    });
+            },
+            fetchAllotment(pkg_no, s_date) {
+                let req = {
+                    prod_no: this.prod.prod_no,
+                    pkg_no: pkg_no,
+                    s_date: s_date
+                };
+
+                // console.log(`fetchAllotment req => ${JSON.stringify(req)}`);
+
+                fetch(`${_root_path}Product/GetAllotment`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json;charset=utf-8',
+                        'Content-Type': 'application/json;charset=UTF-8'
+                    },
+                    body: JSON.stringify(req)
+                })
+                    .then(res => res.json())
+                    .then(data => { 
+                        console.log(`fetchAllotment (pkg:${pkg_no}) => ${JSON.stringify(data)}`)
+                        let pkg = this.pkg.find(p => p.pkg_no === pkg_no);
+                        if (pkg && data.result == '00') {
+                            if (!pkg.allotment) { pkg.allotment = []; }
+                            data.allotment[0].itemCal_qty?.forEach(q => {
+                                pkg.allotment.push(q);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Unable to fetch allotment(pkg:${pkg_no}) `, error);
+                    });
+
+                //var result;
+                //
+                //$.ajax({
+                //    type: "POST",
+                //    url: `${_root_path}Product/GetAllotment`,
+                //    data: JSON.stringify(req),
+                //    dataType: "json",
+                //    async: false,
+                //    contentType: "application/json; charset=utf-8",
+                //    success: function (data) {
+                //        result = data;
+                //    },
+                //    error: function () {
+                //        alert("Error while getting files");
+                //    }
+                //});
+                //return result;
+            },
+            journeyTime() {
+                if (!(this.prod.days || this.prod.hours || this.prod.duration)) return '';
+                let duration = `${this.prod.days == 0 ? "" : this.prod.days + ' @Localizer["Day"]'} ${this.prod.hours == 0 ? "" : this.prod.hours + ' @Localizer["Hour"]'} ${this.prod.duration == 0 ? "" : this.prod.duration + ' @Localizer["Minute"]'}`;
+                return `@Localizer["Journey_Time"] ${duration}`;
+            },
+            startScore() {
+                // percentage range: 0, 25, 50, 75, 100
+                var stars_pct = [0, 0, 0, 0, 0];
+
+                var score = parseFloat(this.prod.prod_comment_info.avg_scores);
+                for (idx = 0; idx < Math.floor(score); idx++) stars_pct[idx] = 100;
+                var score_mod = Math.abs(Math.floor(score) - score);
+                if (score_mod > 0) {
+                    var last_idx = Math.floor(score);
+                    if (score_mod < 0.20) stars_pct[last_idx] = 0;
+                    else if (score_mod < 0.40) stars_pct[last_idx] = 25;
+                    else if (score_mod < 0.60) stars_pct[last_idx] = 50;
+                    else if (score_mod < 0.80) stars_pct[last_idx] = 75;
+                }
+                return stars_pct;
+            },
+            galleryPopup(e) {
+                e.stopPropagation();
+                _items = $.map($('.gallery a'), function (obj) { return obj; });
+                $.magnificPopup.open({
+                    items: _items,
+                    type: 'image',
+                    gallery: {
+                        enabled: true,
+                        navigateByImgClick: true,
+                        preload: [0, 1]
+                    },
+                    callbacks: {
+                        elementParse: function (item) {
+                            if (item.el[0].className == 'video') {
+                                item.type = 'iframe';
+                                // console.log(" magnificPopup.iframe => " + item.src);
+                            } else {
+                                item.type = 'image';
+                            }
+                        }
+                    }
+                });
+            },
+            isSoldout(pkg) {
+                let empty_cal = 0;
+                if (pkg && pkg.item) {
+                    pkg.item[0].skus.forEach(s => {
+                        if (Object.keys(s.calendar_detail).length === 0) empty_cal++;
+                    });
+                }
+                return empty_cal ? true : false;
+            },
+            selectPackage(pkg_no) {
+                let pkg = this.pkg.find(i => i.pkg_no === pkg_no);
+
+                if (pkg.show) {
+                    pkg.show = false;
+                    $('#pkg_' + pkg.pkg_no).find('.option-booking').hide();
+                }
+                else {
+                    emitter.emit('clicked-show-detail', pkg.pkg_no);
+                    pkg.show = true;
+                    $('#pkg_' + pkg.pkg_no).find('.option-booking').show();
+                }
+            },
+            optionReload() {
+
+            }
+        },
+        mounted: function () {
+            emitter.on('load-package', (data) => {
+                console.log(`app.load-package => pkg_no: ${data.pkg_no}, sdate: ${data.sdate}`)
+                this.FetchPackage(data.pkg_no, data.sdate);
+            });
+        }
+    });
+
+    app.$mount('#App');
+
+    ////////////////
+
+     // Calendar Component
+    Vue.component('calendar-section', {
+        props: ['pkg'],
+        data: function () {
+            return {
+                pkg: null,
+                calendar_type: null,
+                year: new Date().getFullYear(),
+                month: new Date().getMonth(),
+                date: new Date(),
+                current_month_str: '',
+                dates: [],
+                av_dates: [],
+                date_price_str: '',
+                sold_out_str: '',
+                multi_select_str: '',
+                sel_sdate: '',
+                sel_edate: ''
+            }
+        },
+        template: `
+    <div v-if="calendar_type==='03' || calendar_type==='04'" class="option_item_info">
+    </div>
+    <div v-else class="calendar">
+        <div class="header">
+            <div :class="['current-month']">
+            {{current_month_str}}
+            </div>
+            <div class="change-month prev-month" :class="{'disabled': checkPrevMonth() }" v-on:click="ChangeMonth('prev');">
+                <i class="icons icon-arrow-left" ></i>
+            </div>
+            <div class="change-month next-month" v-on:click="ChangeMonth('next');">
+                <i class="icons icon-arrow-right"></i>
+            </div>
+        </div>
+        <table class="date-table">
+            <thead>
+                <tr class="row-day">
+                    <th class="cell-day">@Localizer["Mon"]</th>
+                    <th class="cell-day">@Localizer["Tue"]</th>
+                    <th class="cell-day">@Localizer["Wed"]</th>
+                    <th class="cell-day">@Localizer["Thu"]</th>
+                    <th class="cell-day">@Localizer["Fri"]</th>
+                    <th class="cell-day">@Localizer["Sat"]</th>
+                    <th class="cell-day">@Localizer["Sun"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="row-date" v-for="n in 6">
+                    <td class="cell-date" :class="{'disabled':datedata.disabled,'invalid':datedata.invalid,'selected':datedata.selected,'selected-start':datedata.sdate && datedata.selected,'selected-end':datedata.edate && datedata.selected}"
+                    v-for="(datedata, idx) in dates.slice((n-1)*7,n*7)"
+                    v-on:mouseover="MultipleSelect(datedata.date);"
+                    v-on:click="dateChanged(datedata);">
+                        <div v-if="datedata.date===0"></div>
+                        <div class="date-num" v-else>{{datedata.date}}</div>
+                        <div class="price" v-if="datedata.date!==0 && datedata.lowest_price && datedata.lowest_price===datedata.highest_price">{{PriceFormat(datedata.lowest_price)}}</div>
+                        <div class="price" v-if="datedata.date!==0 && datedata.lowest_price && datedata.lowest_price!==datedata.highest_price">{{PriceFormat(datedata.lowest_price)}}{{date_price_str}}</div>
+                        <div class="price" v-if="datedata.date!==0 && datedata.soldout==='true'">{{sold_out_str}}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="selected-date" v-if="multi_select_str!==''">{{multi_select_str}}</div>
+    </div>`,
+        methods: {
+            Render() {
+                const months = [
+                    '@Localizer["January"]',
+                    '@Localizer["February"]',
+                    '@Localizer["March"]',
+                    '@Localizer["April"]',
+                    '@Localizer["May"]',
+                    '@Localizer["June"]',
+                    '@Localizer["July"]',
+                    '@Localizer["August"]',
+                    '@Localizer["September"]',
+                    '@Localizer["October"]',
+                    '@Localizer["November"]',
+                    '@Localizer["December"]'
+                ];
+
+                // Get the first day of the month
+                let dayone = new Date(this.year, this.month, 1).getDay();
+
+                // Get the last date of the month
+                let lastdate = new Date(this.year, this.month + 1, 0).getDate();
+
+                // Get the day of the last date of the month
+                let dayend = new Date(this.year, this.month, lastdate).getDay();
+
+                // Get the last date of the previous month
+                let monthlastdate = new Date(this.year, this.month, 0).getDate();
+
+                // Variable to store the generated calendar
+                let calendar = [];
+
+                // Loop to add the last dates of the previous month
+                for (let i = dayone; i > 0; i--) {
+                    calendar.push({
+                        date: `${monthlastdate - i + 1}`, full_date: null, isToday: false, disabled: true, invalid: false, selected: false,
+                        lowest_price: null, highest_price: null,
+                        sdate: false, edate: false
+                    });
+                }
+
+                // Loop to add the dates of the current month
+                for (let i = 1; i <= lastdate; i++) {
+
+                    // Check if the current date is today
+                    let _isToday = (i === this.date.getDate()
+                        && this.month === new Date().getMonth()
+                        && this.year === new Date().getFullYear()) ? true : false;
+
+                    let _low_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
+                    let _high_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
+                    let _disabled = false, _invalid = false;
+                    let szdate = `${this.year}-${('0' + (this.month + 1)).slice(-2)}-${('0' + i).slice(-2)}`;
+                    if (!this.av_dates.find(d => d === szdate)) {
+                        _low_price = _high_price = null;
+                        _disabled = _invalid = true;
+                    }
+
+                    calendar.push({
+                        date: `${i}`, full_date: szdate, isToday: _isToday, disabled: _disabled, invalid: _invalid, selected: false,
+                        lowest_price: _low_price, highest_price: _high_price,
+                        sdate: false, edate: false, soldout: false
+                    });
+                }
+
+                // Loop to add the first dates of the next month
+                for (let i = dayend; i < 6; i++) {
+                    let day = i - dayend + 1;
+                    calendar.push({
+                        date: `${day}`, full_date: null, isToday: false, disabled: true, invalid: false, selected: false,
+                        lowest_price: null, highest_price: null,
+                        sdate: false, edate: false
+                    });
+                }
+
+                // Update the text of the current date element
+                // with the formatted current month and year
+                this.current_month_str = `${this.year} ${months[this.month]}`;
+
+                this.dates = calendar;
+            },
+            ChangeMonth(action) {
+                let new_date = this.date;
+
+                if (action === 'prev') {
+                    if (this.checkPrevMonth())  return;
+                    new_date = moment(this.date).subtract(1, 'months').toDate();
+                }
+                else {
+                    new_date = moment(new_date).add(1, 'months').toDate();
+                    this.loadMoreData([...this.av_dates].pop());
+                }
+
+                this.year = new_date.getFullYear();
+                this.month = new_date.getMonth();
+                this.date = new_date;
+
+                this.Render();
+                console.log(`last sel_sdate: ${this.sel_sdate}`)
+
+                // Render last selected date
+                if (this.sel_sdate) {
+                    // Single date
+                    let last_sel_date = this.dates.find(s => s.full_date === this.sel_sdate);
+                    if (last_sel_date) {
+                        last_sel_date.selected = last_sel_date.sdate = last_sel_date.edate = true;
+                    }
+                }
+            },
+            checkPrevMonth() {
+                let prev_month_date = moment(this.date).subtract(1, 'months');
+                let prev_month_lastdate = moment(new Date()).subtract(1, 'months').endOf('month');
+                // console.log(`prev_month_date: ${prev_month_date.format('YYYY-MM-DD')}, prev_month_lastdate: ${prev_month_lastdate.format('YYYY-MM-DD')}`);
+                return prev_month_date < prev_month_lastdate;
+            },
+            MultipleSelect(dt) {
+
+            },
+            PriceFormat(price) {
+                if (price == null) return '';
+                return price;
+            },
+            dateChanged(sel_date) {
+                if (this.sel_sdate == sel_date.full_date) {
+                    this.dates.find(s => s.full_date === sel_date.full_date).selected = false;
+                    this.sel_sdate = this.sel_edate = null;
+                }
+                else {
+                    if (sel_date.disabled || sel_date.invalid) return;
+
+                    // ==== Single date ====
+                    this.sel_sdate = sel_date.full_date;
+                    this.sel_edate = null;
+
+                    // Reset last selected date & set new date be selected
+                    this.dates.forEach(d => { d.selected = d.sdate = d.edate = false; });
+                    let single_date = this.dates.find(s => s.full_date === sel_date.full_date);
+                    if (single_date) {
+                        sel_date.selected = sel_date.sdate = sel_date.edate = true;
+                    }
+
+                    // ==== Date Range ====
+                }
+
+                emitter.emit('date-changed', { pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate } });
+            },
+            loadMoreData(dt) {
+                let target_date = moment(dt, 'YYYY-MM-DD').subtract(2, 'months');
+                // console.log(`last_date: ${dt}, target_date: ${target_date.format('YYYY-MM-DD')}, sale_e_date: ${this.pkg.sale_e_date}`)
+
+                if (this.year === target_date.year() && this.month === target_date.month() - 1) {
+                    if (moment(dt, 'YYYY-MM-DD') < moment(this.pkg.sale_e_date, 'YYYY-MM-DD')) {
+                        emitter.emit('load-package', { pkg_no: this.pkg.pkg_no, sdate: moment(dt, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD') });
+                    }
+                }
+            }
+        },
+        setup(props) {
+            this.pkg = props.pkg;
+        },
+        mounted: function () {
+            emitter.on('clicked-show-detail', (data) => {
+                if (data === this.pkg.pkg_no) {
+                    this.av_dates = [...new Set([].concat(...this.pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+                    if (moment(this.av_dates[0], 'YYYY-MM-DD') > moment(this.date)) {
+                        this.date = moment(this.av_dates[0], 'YYYY-MM-DD').toDate();
+                        this.year = this.date.getFullYear();
+                        this.month = this.date.getMonth();
+                    }
+                    this.Render();
+                }
+            });
+
+            emitter.on('load-package-complete', (data) => {
+                if (data === this.pkg.pkg_no) {
+                    this.av_dates = [...new Set([].concat(...this.pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+                }
+            });
+        }
+    });
+
+    ///////
+
+    // Spec Component
+    Vue.component('spec-section', {
+        props: ['prod_no', 'prod_name', 'pkg'],
+        data: function () {
+            return {
+                mode: 'single',
+                pkg: {},
+                specs: [],
+                time_slots: [],
+                currency: '@Website.Instance.Currency',
+                count: 0,
+                single_qty: {},
+                ticket_qty: {},
+                price: 0,
+                totalPrice: 0,
+                specAlert: '',
+                isBookable: false,
+                manual_setting: {},
+                unit: '',
+                unit_label: '',
+                sel_date: { s_date: null, e_date: null },
+                sel_spec_items: [],
+                sel_time_slot: null,
+                default_qty: 1
+            }
+        },
+        template: `<div class="specs">
+    <div class="form-group" v-if="time_slots.length > 0">
+        <label>@Localizer["Dept_Time_Slots"]</label>
+        <div data-toggle="buttons" class="btn-group">
+            <div class="btn" :class="{ 'selected': tm.selected, 'disabled': tm.disabled }" title="" v-for="tm in time_slots" @@click="timeSlotChanged(tm)">{{tm.time}}</div>
+        </div>
+    </div>
+
+    <template v-for="spec in specs">
+        <div class="form-group" v-if="spec.spec_oid=='spec-single'">
+            <label>@Localizer["Select_Quantity"]</label>
+            <div class="counter-item">
+                <div class="counter-row">
+                    <div class="counter-name">{{ unit_label }}</div>
+                    <div class="counter-price"> {{currency}} {{getSkuPrice('spec-single')}}/@Localizer["Item_UnitPer"]{{unit}}</div>
+                    <div class="counter">
+                        <button class="counter-btn minus" :class="{'disabled' : !single_qty?.can_minus }" :disabled="!single_qty?.can_minus" title="" @@click="minus('spec-single')"><i class="icons icon-minus"></i></button>
+                        <input type="text" readonly="readonly" class="counter-num" :value="single_qty.count">
+                        <button class="counter-btn plus" :class="{'disabled' : !single_qty?.can_plus }" :disabled="!single_qty?.can_plus" title="" @@click="plus('spec-single')"><i class="icons icon-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" v-else-if="spec.spec_oid!='spec-ticket' && spec.spec_oid!='spec-single'">
+            <label>{{spec.spec_title}}</label>
+             <div data-toggle="buttons" class="btn-group">
+             <template v-for="sp_item in spec.spec_items">
+                <div class="btn" :class="{ 'selected': sp_item.selected, 'disabled': sp_item.disabled }" title="" @@click="specChanged(sp_item.spec_item_oid)">{{sp_item.name}}</div>
+             </template>
+            </div>
+        </div>
+
+        <div class="form-group" v-else-if="spec.spec_oid=='spec-ticket'">
+            <label>@Localizer["Select_Quantity"]</label>
+            <div class="counter-item" v-for="sp_item in spec.spec_items">
+                <div class="counter-row">
+                    <div class="counter-name">{{sp_item.name}}<span class="text-grey-light text-xs" v-show="sp_item.rule?.age_rule?.min || sp_item.rule?.age_rule?.max">{{'@Localizer["Age_Range"]'.replace('%0', sp_item.rule?.age_rule?.min).replace('%1', sp_item.rule?.age_rule?.max)}}</span></div>
+                    <div class="counter-price"> {{currency}} {{getSkuPrice(sp_item.spec_item_oid)}}/@Localizer["Item_UnitPer"]{{unit}}</div>
+                    <div class="counter">
+                        <button class="counter-btn minus" :class="{'disabled' : !ticket_qty[sp_item.spec_item_oid]?.can_minus }" :disabled="!ticket_qty[sp_item.spec_item_oid]?.can_minus"  title="" @@click="minus(sp_item.spec_item_oid)"><i class="icons icon-minus"></i></button>
+                        <input type="text" readonly="readonly" class="counter-num" :value="ticket_qty[sp_item.spec_item_oid].count">
+                        <button class="counter-btn plus" :class="{'disabled' : !ticket_qty[sp_item.spec_item_oid]?.can_plus }" :disabled="!ticket_qty[sp_item.spec_item_oid]?.can_plus" title="" @@click="plus(sp_item.spec_item_oid)"><i class="icons icon-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </template>
+    <div class="form-group" v-if="specs.filter(s => s.spec_oid=='spec-single' || s.spec_oid=='spec-ticket').length < 1">
+        <label>非單規無票種-@Localizer["Select_Quantity"]</label>
+        <div class="counter-item">
+            <div class="counter-row">
+                <div class="counter-name">{{unit_label}}</div>
+                <div class="counter-price"> {{currency}} {{getSkuPrice('spec-no-ticket')}}/@Localizer["Item_UnitPer"]{{unit}}</div>
+                <div class="counter">
+                    <button class="counter-btn minus" :class="{'disabled' : !single_qty?.can_minus }" :disabled="!single_qty?.can_minus" title="" @@click="minus('spec-no-ticket')"><i class="icons icon-minus"></i></button>
+                    <input type="text" readonly="readonly" class="counter-num" :value="single_qty.count">
+                    <button class="counter-btn plus" :class="{'disabled' : !single_qty?.can_plus }" :disabled="!single_qty?.can_plus" title="" @@click="plus('spec-no-ticket')"><i class="icons icon-plus"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+    <div>
+        <span class="text-grey pull-left"> @Localizer["Grand_Total"] </span> <span class="product-pricing text-lg text-primary pull-right">{{currency}} {{totalPrice}}</span>
+        <div class="clearfix"></div>
+    </div>
+    <div class="booking-cta">
+        <button type="button" class="btn btn-blue"> @Localizer["Add_To_Cart"] </button>
+        <button type="button" class="btn btn-primary" :class="{ 'disabled': !isBookable }" theme="primary" @@click="booking"> @Localizer["Buy_Now"] </button>
+    </div>
+</div>`,
+        watch: {
+            sel_date: {
+                handler: function () {
+                    this.checkTimeslot();
+                    this.$forceUpdate();
+                    this.checkOut();
+                }
+            },
+            sel_spec_items: {
+                handler: function () {
+                    this.$forceUpdate();
+                    this.checkOut();
+                }
+            },
+            sel_time_slot: {
+                handler: function () {
+                    this.$forceUpdate();
+                    this.checkOut();
+                }
+            }
+        },
+        methods: {
+            Render() {
+                console.log(`Spec Render, prod_no => ${this.$parent.prod.prod_no}, pkg_no => ${this.pkg.pkg_no}`);
+                // console.log(`pkg => ${JSON.stringify(this.pkg)}`); 
+                console.log(`price_type => ${this.pkg.item[0].price_type}, price_rule_type => ${this.pkg.item[0].price_rule_type}`);
+                this.price = this.pkg.b2b_min_price;
+                this.specs = this.pkg.item[0].specs;
+
+                const unit_mapping = {
+                    // 01:Traveler, 02:Ticket, 03:Car, 04:Set, 05:Room, 06:Day, 07:Tent, 08:Box, 09:Item
+                    '01': '@Localizer["Item_Unit01"]', '02': '@Localizer["Item_Unit02"]', '03': '@Localizer["Item_Unit03"]',
+                    '04': '@Localizer["Item_Unit04"]', '05': '@Localizer["Item_Unit05"]', '06': '@Localizer["Item_Unit06"]',
+                    '07': '@Localizer["Item_Unit07"]', '08': '@Localizer["Item_Unit08"]', '09': '@Localizer["Item_Unit09"]'
+                };
+                this.unit_label = unit_mapping[this.pkg.item[0].unit_code];
+                this.unit = this.pkg.item[0].unit;
+
+                this.mode = '01'; // default mode:'01'(single)
+                if (this.specs.some(s => s.spec_oid === 'spec-single')) {
+
+                    this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
+                    this.single_qty = { count: 0, price: 0, can_plus: true, can_minus: false };
+                }
+                else {
+                    if (this.specs.some(s => s.spec_oid === 'spec-ticket')) {
+                        this.mode = '02';
+                        // append extra properties into ticketing spec items
+                        this.specs.map(s => s.spec_items).flat().forEach(i => {
+                            i.selected = false;
+                            i.disabled = false;
+
+                            this.ticket_qty[i.spec_item_oid] = { count: 0, price: 0, can_plus: true, can_minus: false };
+                        });
+                    }
+                    else this.single_qty = { count: 0, price: 0, can_plus: true, can_minus: false };
+                }
+
+                if (this.pkg.item[0].has_event) {
+                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price))))])))];
+                    times.forEach(t => {
+                        this.time_slots.push({ time: t, selected: false, disabled: false });
+                    });
+                    // console.log(`Render, time_slots => ${JSON.stringify(this.time_slots)}`);
+                }
+            },
+            minus(spec_item_oid) {
+                let rule = this.pkg.item[0].unit_quantity_rule.total_rule;
+                console.log(`minus => unit_quantity_rule (top-rule): ${JSON.stringify(rule)}`)
+
+                if (this.mode === '01') {
+                    if (this.single_qty.count > 0 && this.single_qty.count > rule.min_quantity) {
+                        if (rule.is_multiple_limit) this.single_qty.count -= rule.min_quantity;
+                        else this.single_qty.count--;
+
+                        this.single_qty.can_plus = true;
+                    }
+                    if (this.single_qty.count < 1 || this.single_qty.count <= rule.min_quantity) this.single_qty.can_minus = false;
+                }
+                else {
+                    let min_quantity = 0;
+                    if (this.pkg.item[0].unit_quantity_rule.ticket_rule.is_active) {
+                        // if 'spec_items' of the ticket_rule has multiple specs that means it's OR condition and min_quantity can be zero
+                        // get one of ticketing rule
+                        let tkt_rule = this.pkg.item[0].unit_quantity_rule.ticket_rule.rulesets.find(r => r.spec_items.some(i => i === spec_item_oid));
+                        if (tkt_rule) {
+                            rule = tkt_rule;
+                            if (tkt_rule.spec_items && tkt_rule.spec_items.length == 1) min_quantity = tkt_rule.min_quantity;
+                        }
+                    }
+                    console.log(`minus => ${spec_item_oid}, ticket_rule: ${JSON.stringify(rule)}`)
+
+                    let spec_item = this.ticket_qty[spec_item_oid];
+                    if (spec_item.count > 0 && spec_item.count > min_quantity) {
+                        if (rule.is_multiple_limit) spec_item.count -= min_quantity;
+                        else spec_item.count--;
+
+                        spec_item.can_plus = true;
+                    }
+                    console.log(`minus => spec_item.count: ${spec_item.count}, min_quantity: ${min_quantity}`)
+                    if (spec_item.count < 1 || spec_item.count <= min_quantity) spec_item.can_minus = false;
+                }
+
+                this.$forceUpdate();
+                this.checkOut();
+            },
+            plus(spec_item_oid) {
+                let rule = this.pkg.item[0].unit_quantity_rule.total_rule;
+                console.log(`plus => unit_quantity_rule (top-rule): ${JSON.stringify(rule)}`)
+
+                if (this.mode === '01') {
+                    if (this.single_qty.count <= rule.max_quantity) {
+                        if (rule.is_multiple_limit) this.single_qty.count += rule.min_quantity;
+                        else this.single_qty.count++;
+
+                        this.single_qty.can_minus = true;
+                    }
+                    if (this.single_qty.count >= rule.max_quantity) this.single_qty.can_plus = false;
+                }
+                else {
+                    if (this.pkg.item[0].unit_quantity_rule.ticket_rule.is_active) {
+                        // if 'spec_items' of the ticket_rule has multiple specs that means it's OR condition and min_quantity can be zero
+                        // get one of ticketing rule
+                        let tkt_rule = this.pkg.item[0].unit_quantity_rule.ticket_rule.rulesets.find(r => r.spec_items.some(i => i === spec_item_oid));
+                        if (tkt_rule) rule = tkt_rule;
+                    }
+
+                    let spec_item = this.ticket_qty[spec_item_oid];
+                    if (spec_item.count < rule.max_quantity) {
+                        if (rule.is_multiple_limit) spec_item.count += rule.min_quantity;
+                        else spec_item.count++;
+
+                        spec_item.can_minus = true;
+                    }
+                    if (spec_item.count >= rule.max_quantity) spec_item.can_plus = false;
+                }
+
+                this.$forceUpdate();
+                this.checkOut();
+            },
+            getSkuPrice(spec_item_oid) {
+                let price = this.pkg.b2b_min_price;
+
+                // had selected date
+                if (this.sel_date.s_date || this.sel_date.e_date) {
+                    let temp_sel_spec_items = [...this.sel_spec_items]; // clone selected spec items
+
+                    // the spec_item is belong a ticketing type and insert the spec_item_oid to item container to make sure the sku is completely
+                    if (this.mode === '02') {
+                        temp_sel_spec_items.push(spec_item_oid);
+                    }
+                    // console.log(`spec_item_oid => ${JSON.stringify(temp_sel_spec_items)}`)
+
+                    let match_skus = this.pkg.item[0].skus.find(s => s.specs_ref.every(r => temp_sel_spec_items.some(i => i === r.spec_value_id)));
+                    // console.log(`match_skus = ${JSON.stringify(match_skus)}`)
+                    if (match_skus) {
+                        let matched_date = match_skus.calendar_detail[this.sel_date.s_date];
+                        // console.log(`date=${JSON.stringify(this.sel_date)}, match_skus.calendar = ${JSON.stringify(matched_date)}`)
+                        if (matched_date) {
+                            if (this.sel_time_slot) price = matched_date.b2b_price[this.sel_time_slot];
+                            else if (!this.pkg.item[0].has_event) price = matched_date.b2b_price["fullday"];
+                            // console.log(`date=${JSON.stringify(this.sel_date)}, time_slot=${this.sel_time_slot}, match_skus.calendar=${JSON.stringify(matched_date)} => price:${price}`)
+                        }
+                        else {
+
+                        }
+                    }
+                }
+                // no selected date
+                else {
+                    // the spec_item is belong a 'spec-ticket'
+                    if (spec_item_oid != 'spec-single' && spec_item_oid != 'spec-no-ticket') {
+                        let skus = this.pkg.item[0].skus.filter(s => s.specs_ref.some(r => r.spec_value_id == spec_item_oid)).map(s => s.b2b_price);
+                        if (skus) {
+                            let min_price = Math.min(...skus);
+                            price = skus ? min_price : this.pkg.b2b_min_price;
+                        }
+                    }
+                }
+                // console.log(`spec_item_oid:${spec_item_oid} => price:${price}`);
+
+                if (this.mode === '01') { this.single_qty.price = price; }
+                if (this.mode === '02') this.ticket_qty[spec_item_oid].price = price;
+
+                return price;
+            },
+            checkOut() {
+                let grand_total = 0;
+                let total_qty = 0;
+
+                if (this.mode === '01') {
+                    total_qty = this.single_qty.count;
+                    grand_total = this.single_qty.count * this.single_qty.price;
+                }
+
+                if (this.mode === '02') {
+                    console.log(`Check Out, ticket_qty: ${JSON.stringify(this.ticket_qty)}`)
+                    // check all layers of sku has one be selected except to 'spec-ticket'
+                    total_qty = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count).reduce((a, b) => { return a + b }, 0);
+                    grand_total = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count * this.ticket_qty[spec].price).reduce((a, b) => { return a + b }, 0);
+                }
+
+                console.log(`Check Out, grand_total: ${grand_total}, total_qty: ${total_qty}`)
+                if (grand_total > 0) {
+                    // (1) mandatory specs be selected
+                    let sku_specs_len = this.specs.filter(s => s.spec_oid != 'spec-ticket').length;
+                    let sel_specs_len = this.sel_spec_items.length;
+                    console.log(`Check Out, sku layer.len: ${sku_specs_len}, selected spec item.len: ${sel_specs_len}`)
+                    if (sku_specs_len != sel_specs_len)  grand_total = 0
+
+                    // (2) make sure one of the dates in the calendar is selected
+                    console.log(`CheckOut, s_date => ${this.sel_date.s_date}, e_date => ${this.sel_date.e_date} `)
+                    if (!(this.sel_date.s_date || this.sel_date.e_date)) grand_total = 0;
+
+                    // (3) if pkg has event, check time slot must one be selected
+                    console.log(`CheckOut, has_event => ${this.pkg.item[0].has_event}, time-slot => ${this.sel_time_slot} `)
+                    if (this.pkg.item[0].has_event && !this.sel_time_slot) grand_total = 0;
+
+                    // (4) sum all qty and observe to total_rule
+                    let rule = this.pkg.item[0].unit_quantity_rule.total_rule;
+                    console.log(`CheckOut, rule => ${JSON.stringify(rule)} `)
+                    if (total_qty > rule.max_quantity || total_qty < rule.min_quantity) grand_total = 0;
+
+                }
+
+                this.totalPrice = grand_total;
+                this.isBookable = this.totalPrice > 0;
+            },
+            checkQuantity(total_qty, skus) {
+                // inventory_set (0:n/a, 1:Item-based inventory set, 2:SKU-based inventory set)
+                // inventory_type (null: unlimited on default, 1:on total quantity, 2:based on date)
+
+                let has_event = this.pkg.item[0].has_event;
+                let inventory_set = this.pkg.item[0].inventory_set;
+                let inventory_type = this.pkg.item[0].inventory_type;
+
+                // ignore inventory
+                if (inventory_set === 0) return true;
+                // based on item or sku 
+                else {
+                    // inventory is unlimited
+                    if (inventory_type === null) return true;
+
+                    // inventory is based on item and total quantity
+                    if (inventory_set === 1 && inventory_type === 1) {
+                        if (this.pkg.allotment?.item_remain_qty && total_qty < this.pkg.allotment.item_remain_qty) return true;
+                        else return false;
+                    }
+
+                    // inventory is based on sku and total quantity
+                    if (inventory_set === 2 && inventory_type === 1) {
+                        if (skus && this.pkg.allotment?.sku_remain_qty) {
+                            let unmatched_cnt = 0;
+                            skus.forEach(s => {
+                                let sku_remain = this.pkg.allotment.sku_remain_qty.find(q => q.sku_id === s.sku_id);
+                                if (s.qty > sku_remain.remain_qty) unmatched_cnt++;
+                            });
+                            if (unmatched_cnt > 0) return false;
+                            else return true;
+                        }
+                        else return false;
+                    }
+
+                    // inventory is based on date (check for single-date or date-range)
+                    if (inventory_type === 2) {
+                        if (has_event) {
+                            if (inventory_set === 1) {
+
+                            }
+                            else if (inventory_set === 2) {
+
+                            }
+                        }
+                        else {
+                            if (inventory_set === 1) {
+
+                            }
+                            else if (inventory_set === 2) {
+
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            },
+            checkTimeslot() {
+                if (this.pkg.item[0].has_event) {
+                    // force to un-select and disable to all time slots
+                    this.time_slots.forEach(t => { t.selected = false; t.disabled = true; });
+                    // restore disable status to available time slots
+                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price))))])))];
+                    // console.log(`checkTimeslot => times: ${JSON.stringify(times)}`)
+                    this.time_slots.filter(t => times.some(tm => tm === t.time)).forEach(t => {
+                        t.disabled = false;
+                        if (t.time === this.sel_time_slot) t.selected = true;
+                    });
+                }
+            },
+            timeSlotChanged(tm) {
+                this.time_slots.filter(t => t.time != tm.time).forEach(t => t.selected = false);
+                let sel_tm = this.time_slots.find(t => t.time === tm.time);
+                if (sel_tm) {
+                    sel_tm.selected = !sel_tm.selected;
+                    // console.log(`time-slot changed: ${tm.time} => ${sel_tm.selected}`)
+                }
+
+                this.sel_time_slot = (sel_tm.selected) ? tm.time : null;
+            },
+            specChanged(spec_item_oid) {
+                // find out the matched spec_item from any one of specs.
+                let spec = this.specs.find(s => s.spec_items.some(i => i.spec_item_oid === spec_item_oid));
+                if (spec) {
+                    // reset other siblings to unselected in same layer.
+                    spec.spec_items.filter(i => i.spec_item_oid != spec_item_oid).forEach(i => i.selected = false);
+                    let spec_item = spec.spec_items.find(i => i.spec_item_oid === spec_item_oid);
+                    // console.log(`target specs => ${JSON.stringify(spec_item)}`);
+                    if (spec_item) spec_item.selected = !spec_item.selected;
+                    // regenerate
+                    this.sel_spec_items = [...new Set([].concat(...this.specs.map(s => s.spec_items.filter(i => i.selected).map(i => i.spec_item_oid))))];
+                    console.log(`target specs => ${JSON.stringify(this.sel_spec_items)}`);
+
+                    this.specs.map(s => s.spec_items).flat().forEach(i => i.disabled = false);
+                    if (this.sel_spec_items.length > 0) {
+                        // excludes some specs are not in sku permutation
+                        let bypass_specs = [...new Set([].concat(...this.pkg.item[0].skus.filter(s => s.specs_ref.some(r => r.spec_value_id == spec_item_oid)).map(s => s.specs_ref.map(i => i.spec_value_id))))];
+                        console.log(`bypass specs => ${JSON.stringify(bypass_specs)}`);
+                        this.specs.filter(s => s.spec_oid != spec.spec_oid).forEach(s => {
+                            s.spec_items.forEach(i => {
+                                if (bypass_specs.every(p => p != i.spec_item_oid)) {
+                                    i.disabled = true;
+                                    i.selected = false;
+                                }
+                            });
+                        });
+                    }
+
+                }
+            },
+            booking() {
+                let req = {
+                    guid: this.pkg.guid,
+                    prod_no: this.prod_no,
+                    pkg_no: this.pkg.pkg_no,
+                    item_no: this.pkg.item_no[0],
+                    s_date: this.sel_date.s_date,
+                    e_date: this.sel_date.s_date,
+                    event_time: (this.pkg.item[0].has_event) ? this.sel_time_slot : null,
+                    skus: [],
+                    total_price: this.totalPrice,
+                    has_rank: "N",
+                    extra: {
+                        prod_name: this.prod_name,
+                        pkg_name: this.pkg.pkg_name,
+                        specs: this.pkg.item[0].specs,
+                        unit_code: this.pkg.item[0].unit_code,
+                        unit: this.pkg.item[0].unit,
+                    }
+                };
+
+                console.log(`Booking, mode: ${this.mode}, ref_specs => ${JSON.stringify(this.sel_spec_items)}`)
+                let match_skus = [];
+                if (this.mode === '02') {
+                    let ref_specs = Object.keys(this.ticket_qty).filter(id => this.ticket_qty[id].count > 0).flat().map(t => t);
+                    let temp_sel_spec_items = [...this.sel_spec_items].concat(ref_specs);
+                    match_skus = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => temp_sel_spec_items.some(i => i === r.spec_value_id)));
+                }
+                else match_skus = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => this.sel_spec_items.some(i => i === r.spec_value_id)));
+
+                if (match_skus) {
+                    match_skus.forEach(s => {
+                        let specs_ref = s.specs_ref.map(i => i.spec_value_id);
+                        let qty = 0, price = 0;
+
+                        if (this.mode === '01') {
+                            qty = this.single_qty.count;
+                            price = this.single_qty.price;
+                        }
+                        else if (this.mode === '02') {
+                            let spec_item_oid = s.specs_ref.find(i => i.spec_item_id === "spec-ticket").spec_value_id;
+                            let spec_item = this.ticket_qty[spec_item_oid];
+                            if (spec_item) {
+                                qty = spec_item.count;
+                                price = spec_item.price;
+                            }
+                        }
+
+                        req.skus.push({
+                            sku_id: s.sku_id,
+                            qty: qty,
+                            price: price,
+                            specs_ref: specs_ref
+                        });
+                    });
+                }
+
+                // check if the sku is available and in stock
+                let total_qty = req.skus.map(s => s.qty).reduce((a, b) => { return a + b }, 0);
+                if (!this.checkQuantity(total_qty, req.skus)) {
+                    alert('The booking is out of stock！')
+                    return;
+                }
+
+                console.log(`Booking req => ${JSON.stringify(req)}`)
+
+                // save into localstorage
+                localStorage.setItem("bookingReq", JSON.stringify(req));
+                // redirect to booking
+                window.location.href = `${_root_path}Booking`;
+            }
+        },
+        setup(props) {
+            this.prod_no = props.prod_no;
+            this.prod_name = props.prod_name;
+            this.pkg = props.pkg;
+
+            console.log(`spec.setup => prod_no:${this.prod_no}, prod_name:${this.prod_name}, pkg_no: ${this.pkg.pkg_no}`)
+        },
+        mounted: function () {
+            emitter.on('clicked-show-detail', (data) => {
+                if (data === this.pkg.pkg_no) this.Render();
+            });
+
+            emitter.on('date-changed', (data) => {
+                if (data.pkg_no === this.pkg.pkg_no) {
+                    console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
+                    this.sel_date = data.sel_date;
+                }
+            })
+        }
+    });
+
+</script>

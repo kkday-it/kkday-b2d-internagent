@@ -1,0 +1,128 @@
+﻿@{
+    Layout = "_KKdayLayout";
+
+}
+@section Style {
+    <style>
+        #app {
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        thead, tbody, tfoot, tr, td, th {
+            text-align: left;
+        }
+    </style>
+}
+
+<h5>Search</h5>
+
+<div id="App">
+    <!-- 示範載入 Bootstrap-Vue 的元件-->
+    <div>
+        <b-button>Button</b-button>
+        <b-button variant="danger">Button</b-button>
+        <b-button variant="success">Button</b-button>
+        <b-button variant="outline-primary">Button</b-button>
+    </div>
+    <hr />
+
+    <!-- 示範使用 Vue.js 的雙向綁定 -->
+    <div class="row">
+        <div class="col-4">
+            <input type="text" v-model="msg" class="form-control w-50" />
+        </div>
+        <div class="col-4">
+            <input type="text" class="form-control w-50"
+                   v-bind:value="upperCase" disabled />
+        </div>
+    </div>
+    <hr />
+
+    <!-- 示範使用 Vue.js v-for 來迭代物件 -->
+    <div>
+        <b-form-input list="my-list-id"></b-form-input>
+
+        <datalist id="my-list-id">
+            <option v-for="tech in techs">{{ tech }}</option>
+        </datalist>
+    </div>
+
+    <div class="mt-5">
+        <b-table striped hover :items="items"></b-table>
+    </div>
+
+</div>
+
+
+<script>let vm = new Vue({
+        //el: '#App',
+        data() {
+            return {
+                msg: "hello",
+                show: true,
+                techs: ['Microsoft', 'Google', 'Apple', 'Netflix', 'Medium'],
+                fields: [
+                    { key: "name", label: "Name" },
+                    { key: "department", label: "Department" },
+                    { key: "age", label: "Age" },
+                    { key: "dateOfBirth", label: "Date Of Birth" },
+                ],
+                items: [
+                    { age: 40, name: 'Dickerson', department: 'Development', dateOfBirth: '1984-05-20' },
+                    { age: 21, name: 'Larsen', department: 'Marketing', dateOfBirth: '1984-05-20' },
+                    { age: 89, name: 'Geneva', department: 'HR', dateOfBirth: '1984-05-20' },
+                    { age: 38, name: 'Jami', department: 'Accounting', dateOfBirth: '1984-05-20' }
+                ],
+            }
+        },
+        computed: {
+            upperCase() {
+                return this.msg.toUpperCase()
+            }
+        },
+        methods: {
+        }
+    });
+
+    vm.$mount('#App');</script>
+@*
+<template>
+    <div id="app">
+        <b-table :items="items" :fields="fields"></b-table>
+    </div>
+</template>
+
+
+<script>
+    let vm = new Vue({
+        //el: '#App',
+        data() {
+            return {
+                fields: [
+                    { key: "name", label: "Name" },
+                    { key: "department", label: "Department" },
+                    { key: "age", label: "Age" },
+                    { key: "dateOfBirth", label: "Date Of Birth" },
+                ],
+                items: [
+                    { age: 40, name: 'Dickerson', department: 'Development', dateOfBirth: '1984-05-20' },
+                    { age: 21, name: 'Larsen', department: 'Marketing', dateOfBirth: '1984-05-20' },
+                    { age: 89, name: 'Geneva', department: 'HR', dateOfBirth: '1984-05-20' },
+                    { age: 38, name: 'Jami', department: 'Accounting', dateOfBirth: '1984-05-20' }
+                ],
+            };
+        },
+        components: {},
+        computed: {
+            upperCase() {
+                return this.msg.toUpperCase()
+            }
+        },
+        methods: {
+        }
+    });
+
+    vm.$mount('#App');
+</script>
+*@

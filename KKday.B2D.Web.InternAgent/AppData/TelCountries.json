@@ -1,0 +1,796 @@
+﻿{
+    "tel-countries": [
+        {
+            "dial-code": "93",
+            "country-name": "Afghanistan(阿富汗)"
+        },
+        {
+            "dial-code": "355",
+            "country-name": "Albania(阿爾巴尼亞)"
+        },
+        {
+            "dial-code": "213",
+            "country-name": "Algeria(阿爾及利亞)"
+        },
+        {
+            "dial-code": "376",
+            "country-name": "Andorra(安道爾)"
+        },
+        {
+            "dial-code": "244",
+            "country-name": "Angola(安哥拉)"
+        },
+        {
+            "dial-code": "1264",
+            "country-name": "Anguilla(安圭拉)"
+        },
+        {
+            "dial-code": "672",
+            "country-name": "Antarctica(南極洲)"
+        },
+        {
+            "dial-code": "1268",
+            "country-name": "Antigua and Barbuda(安地卡及巴布達)"
+        },
+        {
+            "dial-code": "54",
+            "country-name": "Argentina(阿根廷)"
+        },
+        {
+            "dial-code": "374",
+            "country-name": "Armenia(亞美尼亞)"
+        },
+        {
+            "dial-code": "297",
+            "country-name": "Aruba(阿魯巴)"
+        },
+        {
+            "dial-code": "61",
+            "country-name": "Australia(澳洲)"
+        },
+        {
+            "dial-code": "43",
+            "country-name": "Austria(奥地利)"
+        },
+        {
+            "dial-code": "994",
+            "country-name": "Azerbaijan(亞塞拜然)"
+        },
+        {
+            "dial-code": "1242",
+            "country-name": "Bahamas(巴哈馬)"
+        },
+        {
+            "dial-code": "973",
+            "country-name": "Bahrain(巴林)"
+        },
+        {
+            "dial-code": "880",
+            "country-name": "Bangladesh(孟加拉)"
+        },
+        {
+            "dial-code": "1246",
+            "country-name": "Barbados(巴貝多)"
+        },
+        {
+            "dial-code": "375",
+            "country-name": "Belarus(白俄羅斯)"
+        },
+        {
+            "dial-code": "32",
+            "country-name": "Belgium(比利時)"
+        },
+        {
+            "dial-code": "501",
+            "country-name": "Belize(貝里斯)"
+        },
+        {
+            "dial-code": "229",
+            "country-name": "Benin(貝南)"
+        },
+        {
+            "dial-code": "1441",
+            "country-name": "Bermuda(百慕達)"
+        },
+        {
+            "dial-code": "975",
+            "country-name": "Bhutan(不丹)"
+        },
+        {
+            "dial-code": "591",
+            "country-name": "Bolivia(玻利維亞)"
+        },
+        {
+            "dial-code": "387",
+            "country-name": "Bosnia and Herzegovina(波士尼亞與赫塞哥維納)"
+        },
+        {
+            "dial-code": "267",
+            "country-name": "Botswana(波札那)"
+        },
+        {
+            "dial-code": "55",
+            "country-name": "Brazil(巴西)"
+        },
+        {
+            "dial-code": "673",
+            "country-name": "Brunei(汶萊)"
+        },
+        {
+            "dial-code": "359",
+            "country-name": "Bulgaria(保加利亞)"
+        },
+        {
+            "dial-code": "226",
+            "country-name": "Burkina Faso(布吉納法索)"
+        },
+        {
+            "dial-code": "257",
+            "country-name": "Burundi(蒲隆地)"
+        },
+        {
+            "dial-code": "855",
+            "country-name": "Cambodia(柬埔寨)"
+        },
+        {
+            "dial-code": "237",
+            "country-name": "Cameroon(喀麥隆)"
+        },
+        {
+            "dial-code": "1",
+            "country-name": "Canada(加拿大)"
+        },
+        {
+            "dial-code": "236",
+            "country-name": "Central African Republic(中非共和國)"
+        },
+        {
+            "dial-code": "235",
+            "country-name": "Chad(查德)"
+        },
+        {
+            "dial-code": "56",
+            "country-name": "Chile(智利)"
+        },
+        {
+            "dial-code": "86",
+            "country-name": "China(中國)"
+        },
+        {
+            "dial-code": "672",
+            "country-name": "Christmas Island(聖誕島)"
+        },
+        {
+            "dial-code": "57",
+            "country-name": "Colombia(哥倫比亞)"
+        },
+        {
+            "dial-code": "269",
+            "country-name": "Comoros(葛摩)"
+        },
+        {
+            "dial-code": "682",
+            "country-name": "Cook Islands(庫克群島)"
+        },
+        {
+            "dial-code": "506",
+            "country-name": "Costa Rica(哥斯大黎加)"
+        },
+        {
+            "dial-code": "225",
+            "country-name": "Côte dIvoire(科特迪瓦(象牙海岸))"
+        },
+        {
+            "dial-code": "385",
+            "country-name": "Croatia(克羅埃西亞)"
+        },
+        {
+            "dial-code": "53",
+            "country-name": "Cuba(古巴)"
+        },
+        {
+            "dial-code": "357",
+            "country-name": "Cyprus(賽普勒斯)"
+        },
+        {
+            "dial-code": "420",
+            "country-name": "Czech Republic(捷克共和國)"
+        },
+        {
+            "dial-code": "45",
+            "country-name": "Denmark(丹麥)"
+        },
+        {
+            "dial-code": "253",
+            "country-name": "Djibouti(吉布地)"
+        },
+        {
+            "dial-code": "1767",
+            "country-name": "Dominica(多米尼克)"
+        },
+        {
+            "dial-code": "1809",
+            "country-name": "Dominican Republic(多明尼加共和國)"
+        },
+        {
+            "dial-code": "593",
+            "country-name": "Ecuador(厄瓜多)"
+        },
+        {
+            "dial-code": "20",
+            "country-name": "Egypt(埃及)"
+        },
+        {
+            "dial-code": "503",
+            "country-name": "El Salvador(薩爾瓦多)"
+        },
+        {
+            "dial-code": "372",
+            "country-name": "Estonia(愛沙尼亞)"
+        },
+        {
+            "dial-code": "251",
+            "country-name": "Ethiopia(衣索比亞)"
+        },
+        {
+            "dial-code": "500",
+            "country-name": "Falkland Islands(英屬福克蘭群島)"
+        },
+        {
+            "dial-code": "252",
+            "country-name": "Federal Republic of Somalia(索馬利亞聯邦共和國)"
+        },
+        {
+            "dial-code": "679",
+            "country-name": "Fiji(斐濟)"
+        },
+        {
+            "dial-code": "358",
+            "country-name": "Finland(芬蘭)"
+        },
+        {
+            "dial-code": "33",
+            "country-name": "France(法國)"
+        },
+        {
+            "dial-code": "594",
+            "country-name": "French Guiana(法屬圭亞那)"
+        },
+        {
+            "dial-code": "689",
+            "country-name": "French Polynesia(法屬玻里尼西亞)"
+        },
+        {
+            "dial-code": "241",
+            "country-name": "Gabon(加彭)"
+        },
+        {
+            "dial-code": "220",
+            "country-name": "Gambia(甘比亞)"
+        },
+        {
+            "dial-code": "995",
+            "country-name": "Georgia(喬治亞)"
+        },
+        {
+            "dial-code": "49",
+            "country-name": "Germany(德國)"
+        },
+        {
+            "dial-code": "233",
+            "country-name": "Ghana(迦納)"
+        },
+        {
+            "dial-code": "350",
+            "country-name": "Gibraltar(直布羅陀)"
+        },
+        {
+            "dial-code": "30",
+            "country-name": "Greece(希臘)"
+        },
+        {
+            "dial-code": "299",
+            "country-name": "Greenland(格陵蘭)"
+        },
+        {
+            "dial-code": "1473",
+            "country-name": "Grenada(格瑞那達)"
+        },
+        {
+            "dial-code": "1671",
+            "country-name": "Guam(關島)"
+        },
+        {
+            "dial-code": "502",
+            "country-name": "Guatemala(瓜地馬拉)"
+        },
+        {
+            "dial-code": "224",
+            "country-name": "Guinea(幾內亞)"
+        },
+        {
+            "dial-code": "592",
+            "country-name": "Guyana(蓋亞那)"
+        },
+        {
+            "dial-code": "509",
+            "country-name": "Haiti(海地)"
+        },
+        {
+            "dial-code": "39",
+            "country-name": "Vatican City, Holy See(梵諦岡(教廷))"
+        },
+        {
+            "dial-code": "504",
+            "country-name": "Honduras(宏都拉斯)"
+        },
+        {
+            "dial-code": "852",
+            "country-name": "Hong Kong(香港)"
+        },
+        {
+            "dial-code": "36",
+            "country-name": "Hungary(匈牙利)"
+        },
+        {
+            "dial-code": "354",
+            "country-name": "Iceland(冰島)"
+        },
+        {
+            "dial-code": "91",
+            "country-name": "India(印度)"
+        },
+        {
+            "dial-code": "62",
+            "country-name": "Indonesia(印尼)"
+        },
+        {
+            "dial-code": "98",
+            "country-name": "Iran(伊朗)"
+        },
+        {
+            "dial-code": "964",
+            "country-name": "Iraq(伊拉克)"
+        },
+        {
+            "dial-code": "353",
+            "country-name": "Ireland(愛爾蘭)"
+        },
+        {
+            "dial-code": "972",
+            "country-name": "Israel(以色列)"
+        },
+        {
+            "dial-code": "39",
+            "country-name": "Italy(義大利)"
+        },
+        {
+            "dial-code": "1876",
+            "country-name": "Jamaica(牙買加)"
+        },
+        {
+            "dial-code": "81",
+            "country-name": "Japan(日本)"
+        },
+        {
+            "dial-code": "962",
+            "country-name": "Jordan(約旦)"
+        },
+        {
+            "dial-code": "7",
+            "country-name": "Kazakhstan(哈薩克)"
+        },
+        {
+            "dial-code": "254",
+            "country-name": "Kenya(肯亞)"
+        },
+        {
+            "dial-code": "965",
+            "country-name": "Kuwait(科威特)"
+        },
+        {
+            "dial-code": "996",
+            "country-name": "Kyrgyzstan(吉爾吉斯坦)"
+        },
+        {
+            "dial-code": "856",
+            "country-name": "Laos(寮國)"
+        },
+        {
+            "dial-code": "371",
+            "country-name": "Latvia(拉脫維亞)"
+        },
+        {
+            "dial-code": "961",
+            "country-name": "Lebanon(黎巴嫩)"
+        },
+        {
+            "dial-code": "266",
+            "country-name": "Lesotho(賴索托)"
+        },
+        {
+            "dial-code": "231",
+            "country-name": "Liberia(賴比瑞亞)"
+        },
+        {
+            "dial-code": "218",
+            "country-name": "Libya(利比亞)"
+        },
+        {
+            "dial-code": "423",
+            "country-name": "Liechtenstein(列支敦斯登)"
+        },
+        {
+            "dial-code": "370",
+            "country-name": "Lithuania(立陶宛)"
+        },
+        {
+            "dial-code": "352",
+            "country-name": "Luxembourg(盧森堡)"
+        },
+        {
+            "dial-code": "853",
+            "country-name": "Macau(澳門)"
+        },
+        {
+            "dial-code": "389",
+            "country-name": "Macedonia(馬其頓)"
+        },
+        {
+            "dial-code": "261",
+            "country-name": "Madagascar(馬達加斯加)"
+        },
+        {
+            "dial-code": "265",
+            "country-name": "Malawi(馬拉威)"
+        },
+        {
+            "dial-code": "60",
+            "country-name": "Malaysia(馬來西亞)"
+        },
+        {
+            "dial-code": "960",
+            "country-name": "Maldives(馬爾地夫)"
+        },
+        {
+            "dial-code": "223",
+            "country-name": "Mali(馬利)"
+        },
+        {
+            "dial-code": "356",
+            "country-name": "Malta(馬爾他)"
+        },
+        {
+            "dial-code": "230",
+            "country-name": "Mauritius(模里西斯)"
+        },
+        {
+            "dial-code": "52",
+            "country-name": "Mexico(墨西哥)"
+        },
+        {
+            "dial-code": "373",
+            "country-name": "Moldova(摩爾多瓦)"
+        },
+        {
+            "dial-code": "377",
+            "country-name": "Monaco(摩納哥)"
+        },
+        {
+            "dial-code": "976",
+            "country-name": "Mongolia(蒙古)"
+        },
+        {
+            "dial-code": "382",
+            "country-name": "Montenegro(蒙特內哥羅)"
+        },
+        {
+            "dial-code": "1664",
+            "country-name": "Montserrat(蒙塞拉特)"
+        },
+        {
+            "dial-code": "212",
+            "country-name": "Morocco(摩洛哥)"
+        },
+        {
+            "dial-code": "258",
+            "country-name": "Mozambique(莫三比克)"
+        },
+        {
+            "dial-code": "95",
+            "country-name": "Myanmar(緬甸)"
+        },
+        {
+            "dial-code": "264",
+            "country-name": "Namibia(那米比亞)"
+        },
+        {
+            "dial-code": "674",
+            "country-name": "Nauru(諾魯)"
+        },
+        {
+            "dial-code": "977",
+            "country-name": "Nepal(尼泊爾)"
+        },
+        {
+            "dial-code": "31",
+            "country-name": "Netherlands(荷蘭)"
+        },
+        {
+            "dial-code": "64",
+            "country-name": "New Zealand(紐西蘭)"
+        },
+        {
+            "dial-code": "505",
+            "country-name": "Nicaragua(尼加拉瓜)"
+        },
+        {
+            "dial-code": "227",
+            "country-name": "Niger(尼日)"
+        },
+        {
+            "dial-code": "234",
+            "country-name": "Nigeria(奈及利亞)"
+        },
+        {
+            "dial-code": "1-670",
+            "country-name": "Northern Mariana Islands(北馬里安納群島)"
+        },
+        {
+            "dial-code": "850",
+            "country-name": "North Korea(北韓)"
+        },
+        {
+            "dial-code": "47",
+            "country-name": "Norway(挪威)"
+        },
+        {
+            "dial-code": "968",
+            "country-name": "Oman(阿曼)"
+        },
+        {
+            "dial-code": "92",
+            "country-name": "Pakistan(巴基斯坦)"
+        },
+        {
+            "dial-code": "507",
+            "country-name": "Panama(巴拿馬)"
+        },
+        {
+            "dial-code": "675",
+            "country-name": "Papua New Guinea(巴布亞紐幾內亞)"
+        },
+        {
+            "dial-code": "595",
+            "country-name": "Paraguay(巴拉圭)"
+        },
+        {
+            "dial-code": "51",
+            "country-name": "Peru(秘魯)"
+        },
+        {
+            "dial-code": "63",
+            "country-name": "Philippines(菲律賓)"
+        },
+        {
+            "dial-code": "48",
+            "country-name": "Poland(波蘭)"
+        },
+        {
+            "dial-code": "351",
+            "country-name": "Portugal(葡萄牙)"
+        },
+        {
+            "dial-code": "1787",
+            "country-name": "Puerto Rico(波多黎各)"
+        },
+        {
+            "dial-code": "974",
+            "country-name": "Qatar(卡達)"
+        },
+        {
+            "dial-code": "680",
+            "country-name": "Republic of Palau(帛琉)"
+        },
+        {
+            "dial-code": "242",
+            "country-name": "Republic of the Congo(剛果共和國)"
+        },
+        {
+            "dial-code": "262",
+            "country-name": "Réunion(留尼旺)"
+        },
+        {
+            "dial-code": "40",
+            "country-name": "Romania(羅馬尼亞)"
+        },
+        {
+            "dial-code": "7",
+            "country-name": "Russia(俄羅斯)"
+        },
+        {
+            "dial-code": "250",
+            "country-name": "Rwanda(盧安達)"
+        },
+        {
+            "dial-code": "378",
+            "country-name": "San Marino(聖馬里諾)"
+        },
+        {
+            "dial-code": "239",
+            "country-name": "Sao Tome and Principe(聖多美普林西比)"
+        },
+        {
+            "dial-code": "966",
+            "country-name": "Saudi Arabia(沙烏地阿拉伯)"
+        },
+        {
+            "dial-code": "221",
+            "country-name": "Senegal(塞內加爾)"
+        },
+        {
+            "dial-code": "381",
+            "country-name": "Serbia(塞爾維亞)"
+        },
+        {
+            "dial-code": "248",
+            "country-name": "Seychelles(塞席爾)"
+        },
+        {
+            "dial-code": "232",
+            "country-name": "Sierra Leone(獅子山)"
+        },
+        {
+            "dial-code": "65",
+            "country-name": "Singapore(新加坡)"
+        },
+        {
+            "dial-code": "421",
+            "country-name": "Slovakia(斯洛伐克)"
+        },
+        {
+            "dial-code": "386",
+            "country-name": "Slovenia(斯洛維尼亞)"
+        },
+        {
+            "dial-code": "677",
+            "country-name": "Solomon Islands(索羅門群島)"
+        },
+        {
+            "dial-code": "27",
+            "country-name": "South Africa(南非)"
+        },
+        {
+            "dial-code": "82",
+            "country-name": "South Korea(南韓)"
+        },
+        {
+            "dial-code": "34",
+            "country-name": "Spain(西班牙)"
+        },
+        {
+            "dial-code": "94",
+            "country-name": "Sri Lanka(斯里蘭卡)"
+        },
+        {
+            "dial-code": "1758",
+            "country-name": "St. Lucia(聖露西亞)"
+        },
+        {
+            "dial-code": "1784",
+            "country-name": "St. Vincent and the Grenadines(聖文森及格瑞那丁)"
+        },
+        {
+            "dial-code": "249",
+            "country-name": "Sudan(蘇丹)"
+        },
+        {
+            "dial-code": "597",
+            "country-name": "Suriname(蘇利南)"
+        },
+        {
+            "dial-code": "268",
+            "country-name": "Swaziland(史瓦濟蘭)"
+        },
+        {
+            "dial-code": "46",
+            "country-name": "Sweden(瑞典)"
+        },
+        {
+            "dial-code": "41",
+            "country-name": "Switzerland(瑞士)"
+        },
+        {
+            "dial-code": "963",
+            "country-name": "Syria(希利亞)"
+        },
+        {
+            "dial-code": "886",
+            "country-name": "Taiwan(台灣)"
+        },
+        {
+            "dial-code": "992",
+            "country-name": "Tajikistan(塔吉克)"
+        },
+        {
+            "dial-code": "255",
+            "country-name": "Tanzania(坦尚尼亞)"
+        },
+        {
+            "dial-code": "66",
+            "country-name": "Thailand(泰國)"
+        },
+        {
+            "dial-code": "228",
+            "country-name": "Togo(多哥)"
+        },
+        {
+            "dial-code": "676",
+            "country-name": "Tonga(東加)"
+        },
+        {
+            "dial-code": "1868",
+            "country-name": "Trinidad and Tobago(千里達及托巴哥)"
+        },
+        {
+            "dial-code": "216",
+            "country-name": "Tunisia(突尼西亞)"
+        },
+        {
+            "dial-code": "90",
+            "country-name": "Turkey(土耳其)"
+        },
+        {
+            "dial-code": "993",
+            "country-name": "Turkmenistan(土庫曼)"
+        },
+        {
+            "dial-code": "256",
+            "country-name": "Uganda(烏干達)"
+        },
+        {
+            "dial-code": "380",
+            "country-name": "Ukraine(烏克蘭)"
+        },
+        {
+            "dial-code": "971",
+            "country-name": "United Arab Emirates(阿拉伯聯合大公國)"
+        },
+        {
+            "dial-code": "44",
+            "country-name": "United Kingdom(英國)"
+        },
+        {
+            "dial-code": "1",
+            "country-name": "United States of America(美國)"
+        },
+        {
+            "dial-code": "598",
+            "country-name": "Uruguay(烏拉圭)"
+        },
+        {
+            "dial-code": "998",
+            "country-name": "Uzbekistan(烏茲別克)"
+        },
+        {
+            "dial-code": "58",
+            "country-name": "Venezuela(委內瑞拉)"
+        },
+        {
+            "dial-code": "84",
+            "country-name": "Vietnam(越南)"
+        },
+        {
+            "dial-code": "967",
+            "country-name": "Yemen(葉門)"
+        },
+        {
+            "dial-code": "260",
+            "country-name": "Zambia(尚比亞)"
+        },
+        {
+            "dial-code": "263",
+            "country-name": "Zimbabwe(辛巴威)"
+        }
+    ]
+}

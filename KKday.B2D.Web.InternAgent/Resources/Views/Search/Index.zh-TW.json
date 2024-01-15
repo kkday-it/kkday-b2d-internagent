@@ -1,0 +1,26 @@
+﻿{
+  "Search_Title": "商品搜尋",
+  "Clear_All": "清除所有",
+  "Confirm": "確認",
+  "Cancel": "取消",
+  "Refresh": "更新",
+  "Destination": "目的地",
+  "All_Categories": "所有商品類別",
+  "All": "全部",
+  "Price_Range": "價錢區間",
+  "Journey_Time": "行程時間",
+  "Journey_Time_0h_8h": "0 小時 - 8 小時",
+  "Journey_Time_8h_1d": "8 小時 - 1 日",
+  "Journey_Time_1d_2d": "1 日 - 2 日",
+  "Journey_Time_2d_more": "2 日以上",
+  "Total_Itineraries": "項體驗行程",
+  "Instant_Confirm": "立即確認",
+  "Mutiple_Cities": "多個城市",
+  "Product_Not_Found": "找不到商品，請重新查詢。",
+  "Price_Up": "元起",
+  "TWD": "台幣",
+  "Current_Page": "頁面",
+  "No_Matched_Product": "找不到商品!",
+  "Search_Loading": "商品搜尋中..."
+}
+

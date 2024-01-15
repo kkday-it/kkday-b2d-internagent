@@ -1,0 +1,199 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Search_Title"].Value;
+
+    var locale = CultureInfo.CurrentCulture;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/kkday_search.css" />
+    <link rel="stylesheet" href="~/lib/ion-rangeSlider/css/ion.rangeSlider.min.css" />
+    <link rel="stylesheet" href="~/lib/jquery-daterangepicker/daterangepicker-bs3.css" />
+    <link rel="stylesheet" href="~/lib/jquery-daterangepicker/daterangepicker.css" />
+
+    <style type="text/css">
+        .modal-backdrop {
+            z-index: 1;
+        }
+
+        .input-group2 {
+            position: relative;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            -webkit-box-align: stretch;
+            -ms-flex-align: stretch;
+            align-items: stretch;
+            width: 100%;
+        }
+
+            .input-group2 > .form-control2 {
+                position: relative;
+                -webkit-box-flex: 1;
+                -ms-flex: 1 1 auto;
+                flex: 1 1 auto;
+                width: 1%;
+                margin-bottom: 0;
+            }
+
+        .form-control2 {
+            display: block;
+            width: 100%;
+            padding: .375rem .75rem;
+            font-size: 1.46rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        }
+
+        .input-group-text2 {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            padding: .375rem .75rem;
+            margin-bottom: 0;
+            font-size: 1.46rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            text-align: center;
+            white-space: nowrap;
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+        }
+
+        .irs--flat {
+            z-index: 10;
+        }
+
+            .irs--flat .irs-handle.state_hover > i:first-child, .irs--flat .irs-handle:hover > i:first-child {
+                background-color: #fff;
+            }
+
+            .irs--flat .irs-handle > i:first-child {
+                left: unset;
+                width: 16px;
+                background-color: #fff;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+            }
+
+            .irs--flat .irs-from, .irs--flat .irs-to, .irs--flat .irs-single {
+                background-color: #f2f2f2;
+                color: #333;
+                font-size: 13px;
+            }
+
+                .irs--flat .irs-from:before, .irs--flat .irs-to:before, .irs--flat .irs-single:before {
+                    border-top-color: #f2f2f2;
+                }
+
+        .calendar-table {
+            padding-bottom: 30px;
+        }
+    </style>
+}
+@section Scripts {
+    <script src="~/lib/ion-rangeSlider/js/ion.rangeSlider.min.js"></script>
+    <script src="~/js/moment-with-locales.js"></script>
+    <script src="~/lib/jquery-daterangepicker/daterangepicker.js"></script>
+}
+
+
+<div id="App" class="container">
+
+    <!-- Keywords -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <form class="form">
+                <input type="hidden" id="page" name="page" value="@ViewBag.Page" />
+                <input type="hidden" id="size" name="size" value="@ViewBag.Size" />
+                <div class="input-group2 bootstrap4 mb-3">
+                    <input id="keywords" name="key" type="text" class="form-control2" autocomplete="off" placeholder="Where do you want to go?" value="@ViewBag.Keywords">
+                    <div class="input-group-append">
+                        <span class="input-group-text2" id="basic-addon2" onclick="price_range.min = price_range.max = null; Query();">
+                            <i class="icons icon-magnifier fa-lg"></i>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Result -->
+    <div class="row">
+
+        <div class="col-12 m-2 d-block d-sm-none sm-filter">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+                <i class="fa fa-filter" aria-hidden="true"></i> Filter
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" style="font-size:18px; font-weight:bold;">Filter Condition</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body"></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            @*<button type="button" class="btn btn-primary" onclick="UpdateFilter();"> OK </button>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- filter -->
+        <div class="col-3 d-none d-sm-block filter">
+        </div>
+        <!-- product-list -->
+        <div class="col-md-9 product-list">
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    let vm = new Vue({ 
+        //el: '#App',
+        data() {
+            return {
+                price_range: { min: null, max: null },
+                show: true,
+                fields: [
+                    { key: "name", label: "Name" },
+                    { key: "department", label: "Department" },
+                    { key: "age", label: "Age" },
+                    { key: "dateOfBirth", label: "Date Of Birth" },
+                ],
+                items: [],
+            }
+        },
+        computed: {
+            upperCase() {
+                return this.msg.toUpperCase()
+            }
+        },
+        methods: {
+        }
+    });
+
+    vm.$mount('#App');
+
+</script>

@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
+  <ItemGroup>
+    <None Remove="Views\Search\" />
+    <None Remove="Views\Product\" />
+    <None Remove="Views\Order\" />
+    <None Remove="AppCode\" />
+    <None Remove="Resources\" />
+    <None Remove="Proxy\" />
+    <None Remove="Models\Model\" />
+    <None Remove="Models\Repository\" />
+    <None Remove="AppData\" />
+    <None Remove="Resources\Views\Shared\" />
+    <None Remove="Views\Booking\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\Search\" />
+    <Folder Include="Views\Product\" />
+    <Folder Include="Views\Order\" />
+    <Folder Include="AppCode\" />
+    <Folder Include="Resources\" />
+    <Folder Include="Proxy\" />
+    <Folder Include="Models\Model\" />
+    <Folder Include="Models\Repository\" />
+    <Folder Include="AppData\" />
+    <Folder Include="Resources\Views\Shared\" />
+    <Folder Include="Views\Booking\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.14" />
+    <PackageReference Include="My.Extensions.Localization.Json" Version="3.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Npm" Version="3.5.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Condition="'$(ExcludeConfigFilesFromBuildOutput)'!='true'" Update="appsettings.json.template">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1706.6
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KKday.B2D.Web.InternAgent", "KKday.B2D.Web.InternAgent\KKday.B2D.Web.InternAgent.csproj", "{CBCCD141-75AF-4DBB-933A-8AD563224820}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBCCD141-75AF-4DBB-933A-8AD563224820}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBCCD141-75AF-4DBB-933A-8AD563224820}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBCCD141-75AF-4DBB-933A-8AD563224820}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBCCD141-75AF-4DBB-933A-8AD563224820}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {92CD05A7-8E03-4DA7-9FA5-BFF21A3A50C8}
+	EndGlobalSection
+EndGlobal
