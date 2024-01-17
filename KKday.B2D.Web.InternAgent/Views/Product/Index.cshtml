@@ -561,9 +561,8 @@
                     let req = {
                         prod_no: this.prod.prod_no,
                         pkg_no: pkg.pkg_no
-                    };
-
-                    console.log(`load pkg req => ${JSON.stringify(req)}`);
+                    }; 
+                    // console.log(`load pkg req => ${JSON.stringify(req)}`);
 
                     fetch(uri, {
                         method: 'POST',
@@ -575,31 +574,33 @@
                     })
                         .then(response => response.json())
                         .then(data => {
-                            // console.log(`pkg[${pkg.pkg_no}] => ${JSON.stringify(data)}`);
+                            console.log(`pkg[${pkg.pkg_no}] => ${JSON.stringify(data)}`);
+                            if (data.result === "00") {
+                                pkg.guid = data.guid;
+                                pkg.exchange_type = data.exchange_type;
+                                pkg.confirm_time = data.confirm_time;
+                                pkg.confirm_time_unit = data.confirm_time_unit;
+                                pkg.policy_type = data.policy_type;
+                                pkg.refund_type = data.refund_type;
+                                pkg.partial_refund = data.partial_refund;
+                                pkg.lead_day_timezone = data.lead_day_timezone;
+                                pkg.b2c_min_price = data.b2c_min_price;
+                                pkg.b2b_min_price = data.b2b_min_price;
+                                pkg.item_no = data.item_no;
+                                pkg.sale_s_date = data.sale_s_date;
+                                pkg.sale_e_date = data.sale_e_date;
+                                pkg.description_module = data.description_module;
+                                pkg.item = data.item;
 
-                            pkg.guid = data.guid;
-                            pkg.exchange_type = data.exchange_type;
-                            pkg.confirm_time = data.confirm_time;
-                            pkg.confirm_time_unit = data.confirm_time_unit;
-                            pkg.policy_type = data.policy_type;
-                            pkg.refund_type = data.refund_type;
-                            pkg.partial_refund = data.partial_refund;
-                            pkg.lead_day_timezone = data.lead_day_timezone;
-                            pkg.b2c_min_price = data.b2c_min_price;
-                            pkg.b2b_min_price = data.b2b_min_price;
-                            pkg.item_no = data.item_no;
-                            pkg.sale_s_date = data.sale_s_date;
-                            pkg.sale_e_date = data.sale_e_date;
-                            pkg.description_module = data.description_module;
-                            pkg.item = data.item;
+                                pkg.loaded = true;
+                                pkg.selectable = pkg.item && pkg.item.length > 0;
 
-                            pkg.loaded = true;
-                            pkg.selectable = pkg.item && pkg.item.length > 0;
+                                const av_dates = [...new Set([].concat(...pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+                                this.fetchAllotment(pkg.pkg_no, av_dates[0]);
+                            }
+                            else console.error(`The package(${pkg.pkg_no}) was Loading failed`);
 
                             $('#pkg_' + pkg.pkg_no).find('#loading').hide();
-
-                            const av_dates = [...new Set([].concat(...pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
-                            this.fetchAllotment(pkg.pkg_no, av_dates[0]);
                         })
                         .catch(error => {
                             console.error(`Unable to load pkg(${pkg.pkg_no}) => `, error);
@@ -983,7 +984,7 @@
                 if (this.is_date_range) {
                     if (this.sel_sdate && !this.sel_edate) {
                         // select all dates in the range
-                        console.log(`hover in => ${dt.full_date}`);
+                        // console.log(`hover date => ${dt.full_date}`);
 
                         let end_date = moment(dt.full_date, 'YYYY-MM-DD');
                         let range_dates = this.getDateRange(this.sel_sdate, end_date);
@@ -1417,8 +1418,7 @@
                     grand_total = this.single_qty.count * this.single_qty.price * range_days;
                 }
 
-                if (this.mode === '02') {
-                    console.log(`Check Out, ticket_qty: ${JSON.stringify(this.ticket_qty)}`)
+                if (this.mode === '02') { 
                     // check all layers of sku has one be selected except to 'spec-ticket'
                     total_qty = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count).reduce((a, b) => { return a + b }, 0);
                     grand_total = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count * this.ticket_qty[spec].price * range_days).reduce((a, b) => { return a + b }, 0);
@@ -1454,7 +1454,7 @@
                 let has_event = this.pkg.item[0].has_event;
                 let inventory_set = this.pkg.item[0].inventory_set;
                 let inventory_type = this.pkg.item[0].inventory_type;
-
+                console.log(`CheckQuantity => inventory_set: ${inventory_set}, inventory_type: ${inventory_type} `);
                 // ignore inventory
                 if (inventory_set === 0) return true;
                 // based on item or sku 
@@ -1483,7 +1483,9 @@
                     }
 
                     // inventory is based on date range 
-                    // this.pkg.allotment.
+                    if (price_rule_type === 2) {
+                        console.log(`CheckQuantity based on date => allotment:${JSON.stringify(this.pkg.allotment)}`);
+                    }
                 }
 
                 return true;
@@ -1517,18 +1519,17 @@
                 if (spec) {
                     // reset other siblings to unselected in same layer.
                     spec.spec_items.filter(i => i.spec_item_oid != spec_item_oid).forEach(i => i.selected = false);
-                    let spec_item = spec.spec_items.find(i => i.spec_item_oid === spec_item_oid);
-                    // console.log(`target specs => ${JSON.stringify(spec_item)}`);
+                    let spec_item = spec.spec_items.find(i => i.spec_item_oid === spec_item_oid); 
                     if (spec_item) spec_item.selected = !spec_item.selected;
                     // regenerate
                     this.sel_spec_items = [...new Set([].concat(...this.specs.map(s => s.spec_items.filter(i => i.selected).map(i => i.spec_item_oid))))];
-                    console.log(`target specs => ${JSON.stringify(this.sel_spec_items)}`);
+                    // console.log(`target specs => ${JSON.stringify(this.sel_spec_items)}`);
 
                     this.specs.map(s => s.spec_items).flat().forEach(i => i.disabled = false);
                     if (this.sel_spec_items.length > 0) {
                         // excludes some specs are not in sku permutation
                         let bypass_specs = [...new Set([].concat(...this.pkg.item[0].skus.filter(s => s.specs_ref.some(r => r.spec_value_id == spec_item_oid)).map(s => s.specs_ref.map(i => i.spec_value_id))))];
-                        console.log(`bypass specs => ${JSON.stringify(bypass_specs)}`);
+                        // console.log(`bypass specs => ${JSON.stringify(bypass_specs)}`);
                         this.specs.filter(s => s.spec_oid != spec.spec_oid).forEach(s => {
                             s.spec_items.forEach(i => {
                                 if (bypass_specs.every(p => p != i.spec_item_oid)) {
@@ -1615,6 +1616,7 @@
                 // save into localstorage
                 localStorage.setItem("bookingReq", JSON.stringify(req));
                 // redirect to booking
+                alert('Redirect to booking...')
                 window.location.href = `${_root_path}Booking`;
             }
         },
