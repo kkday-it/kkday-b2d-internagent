@@ -15,7 +15,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string currency { get; set; } 
         public string event_time { get; set; }
         public List<BookingSkuModel> skus { get; set; } 
-        public double total_price { get; set; }
+        public decimal total_price { get; set; }
 
         public BookingExtraDataModel extra { get; set; }
     }
@@ -24,7 +24,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     {
         public string sku_id { get; set; }
         public int qty { get; set; }
-        public double price { get; set; }
+        public decimal price { get; set; }
 
         public List<string> specs_ref { get; set; } // Mapping to BookingExtraDataModel.specs[].spec_item_oid
     }
@@ -35,6 +35,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string prod_name { get; set; }
         public string unit { get; set; }
         public string unit_code { get; set; }
+        public int? unit_max { get; set; }
         public List<Spec> specs { get; set; }
     }
 }

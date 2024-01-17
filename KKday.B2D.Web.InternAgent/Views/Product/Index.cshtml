@@ -207,7 +207,7 @@
                                 <calendar-section :pkg="item"></calendar-section>
                             </div>
                             <div class="col-md-6">
-                                <spec-section :pkg="item" :prod_no="prod.prod_no" :prod_name="prod.prod_name"></spec-section>
+                                <spec-section :pkg="item"></spec-section>
                             </div> 
                         </div>
                     </div>
@@ -487,6 +487,7 @@
         });
     };
     const emitter = mitt();
+    const date_range_types = ['02', '05'];
 
     let app = new Vue({
         //el: '#App',
@@ -663,8 +664,8 @@
                     .then(data => { 
                         console.log(`fetchAllotment (pkg:${pkg_no}) => ${JSON.stringify(data)}`)
                         let pkg = this.pkg.find(p => p.pkg_no === pkg_no);
-                        if (pkg && data.result == '00') {
-                            if (!pkg.allotment) { pkg.allotment = []; }
+                        if (!pkg.allotment) { pkg.allotment = []; } 
+                        if (data.result == '00') {
                             data.allotment[0].itemCal_qty?.forEach(q => {
                                 pkg.allotment.push(q);
                             });
@@ -791,7 +792,9 @@
                 sold_out_str: '',
                 multi_select_str: '',
                 sel_sdate: '',
-                sel_edate: ''
+                sel_edate: '',
+                go_date_setting: null,
+                is_date_range: false
             }
         },
         template: `
@@ -823,23 +826,25 @@
             </thead>
             <tbody>
                 <tr class="row-date" v-for="n in 6">
-                    <td class="cell-date" :class="{'disabled':datedata.disabled,'invalid':datedata.invalid,'selected':datedata.selected,'selected-start':datedata.sdate && datedata.selected,'selected-end':datedata.edate && datedata.selected}"
-                    v-for="(datedata, idx) in dates.slice((n-1)*7,n*7)"
-                    v-on:mouseover="MultipleSelect(datedata.date);"
-                    v-on:click="dateChanged(datedata);">
-                        <div v-if="datedata.date===0"></div>
-                        <div class="date-num" v-else>{{datedata.date}}</div>
-                        <div class="price" v-if="datedata.date!==0 && datedata.lowest_price && datedata.lowest_price===datedata.highest_price">{{PriceFormat(datedata.lowest_price)}}</div>
-                        <div class="price" v-if="datedata.date!==0 && datedata.lowest_price && datedata.lowest_price!==datedata.highest_price">{{PriceFormat(datedata.lowest_price)}}{{date_price_str}}</div>
-                        <div class="price" v-if="datedata.date!==0 && datedata.soldout==='true'">{{sold_out_str}}</div>
+                    <td class="cell-date" :class="{'disabled':dt.disabled,'invalid':dt.invalid,'selected':dt.selected,'selected-start':dt.sdate && dt.selected,'selected-end':dt.edate && dt.selected}"
+                    v-for="(dt, idx) in dates.slice((n-1)*7,n*7)"
+                    @@mouseover="MultipleSelect(dt);"
+                    @@click="dateChanged(dt);">
+                        <div v-if="dt.date===0"></div>
+                        <div class="date-num" v-else>{{dt.date}}</div>
+                        <div class="price" v-if="dt.date!==0 && dt.lowest_price && dt.lowest_price===dt.highest_price">{{PriceFormat(dt.lowest_price)}}</div>
+                        <div class="price" v-if="dt.date!==0 && dt.lowest_price && dt.lowest_price!==dt.highest_price">{{PriceFormat(dt.lowest_price)}}{{date_price_str}}</div>
+                        <div class="price" v-if="dt.date!==0 && dt.soldout==='true'">{{sold_out_str}}</div>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <div class="selected-date" v-if="multi_select_str!==''">{{multi_select_str}}</div>
+        <div class="selected-date" v-if="multi_select_str">{{multi_select_str}} <span class="clear-input" @@click="ResetMultipleSelect"><i class="fa fa-times-circle fa-lg"></i></span></div>
     </div>`,
         methods: {
             Render() {
+                console.log(`Calendar render => sdate:${this.sel_sdate}, edate:${this.sel_edate}, go_date_setting:${JSON.stringify(this.go_date_setting)}`);
+
                 const months = [
                     '@Localizer["January"]',
                     '@Localizer["February"]',
@@ -936,16 +941,32 @@
                 this.date = new_date;
 
                 this.Render();
-                console.log(`last sel_sdate: ${this.sel_sdate}`)
+                // console.log(`last start_date: ${this.sel_sdate}, end_date:${this.sel_edate}, is_date_range: ${this.is_date_range}`)
 
-                // Render last selected date
+                // Render last selected dates
                 if (this.sel_sdate) {
-                    // Single date
-                    let last_sel_date = this.dates.find(s => s.full_date === this.sel_sdate);
-                    if (last_sel_date) {
-                        last_sel_date.selected = last_sel_date.sdate = last_sel_date.edate = true;
+                    let last_start_date = this.dates.find(s => s.full_date === this.sel_sdate);
+                    if (last_start_date) {
+                        if (!this.is_date_range) last_start_date.selected = last_start_date.sdate = last_start_date.edate = true;
+                        else {
+                            last_start_date.selected = last_start_date.sdate = true;
+
+                            if (this.sel_edate) {
+                                let range_dates = this.getDateRange(this.sel_sdate, this.sel_edate);
+                                this.dates.filter(d => range_dates.some(r => r === d.full_date)).forEach(d => d.selected = true);
+                            }
+                        }
                     }
                 }
+                if (this.sel_edate) {
+                    let last_end_date = this.dates.find(dt => dt.full_date === this.sel_edate);
+                    if (last_end_date) last_end_date.selected = last_end_date.edate = true;
+
+                    if (this.sel_sdate) {
+                        let range_dates = this.getDateRange(this.sel_sdate, this.sel_edate);
+                        this.dates.filter(d => range_dates.some(r => r === d.full_date)).forEach(d => d.selected = true);
+                    }
+                } 
             },
             checkPrevMonth() {
                 let prev_month_date = moment(this.date).subtract(1, 'months');
@@ -953,33 +974,108 @@
                 // console.log(`prev_month_date: ${prev_month_date.format('YYYY-MM-DD')}, prev_month_lastdate: ${prev_month_lastdate.format('YYYY-MM-DD')}`);
                 return prev_month_date < prev_month_lastdate;
             },
+            ResetMultipleSelect() {
+                this.sel_sdate = this.sel_edate = null;
+                this.dates.forEach(dt => { dt.selected = dt.sdate = dt.edate = false; });
+                this.multi_select_str = null;
+            },
             MultipleSelect(dt) {
+                if (this.is_date_range) {
+                    if (this.sel_sdate && !this.sel_edate) {
+                        // select all dates in the range
+                        console.log(`hover in => ${dt.full_date}`);
 
+                        let end_date = moment(dt.full_date, 'YYYY-MM-DD');
+                        let range_dates = this.getDateRange(this.sel_sdate, end_date);
+                        this.dates.filter(d => d.full_date != this.sel_sdate && !range_dates.some(r => r === d.full_date)).forEach(d => d.selected = false);
+
+                        let min_date = this.go_date_setting.days.min <= 1 ? moment(this.sel_sdate) : moment(this.sel_sdate).add(this.go_date_setting.days.min - 1, 'd');
+                        let max_date = moment(this.sel_sdate).add(this.go_date_setting.days.max - 1, 'd');
+                        // if (end_date >= min_date && end_date <= max_date)
+                        //   this.dates.filter(d => range_dates.some(r => r === d.full_date)).forEach(d => d.selected = true);
+                        if (moment(dt.full_date) > moment(this.sel_sdate))
+                            this.dates.filter(d => moment(d.full_date) >= min_date && moment(d.full_date) <= max_date && range_dates.some(r => r === d.full_date)).forEach(d => d.selected = true);
+                    }
+                }
             },
             PriceFormat(price) {
                 if (price == null) return '';
                 return price;
             },
-            dateChanged(sel_date) {
-                if (this.sel_sdate == sel_date.full_date) {
-                    this.dates.find(s => s.full_date === sel_date.full_date).selected = false;
-                    this.sel_sdate = this.sel_edate = null;
-                }
-                else {
-                    if (sel_date.disabled || sel_date.invalid) return;
-
-                    // ==== Single date ====
-                    this.sel_sdate = sel_date.full_date;
-                    this.sel_edate = null;
-
-                    // Reset last selected date & set new date be selected
-                    this.dates.forEach(d => { d.selected = d.sdate = d.edate = false; });
-                    let single_date = this.dates.find(s => s.full_date === sel_date.full_date);
-                    if (single_date) {
-                        sel_date.selected = sel_date.sdate = sel_date.edate = true;
+            getDateRange(sdate, edate) {
+                const twoDateRange = (firstDate, lastDate) => {
+                    if (moment(firstDate, 'YYYY-MM-DD').isSame(moment(lastDate, 'YYYY-MM-DD'), 'day')) {
+                        return [lastDate];
                     }
 
-                    // ==== Date Range ====
+                    let date = firstDate;
+                    const dates = [date];
+                    do {
+                        date = moment(date).add(1, 'day');
+                        dates.push(date.format('YYYY-MM-DD'));
+                    } while (moment(date).isBefore(lastDate));
+                    return dates;
+                };
+
+                return twoDateRange(sdate, edate);
+            },
+            dateChanged(sel_date) {
+
+                if (sel_date.disabled || sel_date.invalid) return;
+
+                // date range 
+                if (this.is_date_range) {
+                    // picked the start date 
+                    if (!this.sel_sdate) {
+                        this.sel_sdate = sel_date.full_date;
+                        this.sel_edate = null;
+                        // Reset last selected date & set new date be selected
+                        this.dates.forEach(dt => { dt.selected = dt.sdate = dt.edate = false; });
+                        let dt = this.dates.find(dt => dt.full_date === sel_date.full_date);
+                        if (dt) dt.selected = dt.sdate = true;
+                        console.log(`DateChanged start_date: ${this.sel_sdate}`)
+
+                        this.multi_select_str = `${moment(this.sel_sdate).format('YYYY/MM/DD')} - N/A`;
+                        return; // nothing to do
+                    }
+                    // picked the end date
+                    else if (!this.sel_edate) {
+                        let min_date = this.go_date_setting.days.min <= 1 ? moment(this.sel_sdate) : moment(this.sel_sdate).add(this.go_date_setting.days.min - 1, 'd');
+                        let max_date = moment(this.sel_sdate).add(this.go_date_setting.days.max - 1, 'd');
+                        let end_date = moment(sel_date.full_date, 'YYYY-MM-DD');
+                        console.log(`DateChanged start_date: ${this.sel_sdate}, end date range => ${min_date.format('YYYY-MM-DD')} and ${max_date.format('YYYY-MM-DD')} `)
+                        if (end_date >= min_date && end_date <= max_date) {
+                            this.sel_edate = sel_date.full_date;
+                            let dt = this.dates.find(dt => dt.full_date === sel_date.full_date);
+                            if (dt) dt.selected = dt.edate = true;
+
+                            this.multi_select_str = `${moment(this.sel_sdate).format('YYYY/MM/DD')} - ${moment(this.sel_edate).format('YYYY/MM/DD') }`;
+                        }
+                        else return;
+                    }
+                    else {
+                        this.sel_sdate = this.sel_edate = null;
+                        this.dates.forEach(dt => { dt.selected = dt.sdate = dt.edate = false; });
+                        this.multi_select_str = null;
+                    }
+                }
+                // single date
+                else {
+                    if (this.sel_sdate == sel_date.full_date) {
+                        this.dates.find(dt => dt.full_date === sel_date.full_date).selected = false;
+                        this.sel_sdate = this.sel_edate = null;
+                    }
+                    else {
+                        this.sel_sdate = sel_date.full_date;
+                        this.sel_edate = null;
+
+                        // Reset last selected date & set new date be selected
+                        this.dates.forEach(dt => { dt.selected = dt.sdate = dt.edate = false; });
+                        let single_date = this.dates.find(dt => dt.full_date === sel_date.full_date);
+                        if (single_date) {
+                            sel_date.selected = sel_date.sdate = sel_date.edate = true;
+                        }
+                    }
                 }
 
                 emitter.emit('date-changed', { pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate } });
@@ -994,6 +1090,10 @@
                     }
                 }
             }
+        },
+        created: function () { 
+            this.go_date_setting = this.$parent.prod.go_date_setting; 
+            this.is_date_range = date_range_types.some(t => this.go_date_setting.type == t);
         },
         setup(props) {
             this.pkg = props.pkg;
@@ -1023,7 +1123,7 @@
 
     // Spec Component
     Vue.component('spec-section', {
-        props: ['prod_no', 'prod_name', 'pkg'],
+        props: ['pkg'],
         data: function () {
             return {
                 mode: 'single',
@@ -1044,7 +1144,8 @@
                 sel_date: { s_date: null, e_date: null },
                 sel_spec_items: [],
                 sel_time_slot: null,
-                default_qty: 1
+                default_qty: 1,
+                is_date_range: false
             }
         },
         template: `<div class="specs">
@@ -1144,9 +1245,8 @@
         },
         methods: {
             Render() {
-                console.log(`Spec Render, prod_no => ${this.$parent.prod.prod_no}, pkg_no => ${this.pkg.pkg_no}`);
-                // console.log(`pkg => ${JSON.stringify(this.pkg)}`); 
-                console.log(`price_type => ${this.pkg.item[0].price_type}, price_rule_type => ${this.pkg.item[0].price_rule_type}`);
+                // console.log(`Spec Render, prod_no => ${this.prod_no}, pkg_no => ${this.pkg.pkg_no}`);
+                console.log(`Spec Render, pkg => ${JSON.stringify(this.pkg)}`); 
                 this.price = this.pkg.b2b_min_price;
                 this.specs = this.pkg.item[0].specs;
 
@@ -1284,9 +1384,6 @@
                             else if (!this.pkg.item[0].has_event) price = matched_date.b2b_price["fullday"];
                             // console.log(`date=${JSON.stringify(this.sel_date)}, time_slot=${this.sel_time_slot}, match_skus.calendar=${JSON.stringify(matched_date)} => price:${price}`)
                         }
-                        else {
-
-                        }
                     }
                 }
                 // no selected date
@@ -1310,17 +1407,21 @@
             checkOut() {
                 let grand_total = 0;
                 let total_qty = 0;
+                let range_days = 0
+                if (!this.is_date_range && this.sel_date.s_date) range_days = 1;
+                if (this.is_date_range && this.sel_date.s_date && this.sel_date.e_date) range_days = moment(this.sel_date.e_date).diff(moment(this.sel_date.s_date), 'd') + 1;
+                // console.log(`CheckOut => ${JSON.stringify(this.sel_date)}, range days: ${range_days} `);
 
                 if (this.mode === '01') {
                     total_qty = this.single_qty.count;
-                    grand_total = this.single_qty.count * this.single_qty.price;
+                    grand_total = this.single_qty.count * this.single_qty.price * range_days;
                 }
 
                 if (this.mode === '02') {
                     console.log(`Check Out, ticket_qty: ${JSON.stringify(this.ticket_qty)}`)
                     // check all layers of sku has one be selected except to 'spec-ticket'
                     total_qty = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count).reduce((a, b) => { return a + b }, 0);
-                    grand_total = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count * this.ticket_qty[spec].price).reduce((a, b) => { return a + b }, 0);
+                    grand_total = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count * this.ticket_qty[spec].price * range_days).reduce((a, b) => { return a + b }, 0);
                 }
 
                 console.log(`Check Out, grand_total: ${grand_total}, total_qty: ${total_qty}`)
@@ -1350,9 +1451,6 @@
                 this.isBookable = this.totalPrice > 0;
             },
             checkQuantity(total_qty, skus) {
-                // inventory_set (0:n/a, 1:Item-based inventory set, 2:SKU-based inventory set)
-                // inventory_type (null: unlimited on default, 1:on total quantity, 2:based on date)
-
                 let has_event = this.pkg.item[0].has_event;
                 let inventory_set = this.pkg.item[0].inventory_set;
                 let inventory_type = this.pkg.item[0].inventory_type;
@@ -1384,25 +1482,8 @@
                         else return false;
                     }
 
-                    // inventory is based on date (check for single-date or date-range)
-                    if (inventory_type === 2) {
-                        if (has_event) {
-                            if (inventory_set === 1) {
-
-                            }
-                            else if (inventory_set === 2) {
-
-                            }
-                        }
-                        else {
-                            if (inventory_set === 1) {
-
-                            }
-                            else if (inventory_set === 2) {
-
-                            }
-                        }
-                    }
+                    // inventory is based on date range 
+                    // this.pkg.allotment.
                 }
 
                 return true;
@@ -1467,7 +1548,7 @@
                     pkg_no: this.pkg.pkg_no,
                     item_no: this.pkg.item_no[0],
                     s_date: this.sel_date.s_date,
-                    e_date: this.sel_date.s_date,
+                    e_date: this.sel_date.e_date,
                     event_time: (this.pkg.item[0].has_event) ? this.sel_time_slot : null,
                     skus: [],
                     total_price: this.totalPrice,
@@ -1476,8 +1557,9 @@
                         prod_name: this.prod_name,
                         pkg_name: this.pkg.pkg_name,
                         specs: this.pkg.item[0].specs,
-                        unit_code: this.pkg.item[0].unit_code,
                         unit: this.pkg.item[0].unit,
+                        unit_code: this.pkg.item[0].unit_code,
+                        unit_max: this.pkg.item[0].unit_max
                     }
                 };
 
@@ -1491,6 +1573,10 @@
                 else match_skus = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => this.sel_spec_items.some(i => i === r.spec_value_id)));
 
                 if (match_skus) {
+                    let range_days = 0
+                    if (!this.is_date_range && this.sel_date.s_date) range_days = 1;
+                    if (this.is_date_range && this.sel_date.s_date && this.sel_date.e_date) range_days = moment(this.sel_date.e_date).diff(moment(this.sel_date.s_date), 'd') + 1;
+
                     match_skus.forEach(s => {
                         let specs_ref = s.specs_ref.map(i => i.spec_value_id);
                         let qty = 0, price = 0;
@@ -1511,7 +1597,7 @@
                         req.skus.push({
                             sku_id: s.sku_id,
                             qty: qty,
-                            price: price,
+                            price: price * range_days,
                             specs_ref: specs_ref
                         });
                     });
@@ -1532,12 +1618,14 @@
                 window.location.href = `${_root_path}Booking`;
             }
         },
-        setup(props) {
-            this.prod_no = props.prod_no;
-            this.prod_name = props.prod_name;
+        created: function () {
+            this.prod_no = this.$parent.prod.prod_no;
+            this.is_date_range = date_range_types.some(t => this.$parent.prod.go_date_setting.type == t);
+            this.prod_name = this.$parent.prod.prod_name; 
+            console.log(`Spec created, prod_no: ${this.prod_no}, prod_name: ${this.prod_name}`); 
+        },
+        setup(props) { 
             this.pkg = props.pkg;
-
-            console.log(`spec.setup => prod_no:${this.prod_no}, prod_name:${this.prod_name}, pkg_no: ${this.pkg.pkg_no}`)
         },
         mounted: function () {
             emitter.on('clicked-show-detail', (data) => {
