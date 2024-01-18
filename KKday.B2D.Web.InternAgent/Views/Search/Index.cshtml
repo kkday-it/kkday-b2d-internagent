@@ -121,7 +121,8 @@
     <div class="row mt-4">
         <div class="col-md-12">
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Where do you want to go?" aria-label="Username" aria-describedby="basic-addon1">
+                <input type="text" class="form-control" placeholder="Where do you want to go?" aria-label="Username" aria-describedby="basic-addon1"
+                      v-model="search_key"  v-on:keyup.enter="Query">
                 @*<span class="input-group-text" id="basic-addon2" v-on:click="Query"><i class="ri-search-line"></i></span>*@
             </div>
         </div>
@@ -166,12 +167,12 @@
                         </h4>
                         <ul class="filter-list collapse">
                             @*<div class="chip-city-group">
-                    <template v-for="city in cities">
-                        <span class="chip chip-city">
-                            <a class="" v-html="city.name"></a>
-                        </span>
-                    </template>
-                </div>*@
+                                <template v-for="city in cities">
+                                    <span class="chip chip-city">
+                                        <a class="" v-html="city.name"></a>
+                                    </span>
+                                </template>
+                            </div>*@
                         </ul>
                     </div>
                     <div class="checkbox-filter-box">
@@ -223,7 +224,7 @@
         <div class="col-md-9 product-list">
             <template v-for="pd in prods">
                 <div class="product-listview search-info">
-                    <a :id="`product-card-${pd.prod_no}`" :href="`${_root_path}Product/${pd.prod_no}`" target="_blank" rel="noopener">
+                    <a :id="`product-card-${pd.prd_no}`" :href="`${_root_path}Product/${pd.prod_no}`" target="_blank" rel="noopener">
                         <div class="row">
                             <div class="col-sm-5 col-lg-4">
                                 <div class="img-bg" lazy="loaded" :style="{ backgroundImage: 'url(' + pd.prod_img_url + ')' }"></div>
@@ -255,6 +256,7 @@
                 </div>
             </template>
 
+            <!-- Pagination -->
             <div class="overflow-auto" v-if="prods.length > 0">
                 <b-pagination v-model="currentPage" @@change="Query"
                               :total-rows="totalRows"
@@ -264,8 +266,12 @@
                 <p class="mt-3" v-html="`@Localizer["Current_Page"]: ${currentPage}`"></p>
 
             </div>
-            <div v-if="prods.length==0" v-html="'@Localizer["Search_Loading"]'"></div>
 
+            <!-- Loading -->
+            <div class="col-12" v-show="isLoading">
+                <img id="loading" src="@Url.Content("~/images/loading-spin.gif")" style="width: 32px;" />
+                @Localizer["Search_Loading"]
+            </div>
         </div>
     </div>
 </div>
@@ -289,23 +295,11 @@
                 facets: {},
                 stats: {},
                 prods: [],
+                search_key: ''
             }
         },
         created: function () {
             this.Query();
-        },
-        //components: {
-        //    'prod-list': {
-        //        template: `<div>{{text}}</div>`,
-        //        data() {
-        //            return {
-        //                text: '我是局部註冊'
-        //            }
-        //        }
-        //    }
-        //},
-        computed: {
-
         },
         methods: {
             Query() {
@@ -315,12 +309,11 @@
                 this.isLoading = true;
                 setTimeout(() => {
                     this.Fetch();
-                    this.isLoading = false
                 }, 1000)
             },
             Fetch() {
                 let vm = this;
-                let req = { page: this.currentPage, size: this.perPage, range: this.sliderVal };
+                let req = { key: this.search_key, page: this.currentPage, size: this.perPage, range: this.sliderVal };
                 console.log(`Fetch => ${JSON.stringify(req)}`);
                 let uri = `${_root_path}Search/Query`;
                 fetch(uri, {
@@ -336,8 +329,9 @@
                         return response.json()
                     })
                     .then(result => {
-                        console.log(`${JSON.stringify(result)}`);
+                        // console.log(`${JSON.stringify(result)}`);
                         if (result.data) {
+                            console.log(`totalRow: ${result.data.metadata.total_count}`);
                             this.totalRows = result.data.metadata.total_count;
                             this.facets = result.data.facets;
                             this.stats = result.data.stats;
@@ -362,8 +356,10 @@
                             this.stats = {};
                             this.prods = [];
                         }
+
+                        this.isLoading = false;
                     })
-                    .catch(error => console.error('Unable to search.', error));
+                    .catch(error => { console.error('Unable to search.', error); this.isLoading = false });
 
             },
             rangeChanged(val) {

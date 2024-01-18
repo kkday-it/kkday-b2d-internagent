@@ -1081,6 +1081,9 @@
 
                 emitter.emit('date-changed', { pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate } });
             },
+            getAvDates() {
+                this.av_dates = [...new Set([].concat(...this.pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+            },
             loadMoreData(dt) {
                 let target_date = moment(dt, 'YYYY-MM-DD').subtract(2, 'months');
                 // console.log(`last_date: ${dt}, target_date: ${target_date.format('YYYY-MM-DD')}, sale_e_date: ${this.pkg.sale_e_date}`)
@@ -1102,7 +1105,8 @@
         mounted: function () {
             emitter.on('clicked-show-detail', (data) => {
                 if (data === this.pkg.pkg_no) {
-                    this.av_dates = [...new Set([].concat(...this.pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+                    // this.av_dates = [...new Set([].concat(...this.pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+                    this.getAvDates();
                     if (moment(this.av_dates[0], 'YYYY-MM-DD') > moment(this.date)) {
                         this.date = moment(this.av_dates[0], 'YYYY-MM-DD').toDate();
                         this.year = this.date.getFullYear();
@@ -1114,7 +1118,7 @@
 
             emitter.on('load-package-complete', (data) => {
                 if (data === this.pkg.pkg_no) {
-                    this.av_dates = [...new Set([].concat(...this.pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+                    this.getAvDates();
                 }
             });
         }
@@ -1226,9 +1230,12 @@
         watch: {
             sel_date: {
                 handler: function () {
-                    this.checkTimeslot();
-                    this.$forceUpdate();
-                    this.checkOut();
+                    console.log(`date changed, dates: ${JSON.stringify(this.sel_date)}, pkg_no: ${this.pkg.pkg_no}`);
+                    setTimeout(() => {
+                        this.checkTimeslot();
+                        this.checkOut();
+                        this.$forceUpdate();
+                    }, 50); 
                 }
             },
             sel_spec_items: {
@@ -1261,10 +1268,11 @@
                 this.unit = this.pkg.item[0].unit;
 
                 this.mode = '01'; // default mode:'01'(single)
-                if (this.specs.some(s => s.spec_oid === 'spec-single')) {
+                const spec_condition = { count: 0, price: 0, can_plus: true, can_minus: false, valid: true };
 
+                if (this.specs.some(s => s.spec_oid === 'spec-single')) { 
                     this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
-                    this.single_qty = { count: 0, price: 0, can_plus: true, can_minus: false };
+                    this.single_qty = { ...spec_condition };
                 }
                 else {
                     if (this.specs.some(s => s.spec_oid === 'spec-ticket')) {
@@ -1274,10 +1282,10 @@
                             i.selected = false;
                             i.disabled = false;
 
-                            this.ticket_qty[i.spec_item_oid] = { count: 0, price: 0, can_plus: true, can_minus: false };
+                            this.ticket_qty[i.spec_item_oid] = { ...spec_condition };
                         });
                     }
-                    else this.single_qty = { count: 0, price: 0, can_plus: true, can_minus: false };
+                    else this.single_qty = { ...spec_condition };
                 }
 
                 if (this.pkg.item[0].has_event) {
@@ -1364,6 +1372,7 @@
             },
             getSkuPrice(spec_item_oid) {
                 let price = this.pkg.b2b_min_price;
+                let is_valid = true;
 
                 // had selected date
                 if (this.sel_date.s_date || this.sel_date.e_date) {
@@ -1373,17 +1382,21 @@
                     if (this.mode === '02') {
                         temp_sel_spec_items.push(spec_item_oid);
                     }
-                    // console.log(`spec_item_oid => ${JSON.stringify(temp_sel_spec_items)}`)
+                    // console.log(`GetSkuPrice, spec_item_oid => ${JSON.stringify(temp_sel_spec_items)}`)
 
                     let match_skus = this.pkg.item[0].skus.find(s => s.specs_ref.every(r => temp_sel_spec_items.some(i => i === r.spec_value_id)));
-                    // console.log(`match_skus = ${JSON.stringify(match_skus)}`)
+                    // console.log(`GetSkuPrice, match_skus = ${JSON.stringify(match_skus)}`)
                     if (match_skus) {
                         let matched_date = match_skus.calendar_detail[this.sel_date.s_date];
-                        // console.log(`date=${JSON.stringify(this.sel_date)}, match_skus.calendar = ${JSON.stringify(matched_date)}`)
-                        if (matched_date) {
+                        console.log(`GetSkuPrice, date=${JSON.stringify(this.sel_date)}, match_skus.calendar = ${JSON.stringify(matched_date)}`)
+                        if (Object.keys(matched_date).length) {
                             if (this.sel_time_slot) price = matched_date.b2b_price[this.sel_time_slot];
                             else if (!this.pkg.item[0].has_event) price = matched_date.b2b_price["fullday"];
-                            // console.log(`date=${JSON.stringify(this.sel_date)}, time_slot=${this.sel_time_slot}, match_skus.calendar=${JSON.stringify(matched_date)} => price:${price}`)
+                            // console.log(`GetSkuPrice, date=${JSON.stringify(this.sel_date)}, time_slot=${this.sel_time_slot}, match_skus.calendar=${JSON.stringify(matched_date)} => price:${price}`)
+                        }
+                        else {
+                            is_valid = false;
+                            console.log(`GetSkuPrice, pkg_no:${this.pkg.pkg_no} and spec_item_oid:'${spec_item_oid}' has no matched price`);
                         }
                     }
                 }
@@ -1400,8 +1413,14 @@
                 }
                 // console.log(`spec_item_oid:${spec_item_oid} => price:${price}`);
 
-                if (this.mode === '01') { this.single_qty.price = price; }
-                if (this.mode === '02') this.ticket_qty[spec_item_oid].price = price;
+                if (this.mode === '01') {
+                    this.single_qty.price = price;
+                    this.single_qty.valid = is_valid;
+                }
+                if (this.mode === '02') {
+                    this.ticket_qty[spec_item_oid].price = price;
+                    this.ticket_qty[spec_item_oid].valid = is_valid;
+                }
 
                 return price;
             },
@@ -1409,42 +1428,54 @@
                 let grand_total = 0;
                 let total_qty = 0;
                 let range_days = 0
+
+                // (1) make sure one of the dates in the calendar is selected
+                console.log(`CheckOut, s_date => ${this.sel_date.s_date}, e_date => ${this.sel_date.e_date} `)
+                if (!(this.sel_date.s_date || this.sel_date.e_date)) {
+                    this.totalPrice = 0; return;
+                }
+
                 if (!this.is_date_range && this.sel_date.s_date) range_days = 1;
                 if (this.is_date_range && this.sel_date.s_date && this.sel_date.e_date) range_days = moment(this.sel_date.e_date).diff(moment(this.sel_date.s_date), 'd') + 1;
                 // console.log(`CheckOut => ${JSON.stringify(this.sel_date)}, range days: ${range_days} `);
 
-                if (this.mode === '01') {
+                // (2) get grand total
+                if (this.mode === '01' && this.single_qty.valid) {
                     total_qty = this.single_qty.count;
                     grand_total = this.single_qty.count * this.single_qty.price * range_days;
                 }
 
-                if (this.mode === '02') { 
+                if (this.mode === '02') {
+                    //total_qty = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count).reduce((a, b) => { return a + b }, 0);
+                    //grand_total = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count * this.ticket_qty[spec].price * range_days).reduce((a, b) => { return a + b }, 0);
+
                     // check all layers of sku has one be selected except to 'spec-ticket'
-                    total_qty = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count).reduce((a, b) => { return a + b }, 0);
-                    grand_total = Object.keys(this.ticket_qty).map(spec => this.ticket_qty[spec].count * this.ticket_qty[spec].price * range_days).reduce((a, b) => { return a + b }, 0);
+                    Object.keys(this.ticket_qty).forEach(t => {
+                        let spec = this.ticket_qty[t];
+                        if (spec.count > 0 && spec.valid) {
+                            total_qty += spec.count;
+                            grand_total += spec.count * spec.price * range_days
+                        }
+                    });
+                   
                 }
 
                 console.log(`Check Out, grand_total: ${grand_total}, total_qty: ${total_qty}`)
                 if (grand_total > 0) {
-                    // (1) mandatory specs be selected
+                    // (3) mandatory specs be selected
                     let sku_specs_len = this.specs.filter(s => s.spec_oid != 'spec-ticket').length;
                     let sel_specs_len = this.sel_spec_items.length;
                     console.log(`Check Out, sku layer.len: ${sku_specs_len}, selected spec item.len: ${sel_specs_len}`)
-                    if (sku_specs_len != sel_specs_len)  grand_total = 0
+                    if (sku_specs_len != sel_specs_len) grand_total = 0
 
-                    // (2) make sure one of the dates in the calendar is selected
-                    console.log(`CheckOut, s_date => ${this.sel_date.s_date}, e_date => ${this.sel_date.e_date} `)
-                    if (!(this.sel_date.s_date || this.sel_date.e_date)) grand_total = 0;
-
-                    // (3) if pkg has event, check time slot must one be selected
+                    // (4) if pkg has event, check time slot must one be selected
                     console.log(`CheckOut, has_event => ${this.pkg.item[0].has_event}, time-slot => ${this.sel_time_slot} `)
                     if (this.pkg.item[0].has_event && !this.sel_time_slot) grand_total = 0;
 
-                    // (4) sum all qty and observe to total_rule
+                    // (5) sum all qty and observe to total_rule
                     let rule = this.pkg.item[0].unit_quantity_rule.total_rule;
                     console.log(`CheckOut, rule => ${JSON.stringify(rule)} `)
                     if (total_qty > rule.max_quantity || total_qty < rule.min_quantity) grand_total = 0;
-
                 }
 
                 this.totalPrice = grand_total;
@@ -1455,36 +1486,57 @@
                 let inventory_set = this.pkg.item[0].inventory_set;
                 let inventory_type = this.pkg.item[0].inventory_type;
                 console.log(`CheckQuantity => inventory_set: ${inventory_set}, inventory_type: ${inventory_type} `);
-                // ignore inventory
-                if (inventory_set === 0) return true;
-                // based on item or sku 
+
+                // bypass to check inventory
+                if (inventory_set === 0 || inventory_type === null) {
+                    return true;
+                }
                 else {
-                    // inventory is unlimited
-                    if (inventory_type === null) return true;
-
-                    // inventory is based on item and total quantity
-                    if (inventory_set === 1 && inventory_type === 1) {
-                        if (this.pkg.allotment?.item_remain_qty && total_qty < this.pkg.allotment.item_remain_qty) return true;
-                        else return false;
-                    }
-
-                    // inventory is based on sku and total quantity
-                    if (inventory_set === 2 && inventory_type === 1) {
-                        if (skus && this.pkg.allotment?.sku_remain_qty) {
-                            let unmatched_cnt = 0;
-                            skus.forEach(s => {
-                                let sku_remain = this.pkg.allotment.sku_remain_qty.find(q => q.sku_id === s.sku_id);
-                                if (s.qty > sku_remain.remain_qty) unmatched_cnt++;
-                            });
-                            if (unmatched_cnt > 0) return false;
-                            else return true;
+                    // inventory is based on total quantity
+                    if (inventory_type === 1) {
+                        // item
+                        if (inventory_set === 1) {
+                            if (this.pkg.allotment?.item_remain_qty && total_qty < this.pkg.allotment.item_remain_qty) return true;
+                            else return false;
                         }
-                        else return false;
+                        // sku
+                        if (inventory_set === 2) {
+                            if (skus && this.pkg.allotment?.sku_remain_qty) {
+                                let unmatched_cnt = 0;
+                                skus.forEach(s => {
+                                    let sku_remain = this.pkg.allotment.sku_remain_qty.find(q => q.sku_id === s.sku_id);
+                                    if (s.qty > sku_remain.remain_qty) unmatched_cnt++;
+                                });
+                                if (unmatched_cnt > 0) return false;
+                                else return true;
+                            }
+                            else return false;
+                        }
                     }
+                    // inventory is based on date 
+                    else if (inventory_type === 2) {
+                        let unmatch_count = 0;
+                        // item 
+                        if (inventory_set === 1) {
+                            let remain_qty = [];
+                            if (this.is_date_range) remain_qty = this.pkg.allotment[0].itemCal_qty.filter(q => q.date >= this.sel_date.s_date && q.date <= this.sel_date.e_date).map(q => q.remain_qty);
+                            else remain_qty = allotment[0].itemCal_qty.filter(q => q.date === this.sel_date.s_date).map(q => q.remain_qty);
+                            
+                            if (remain_qty.length != range_days) unmatch_count++;
+                            if (!remain_qty.map(q => q[has_event ? this.sel_time_slot : 'fullday']).every(q => q >= total_qty)) unmatch_count++;
+                        }
 
-                    // inventory is based on date range 
-                    if (price_rule_type === 2) {
-                        console.log(`CheckQuantity based on date => allotment:${JSON.stringify(this.pkg.allotment)}`);
+                        // sku
+                        if (inventory_set === 2) {
+                            skus.forEach(s => {
+                                let remain_qty = [];
+                                remain_qty = this.pkg.allotment[0].skuCal_qty.find(q => q.sku_id === s.sku_id).sku_cal.filter(q => q.date >= this.sel_date.s_date && q.date <= this.sel_date.e_date).map(q => q.remain_qty);
+                                // console.log(`${JSON.stringify(remain_qty)}`);
+                                if (remain_qty.length != range_days) unmatch_count++;
+                                if (!remain_qty.map(q => q[has_event ? this.sel_time_slot : 'fullday']).every(q => q >= s.qty)) unmatch_count++;
+                            });
+                        }
+                        if (unmatch_count > 0) return false;
                     }
                 }
 
@@ -1636,8 +1688,8 @@
 
             emitter.on('date-changed', (data) => {
                 if (data.pkg_no === this.pkg.pkg_no) {
-                    console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
-                    this.sel_date = data.sel_date;
+                    // console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
+                    this.sel_date = data.sel_date;  
                 }
             })
         }
