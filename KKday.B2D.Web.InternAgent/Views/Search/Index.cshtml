@@ -111,7 +111,7 @@
             display: block;
             position: fixed;
             padding: 10px;
-            width: 280px;
+            width: 320px;
             left: 50%;
             margin-left: -150px;
             height: 180px;
@@ -121,7 +121,7 @@
             z-index: 20;
             border:1px solid #f2f2f2;
         }
-
+ 
     </style>
 }
 @section Scripts {
@@ -193,19 +193,26 @@
                         </div>
                         <div class="checkbox-filter-box">
                             <h4>@Localizer["All_Categories"]</h4>
-                            <template v-for="tags in facets.tag">
+                            <template v-for="tag in facets.tag">
                                 <div>
-                                    <div :value="tags.id" class="drop-title">
-                                        <h5 v-html="tags.name">
-                                            <div class="pull-right"><i class="fa fa-lg fa-angle-down"></i></div>
+                                    <div :value="tag.id" class="drop-title" @@click="tagToggle(tag)">
+                                        <h5>{{ tag.name }}
+                                            <div class="pull-right">
+                                                <i :class="{'ri-arrow-down-s-line': !tag.open, 'ri-arrow-up-s-line': tag.open }"></i>
+                                            </div>
                                             <div class="clearfix"></div>
                                         </h5>
                                     </div>
-                                    <ul class="checkbox-dropdown-list" style="display:none;">
-                                        <li class="checkbox"><i class="fa fa-square-o fa-lg"></i> <span class="checkbox-title">@Localizer["All"]</span></li>
-                                        <template v-for="sub_item in tags.sub_tags">
-                                            <li class="checkbox" v-if="sub_item.count > 0">
-                                                <i class="fa fa-square-o fa-lg"></i> <span :data-val="`cat|${sub_item.id}`" class="checkbox-title" v-html="`${sub_item.name} (${sub_item.count})`"></span>
+                                    <ul class="checkbox-dropdown-list" v-if="tag.open">
+                                        <li class="checkbox" @@click="subTagToggleAll(tag)">
+                                            <i class="ri-lg" :class="{'ri-checkbox-blank-line': !subTagCheckAll(tag), 'ri-checkbox-fill': subTagCheckAll(tag)}"></i>
+                                         
+                                            <span class="checkbox-title">@Localizer["All"]</span>
+                                        </li>
+                                        <template v-for="sub_tag in tag.sub_tags">
+                                            <li class="checkbox" v-if="sub_tag.count > 0" @@click="subTagToggle(sub_tag)">
+                                                <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_tag.checked, 'ri-checkbox-fill': sub_tag.checked}"></i>
+                                                <span :data-val="`cat|${sub_tag.id}`" class="checkbox-title" v-html="`${sub_tag.name} (${sub_tag.count})`"></span>
                                             </li>
                                         </template>
                                     </ul>
@@ -213,23 +220,37 @@
                             </template>
                         </div>
                         <div class="filter-box">
-                            <h4>@Localizer["Price_Range"] ({{currency}})</h4>
+                            <h4 v-cloak>@Localizer["Price_Range"] ({{currency}})</h4>
                             <div>
-                                <input type="text" id="js-range-slider" name="range" data-min="{{stats.price.min}}"
+                                <input v-cloak type="text" id="js-range-slider" name="range" data-min="{{stats.price.min}}"
                                        data-max="{{stats.price.max}}" data-from="{{stats.price.min}}"
                                        data-to="{{stats.price.max}}" @@change="rangeChanged" />
                             </div>
                         </div>
 
                         <div class="filter-box">
-                            <h4 class="collapsable">
-                                @Localizer["Journey_Time"] <i class="fa fa-caret-up pull-right"></i>
+                            <h4 class="collapsable" @@click="show_duration=!show_duration">
+                                @Localizer["Journey_Time"]
+                                <i class="fa fa-caret-up pull-right" v-if="show_duration"></i>
+                                <i class="fa fa-caret-down pull-right" v-if="!show_duration"></i>
                             </h4>
-                            <ul class="filter-list collapse in">
-                                <li class="checkbox"><i class="fa fa-lg fa-square-o"></i> <span data-val="time|8h" class="checkbox-title">@Localizer["Journey_Time_0h_8h"]</span></li>
-                                <li class="checkbox"><i class="fa fa-lg fa-square-o"></i> <span data-val="time|1d" class="checkbox-title">@Localizer["Journey_Time_8h_1d"]</span></li>
-                                <li class="checkbox"><i class="fa fa-lg fa-square-o"></i> <span data-val="time|2d" class="checkbox-title">@Localizer["Journey_Time_1d_2d"]</span></li>
-                                <li class="checkbox"><i class="fa fa-lg fa-square-o"></i> <span data-val="time|*" class="checkbox-title">@Localizer["Journey_Time_2d_more"]</span></li>
+                            <ul class="filter-list collapse in" v-if="show_duration">
+                                <li class="checkbox" @@click="durations[0].checked=!durations[0].checked">
+                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[0].checked, 'ri-checkbox-fill': durations[0].checked }"></i>
+                                    <span data-val="time|8h" class="checkbox-title">@Localizer["Journey_Time_0h_8h"]</span>
+                                </li>
+                                <li class="checkbox" @@click="durations[1].checked=!durations[1].checked">
+                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[1].checked, 'ri-checkbox-fill': durations[1].checked }"></i>
+                                    <span data-val="time|1d" class="checkbox-title">@Localizer["Journey_Time_8h_1d"]</span>
+                                </li>
+                                <li class="checkbox" @@click="durations[2].checked=!durations[2].checked">
+                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[2].checked, 'ri-checkbox-fill': durations[2].checked }"></i>
+                                    <span data-val="time|2d" class="checkbox-title">@Localizer["Journey_Time_1d_2d"]</span>
+                                </li>
+                                <li class="checkbox" @@click="durations[3].checked=!durations[3].checked">
+                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[3].checked, 'ri-checkbox-fill': durations[3].checked }"></i>
+                                    <span data-val="time|*" class="checkbox-title">@Localizer["Journey_Time_2d_more"]</span>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -258,11 +279,10 @@
 
                                         </div>
                                         <div class="product-footer">
-                                            <div class="product-star">
-                                            </div>
+                                            <div class="product-star"></div>
                                             <span class="divider"></span>
                                             <div class="product-pricing">
-                                                <div class="origin-price" v-html="pd.b2c_price"></div>
+                                                <div class="origin-price"> @Localizer["Original_Price"] {{ pd.b2c_price }}</div>
                                                 <span v-html="currency"></span> <h4 class="text-primary" v-html="pd.b2b_price"></h4>
                                             </div>
                                         </div>
@@ -279,7 +299,7 @@
                                   :total-rows="totalRows"
                                   :per-page="perPage"
                                   :limit="limit"
-                                  align="center" class="page-nav d-flex"></b-pagination>
+                                  align="center" class="d-flex" size="lg"></b-pagination>
                     <p class="mt-3" v-html="`@Localizer["Current_Page"]: ${currentPage}`"></p>
                 </div>
 
@@ -319,6 +339,11 @@
                 facets: {},
                 stats: {},
                 prods: [],
+                show_duration: true,
+                durations: [
+                    { time: '8h', checked: false }, { time: '1d', checked: false },
+                    { time: '2d', checked: false }, { time: '*', checked: false }
+                ],
                 search_key: ''
             }
         },
@@ -333,7 +358,7 @@
                 this.isLoading = true;
                 setTimeout(() => {
                     this.Fetch();
-                }, 1000)
+                }, 100)
             },
             Fetch() {
                 let vm = this;
@@ -357,7 +382,13 @@
                         if (result.data) {
                             console.log(`totalRow: ${result.data.metadata.total_count}`);
                             this.totalRows = result.data.metadata.total_count;
+                            result.data.facets.tag.forEach(t => {
+                                t.open = false;
+                                t.select_all = false;
+                                t.sub_tags.forEach(st => { st.checked = false });
+                            });
                             this.facets = result.data.facets;
+                             
                             this.stats = result.data.stats;
                             this.prods = result.data.prods;
 
@@ -385,6 +416,21 @@
                     })
                     .catch(error => { console.error('Unable to search.', error); this.isLoading = false });
 
+            },
+            tagToggle(tag) {
+                // console.log(`Tag Toggle, tag=>${JSON.stringify(tag)}`)
+                tag.open = !tag.open;
+            },
+            subTagCheckAll(tag) {
+                tag.select_all = tag.sub_tags.filter(t => t.checked === false).length < 1;
+                return tag.select_all;
+            },
+            subTagToggleAll(tag) {
+                if (tag.select_all) tag.sub_tags.forEach(t => t.checked = false);
+                else tag.sub_tags.forEach(t => t.checked = true);
+            },
+            subTagToggle(sub_tag) {
+                sub_tag.checked = !sub_tag.checked;
             },
             rangeChanged(val) {
                 this.sliderVal = val;                
