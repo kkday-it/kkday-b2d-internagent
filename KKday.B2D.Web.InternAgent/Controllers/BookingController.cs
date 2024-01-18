@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
 using KKday.B2D.Web.InternAgent.Models.Model;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,10 +18,24 @@ namespace KKday.B2D.Web.InternAgent.Controllers
             return View();
         }
 
-        public IActionResult LoadData([FromBody] BookingFieldModel req)
+        public IActionResult LoadData([FromBody] BookingFillReqModel req) // object req)
         {
-            var result = new Dictionary<string, object>();
-            return Json(result);
+            var jsonData = new Dictionary<string, object>();
+
+            // Convert to BookingModel
+            var bookingModel = JsonSerializer.Deserialize<BookingDataModel>(JsonSerializer.Serialize(req));
+
+            // Get BookingField by prod_no
+            var bookingField = new BookingFieldModel()
+            {
+                 Custom = new Custom(),
+                 Traffic = new Traffic()
+            };
+
+            jsonData.Add("bookingmodel", bookingModel ?? new BookingDataModel());
+            jsonData.Add("bookingfield", bookingField);
+
+            return Json(jsonData);
         }
     }
 }

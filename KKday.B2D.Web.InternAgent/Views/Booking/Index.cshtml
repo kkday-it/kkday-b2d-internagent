@@ -5,13 +5,68 @@
 }
 
 <h5>Booking Page</h5>
-<div id="booking_req"></div>
+<div id="App">
+     <div class="container">
+         <div class="row">
+             <div id="booking_html" class="col-12">
+             </div>
+         </div>
+    </div>
+</div>
 
 <script type="text/javascript">
-    $(function () {
-        let booking = localStorage.getItem("bookingReq");
-        $('#booking_req').text(booking);
+    
+    let app = new Vue({
+        el: '#App',
+        data() {
+            return {
+                isLoading: false,
+                prod_no: null,
+                pkg_no: null,
+                booking: {}
+            }
+        },
+        created: function () {
+            this.Query();
+        },
+        methods: {
+            Query() {
+                if (this.isLoading) {
+                    return;
+                }
+                this.isLoading = true;
+                setTimeout(() => {
+                    this.Fetch();
+                }, 100)
+            },
+            Fetch() { 
+                let req = localStorage.getItem("bookingReq");
+                // localStorage.removeItem("bookingReq");
+                console.log(`Fetch Req => ${req}`);
+                let uri = `${_root_path}Booking/LoadData`;
+                fetch(uri, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: req // JSON.stringify(req)
+                    })
+                    .then(response => {
+                        // console.log(response.status);
+                        return response.json()
+                    })
+                    .then(result => {
+                        console.log(`${JSON.stringify(result)}`);
 
-        localStorage.removeItem("bookingReq");
+                        $('#booking_html').text(JSON.stringify(result.bookingmodel));
+
+                        this.isLoading = false;
+                    })
+                    .catch(error => { console.error('Unable to search.', error); this.isLoading = false });
+
+            }
+            
+        }
     });
 </script>

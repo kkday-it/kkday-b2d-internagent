@@ -35,7 +35,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string prod_name { get; set; }
         public string unit { get; set; }
         public string unit_code { get; set; }
-        public int? unit_max { get; set; }
+        public string unit_max { get; set; }
         public List<Spec> specs { get; set; }
     }
 }
