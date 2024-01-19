@@ -1224,23 +1224,18 @@
             sel_date: {
                 handler: function () {
                     console.log(`date changed, dates: ${JSON.stringify(this.sel_date)}, pkg_no: ${this.pkg.pkg_no}`);
-                    setTimeout(() => {
-                        this.checkTimeslot();
-                        this.checkOut();
-                        this.$forceUpdate();
-                    }, 50); 
+                    this.checkTimeslot();
+                    this.refrehTotal(); 
                 }
             },
             sel_spec_items: {
-                handler: function () {
-                    this.$forceUpdate();
-                    this.checkOut();
+                handler: function () { 
+                    this.refrehTotal(); 
                 }
             },
             sel_time_slot: {
                 handler: function () {
-                    this.$forceUpdate();
-                    this.checkOut();
+                    this.refrehTotal(); 
                 }
             }
         },
@@ -1324,8 +1319,7 @@
                     if (spec_item.count < 1 || spec_item.count <= min_quantity) spec_item.can_minus = false;
                 }
 
-                this.$forceUpdate();
-                this.checkOut();
+                this.refrehTotal();
             },
             plus(spec_item_oid) {
                 let rule = this.pkg.item[0].unit_quantity_rule.total_rule;
@@ -1358,8 +1352,7 @@
                     if (spec_item.count >= rule.max_quantity) spec_item.can_plus = false;
                 }
 
-                this.$forceUpdate();
-                this.checkOut();
+                this.refrehTotal();
             },
             getSkuPrice(spec_item_oid) {
                 let price = this.pkg.b2b_min_price;
@@ -1384,11 +1377,15 @@
                             if (this.sel_time_slot) price = matched_date.b2b_price[this.sel_time_slot];
                             else if (!this.pkg.item[0].has_event) price = matched_date.b2b_price["fullday"];
                             // console.log(`GetSkuPrice, date=${JSON.stringify(this.sel_date)}, time_slot=${this.sel_time_slot}, match_skus.calendar=${JSON.stringify(matched_date)} => price:${price}`)
+
+                            console.log(`GetSkuPrice, final price:${price}`)
                         }
                         else {
                             is_valid = false;
                             console.log(`GetSkuPrice, pkg_no:${this.pkg.pkg_no} and spec_item_oid:'${spec_item_oid}' has no matched price`);
                         }
+                    } else {
+                        console.log(`GetSkuPrice, unmatch skus`);
                     }
                 }
                 // no selected date
@@ -1431,8 +1428,9 @@
                 // console.log(`CheckOut => ${JSON.stringify(this.sel_date)}, range days: ${range_days} `);
 
                 // (2) get grand total
-                if (this.mode === '01' && this.single_qty.valid) {
+                if (this.mode === '01' && this.single_qty.valid) { 
                     total_qty = this.single_qty.count;
+                    console.log(`CheckOut, Single => count: ${this.single_qty.count}, price: ${this.single_qty.price} `);
                     grand_total = this.single_qty.count * this.single_qty.price * range_days;
                 }
 
@@ -1445,6 +1443,7 @@
                         let spec = this.ticket_qty[t];
                         if (spec.count > 0 && spec.valid) {
                             total_qty += spec.count;
+                            console.log(`CheckOut, Ticket => count: ${spec.count}, price: ${spec.price} `);
                             grand_total += spec.count * spec.price * range_days
                         }
                     });
@@ -1472,11 +1471,13 @@
                 this.totalPrice = grand_total;
                 this.isBookable = this.totalPrice > 0;
             },
-            checkQuantity(total_qty, skus) {
+            checkQuantity(total_qty, skus) { 
+                let unmatch_count = 0;
                 let has_event = this.pkg.item[0].has_event;
                 let inventory_set = this.pkg.item[0].inventory_set;
                 let inventory_type = this.pkg.item[0].inventory_type;
                 console.log(`CheckQuantity => inventory_set: ${inventory_set}, inventory_type: ${inventory_type} `);
+                let range_days = this.is_date_range ? (moment(this.sel_date.e_date).diff(moment(this.sel_date.s_date), 'd') + 1) : 1;
 
                 // bypass to check inventory
                 if (inventory_set === 0 || inventory_type === null) {
@@ -1484,34 +1485,30 @@
                 }
                 else {
                     // inventory is based on total quantity
-                    if (inventory_type === 1) {
+                    if (inventory_type === 0) { 
                         // item
                         if (inventory_set === 1) {
-                            if (this.pkg.allotment?.item_remain_qty && total_qty < this.pkg.allotment.item_remain_qty) return true;
-                            else return false;
+                            console.log(`CheckQuantity, allotment.item_remain_qty: ${this.pkg.allotment.item_remain_qty} total_qty:${total_qty} `);
+                            if (this.pkg.allotment.item_remain_qty === undefined || this.pkg.allotment.item_remain_qty < total_qty) unmatch_count++;
                         }
                         // sku
-                        if (inventory_set === 2) {
-                            if (skus && this.pkg.allotment?.sku_remain_qty) {
-                                let unmatched_cnt = 0;
+                        else if (inventory_set === 2) {
+                            if (skus && this.pkg.allotment?.sku_remain_qty) { 
                                 skus.forEach(s => {
                                     let sku_remain = this.pkg.allotment.sku_remain_qty.find(q => q.sku_id === s.sku_id);
                                     if (s.qty > sku_remain.remain_qty) unmatched_cnt++;
-                                });
-                                if (unmatched_cnt > 0) return false;
-                                else return true;
+                                }); 
                             }
-                            else return false;
                         }
                     }
                     // inventory is based on date 
-                    else if (inventory_type === 2) {
-                        let unmatch_count = 0;
+                    else if (inventory_type === 1) {
+                        console.log(`CheckQuantity, pkg.allotment: ${JSON.stringify(this.pkg.allotment)} `);
                         // item 
                         if (inventory_set === 1) {
                             let remain_qty = [];
-                            if (this.is_date_range) remain_qty = this.pkg.allotment[0].itemCal_qty.filter(q => q.date >= this.sel_date.s_date && q.date <= this.sel_date.e_date).map(q => q.remain_qty);
-                            else remain_qty = allotment[0].itemCal_qty.filter(q => q.date === this.sel_date.s_date).map(q => q.remain_qty);
+                            if (this.is_date_range) remain_qty = this.pkg.allotment.filter(q => q.date >= this.sel_date.s_date && q.date <= this.sel_date.e_date).map(q => q.remain_qty);
+                            else remain_qty = this.pkg.allotment.filter(q => q.date === this.sel_date.s_date).map(q => q.remain_qty);
                             
                             if (remain_qty.length != range_days) unmatch_count++;
                             if (!remain_qty.map(q => q[has_event ? this.sel_time_slot : 'fullday']).every(q => q >= total_qty)) unmatch_count++;
@@ -1521,15 +1518,17 @@
                         if (inventory_set === 2) {
                             skus.forEach(s => {
                                 let remain_qty = [];
-                                remain_qty = this.pkg.allotment[0].skuCal_qty.find(q => q.sku_id === s.sku_id).sku_cal.filter(q => q.date >= this.sel_date.s_date && q.date <= this.sel_date.e_date).map(q => q.remain_qty);
+                                remain_qty = this.pkg.allotment.find(q => q.sku_id === s.sku_id).sku_cal.filter(q => q.date >= this.sel_date.s_date && q.date <= this.sel_date.e_date).map(q => q.remain_qty);
                                 // console.log(`${JSON.stringify(remain_qty)}`);
                                 if (remain_qty.length != range_days) unmatch_count++;
                                 if (!remain_qty.map(q => q[has_event ? this.sel_time_slot : 'fullday']).every(q => q >= s.qty)) unmatch_count++;
                             });
                         }
-                        if (unmatch_count > 0) return false;
                     }
                 }
+
+                console.log(`CheckQuantity, unmatched: ${unmatch_count} `);
+                if (unmatch_count > 0) return false;
 
                 return true;
             },
@@ -1581,9 +1580,14 @@
                                 }
                             });
                         });
-                    }
-
+                    } 
                 }
+            },
+            refrehTotal() {
+                setTimeout(() => {
+                    this.checkOut();
+                    this.$forceUpdate();
+                }, 20); 
             },
             booking() {
                 let req = {
@@ -1650,7 +1654,7 @@
                 // check if the sku is available and in stock
                 let total_qty = req.skus.map(s => s.qty).reduce((a, b) => { return a + b }, 0);
                 if (!this.checkQuantity(total_qty, req.skus)) {
-                    alert('The booking is out of stock！')
+                    alert('ERRPR: Out of stock！')
                     return;
                 }
 

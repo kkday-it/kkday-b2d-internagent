@@ -24,7 +24,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public bool has_event { get; set; } // Has to call QueryBackupEvent in booking, when it's true
         public bool last_spec_multi { get; set; } // Allow combined multiple spec items for booking
         public long price_type { get; set; } // 0:N/A, 1:Item-based inventory set, 2:SKU-based inventory set
-        public long? price_rule_type { get; set; } // null: Unlimited, 1:On total quantity, 2:Based on date
+        public long? price_rule_type { get; set; } // null: Unlimited, 0:Total quantity, 1:Based on date
         public string voucher_type { get; set; }
         public UnitQuantityRule unit_quantity_rule { get; set; }
         public decimal b2c_min_price { get; set; }
