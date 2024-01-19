@@ -350,8 +350,8 @@
                 prods: [],
                 show_duration: true,
                 durations: [
-                    { time: '8h', checked: false }, { time: '1d', checked: false },
-                    { time: '2d', checked: false }, { time: '*', checked: false }
+                    { time: "0,8", checked: false }, { time: "8,24", checked: false },
+                    { time: "24,48", checked: false }, { time: "72,*", checked: false }
                 ],
                 search_key: '',
                 sel_sub_tags: []
@@ -380,9 +380,10 @@
             Fetch() { 
                 let vm = this;
                 let req = {
-                    key: this.search_key, page: this.currentPage, size: this.perPage
+                    key: this.search_key, page: this.currentPage, size: this.perPage,
+                    durations: this.durations.filter(d => d.checked).map(d => d.time)
                 };
-                 
+                  
                 req.cat_keys = this.sel_sub_tags.length ? this.sel_sub_tags.map(st => st.id) : null;
 
                 if (!this.load_once) {
