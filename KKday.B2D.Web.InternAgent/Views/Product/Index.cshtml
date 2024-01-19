@@ -194,7 +194,7 @@
                     <div class="option-booking">
                         <h4>
                             <div class="pull-right">
-                                <a class="link-secondary a-reload" @@click="optionReload">
+                                <a class="link-secondary a-reload" @@click="optionReload(item.pkg_no)">
                                     <i class="icons icon-reload"></i>
                                     @Localizer["Reset_All"]
                                 </a>
@@ -674,25 +674,7 @@
                     })
                     .catch(error => {
                         console.error(`Unable to fetch allotment(pkg:${pkg_no}) `, error);
-                    });
-
-                //var result;
-                //
-                //$.ajax({
-                //    type: "POST",
-                //    url: `${_root_path}Product/GetAllotment`,
-                //    data: JSON.stringify(req),
-                //    dataType: "json",
-                //    async: false,
-                //    contentType: "application/json; charset=utf-8",
-                //    success: function (data) {
-                //        result = data;
-                //    },
-                //    error: function () {
-                //        alert("Error while getting files");
-                //    }
-                //});
-                //return result;
+                    }); 
             },
             journeyTime() {
                 if (!(this.prod.days || this.prod.hours || this.prod.duration)) return '';
@@ -760,8 +742,8 @@
                     $('#pkg_' + pkg.pkg_no).find('.option-booking').show();
                 }
             },
-            optionReload() {
-
+            optionReload(pkg_no) {
+                emitter.emit('unselect-package', pkg_no);
             }
         },
         mounted: function () {
@@ -1121,17 +1103,28 @@
                     this.getAvDates();
                 }
             });
+
+            emitter.on('unselect-package', (data) => {
+                if (data === this.pkg.pkg_no) {
+                    this.sel_sdate = this.sel_edate = null;
+                    this.dates.forEach(dt => dt.selected = false);
+
+                    this.$forceUpdate();
+                }
+            });
         }
     });
 
     ///////
 
     // Spec Component
+    const spec_condition = { count: 0, price: 0, can_plus: true, can_minus: false, valid: true };
+
     Vue.component('spec-section', {
         props: ['pkg'],
         data: function () {
             return {
-                mode: 'single',
+                mode: '01',
                 pkg: {},
                 specs: [],
                 time_slots: [],
@@ -1268,8 +1261,6 @@
                 this.unit = this.pkg.item[0].unit;
 
                 this.mode = '01'; // default mode:'01'(single)
-                const spec_condition = { count: 0, price: 0, can_plus: true, can_minus: false, valid: true };
-
                 if (this.specs.some(s => s.spec_oid === 'spec-single')) { 
                     this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
                     this.single_qty = { ...spec_condition };
@@ -1689,9 +1680,31 @@
             emitter.on('date-changed', (data) => {
                 if (data.pkg_no === this.pkg.pkg_no) {
                     // console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
-                    this.sel_date = data.sel_date;  
+                    this.sel_date = data.sel_date;
                 }
-            })
+            });
+
+            emitter.on('unselect-package', (data) => {
+                if (data === this.pkg.pkg_no) {
+                    this.sel_spec_items = [];
+                    this.sel_time_slot = this.sel_date.s_date = this.sel_date.e_date = null;
+                    this.time_slots.forEach(s => s.selected = false);
+                    this.specs.map(s => s.spec_items).flat().forEach(i => {
+                        i.selected = false;
+                        i.disabled = false;
+                    });
+
+                    if (this.mode === '01') this.single_qty = { ...spec_condition };
+                    else {
+                        Object.keys(this.ticket_qty).forEach(spec => {
+                            this.ticket_qty[spec] = { ...spec_condition };
+                        });
+                    }
+
+                    this.checkOut();
+                    this.$forceUpdate();
+                }
+            });
         }
     });
 
