@@ -119,15 +119,15 @@
             margin-top: -100px;
             background: #FFF;
             z-index: 20;
-            border:1px solid #f2f2f2;
+            border: 1px solid #f2f2f2;
         }
- 
     </style>
 }
 @section Scripts {
     <script src="~/lib/ion-rangeSlider/js/ion.rangeSlider.min.js"></script>
     <script src="~/js/moment-with-locales.js"></script>
     <script src="~/lib/jquery-daterangepicker/daterangepicker.js"></script>
+    <script src="https://unpkg.com/mitt/dist/mitt.umd.js"></script>
 }
 
 
@@ -138,8 +138,7 @@
             <div class="col-md-12">
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Where do you want to go?" aria-label="Username" aria-describedby="basic-addon1"
-                           v-model="search_key" v-on:keyup.enter="Query">
-                    @*<span class="input-group-text" id="basic-addon2" v-on:click="Query"><i class="ri-search-line"></i></span>*@
+                           v-model="search_key" v-on:keyup.enter="currentPage=1; Query();">
                 </div>
             </div>
         </div>
@@ -195,8 +194,9 @@
                             <h4>@Localizer["All_Categories"]</h4>
                             <template v-for="tag in facets.tag">
                                 <div>
-                                    <div :value="tag.id" class="drop-title" @@click="tagToggle(tag)">
-                                        <h5>{{ tag.name }}
+                                    <div :value="tag.id" class="drop-title" @@click.stop="tagToggle(tag)">
+                                        <h5>
+                                            {{ tag.name }}
                                             <div class="pull-right">
                                                 <i :class="{'ri-arrow-down-s-line': !tag.open, 'ri-arrow-up-s-line': tag.open }"></i>
                                             </div>
@@ -204,13 +204,12 @@
                                         </h5>
                                     </div>
                                     <ul class="checkbox-dropdown-list" v-if="tag.open">
-                                        <li class="checkbox" @@click="subTagToggleAll(tag)">
+                                        <li class="checkbox" @@click.stop="subTagToggleAll(tag)">
                                             <i class="ri-lg" :class="{'ri-checkbox-blank-line': !subTagCheckAll(tag), 'ri-checkbox-fill': subTagCheckAll(tag)}"></i>
-                                         
                                             <span class="checkbox-title">@Localizer["All"]</span>
                                         </li>
                                         <template v-for="sub_tag in tag.sub_tags">
-                                            <li class="checkbox" v-if="sub_tag.count > 0" @@click="subTagToggle(sub_tag)">
+                                            <li class="checkbox" v-if="sub_tag.count > 0" @@click.stop="subTagToggle(sub_tag)">
                                                 <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_tag.checked, 'ri-checkbox-fill': sub_tag.checked}"></i>
                                                 <span :data-val="`cat|${sub_tag.id}`" class="checkbox-title" v-html="`${sub_tag.name} (${sub_tag.count})`"></span>
                                             </li>
@@ -229,25 +228,25 @@
                         </div>
 
                         <div class="filter-box">
-                            <h4 class="collapsable" @@click="show_duration=!show_duration">
+                            <h4 class="collapsable" @@click.stop="show_duration=!show_duration">
                                 @Localizer["Journey_Time"]
                                 <i class="fa fa-caret-up pull-right" v-if="show_duration"></i>
                                 <i class="fa fa-caret-down pull-right" v-if="!show_duration"></i>
                             </h4>
                             <ul class="filter-list collapse in" v-if="show_duration">
-                                <li class="checkbox" @@click="durations[0].checked=!durations[0].checked">
+                                <li class="checkbox" @@click.stop="durations[0].checked=!durations[0].checked">
                                     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[0].checked, 'ri-checkbox-fill': durations[0].checked }"></i>
                                     <span data-val="time|8h" class="checkbox-title">@Localizer["Journey_Time_0h_8h"]</span>
                                 </li>
-                                <li class="checkbox" @@click="durations[1].checked=!durations[1].checked">
+                                <li class="checkbox" @@click.stop="durations[1].checked=!durations[1].checked">
                                     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[1].checked, 'ri-checkbox-fill': durations[1].checked }"></i>
                                     <span data-val="time|1d" class="checkbox-title">@Localizer["Journey_Time_8h_1d"]</span>
                                 </li>
-                                <li class="checkbox" @@click="durations[2].checked=!durations[2].checked">
+                                <li class="checkbox" @@click.stop="durations[2].checked=!durations[2].checked">
                                     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[2].checked, 'ri-checkbox-fill': durations[2].checked }"></i>
                                     <span data-val="time|2d" class="checkbox-title">@Localizer["Journey_Time_1d_2d"]</span>
                                 </li>
-                                <li class="checkbox" @@click="durations[3].checked=!durations[3].checked">
+                                <li class="checkbox" @@click.stop="durations[3].checked=!durations[3].checked">
                                     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[3].checked, 'ri-checkbox-fill': durations[3].checked }"></i>
                                     <span data-val="time|*" class="checkbox-title">@Localizer["Journey_Time_2d_more"]</span>
                                 </li>
@@ -259,7 +258,15 @@
 
             <!-- product-list -->
             <div class="col-md-9 product-list">
-
+                <div class="board product-result mb-0 result-board">
+                    <h4>
+                        <span class="text-primary">
+                            {{ totalRows }}
+                        </span>
+                        項體驗行程
+                    </h4>
+                    <tags-section></tags-section>
+                </div>
                 <template v-for="pd in prods">
                     <div class="product-listview search-info">
                         <a :id="`product-card-${pd.prd_no}`" :href="`${_root_path}Product/${pd.prod_no}`" target="_blank" rel="noopener">
@@ -295,7 +302,7 @@
 
                 <!-- Pagination -->
                 <div class="overflow-auto" v-if="prods.length > 0">
-                    <b-pagination v-model="currentPage" @@change="Query"
+                    <b-pagination v-model="currentPage" @@change="Query()"
                                   :total-rows="totalRows"
                                   :per-page="perPage"
                                   :limit="limit"
@@ -321,11 +328,13 @@
 
 
 <script type="text/javascript">
+    const emitter = mitt();
 
     let app = new Vue({
-        //el: '#App',
+        el: '#App',
         data() {
             return {
+                load_once: true,
                 currentPage: 1,
                 totalRows: 0,
                 perPage: 25,
@@ -344,7 +353,16 @@
                     { time: '8h', checked: false }, { time: '1d', checked: false },
                     { time: '2d', checked: false }, { time: '*', checked: false }
                 ],
-                search_key: ''
+                search_key: '',
+                sel_sub_tags: []
+            }
+        },
+        watch: {
+            sel_sub_tags: {
+                handler: function () {
+                    this.currentPage = 1;
+                    this.Query();
+                }
             }
         },
         created: function () {
@@ -352,17 +370,27 @@
         },
         methods: {
             Query() {
-                if (this.isLoading) {
-                    return;
-                }
+                if (this.isLoading) return;
+
                 this.isLoading = true;
                 setTimeout(() => {
                     this.Fetch();
                 }, 100)
             },
-            Fetch() {
+            Fetch() { 
                 let vm = this;
-                let req = { key: this.search_key, page: this.currentPage, size: this.perPage, range: this.sliderVal };
+                let req = {
+                    key: this.search_key, page: this.currentPage, size: this.perPage
+                };
+                 
+                req.cat_keys = this.sel_sub_tags.length ? this.sel_sub_tags.map(st => st.id) : null;
+
+                if (!this.load_once) {
+                    var slider = $("#js-range-slider").data("ionRangeSlider");
+                    req.price_from = parseFloat(slider.result.from);
+                    req.price_to = parseFloat(slider.result.to);
+                }
+
                 console.log(`Fetch => ${JSON.stringify(req)}`);
                 let uri = `${_root_path}Search/Query`;
                 fetch(uri, {
@@ -382,33 +410,38 @@
                         if (result.data) {
                             console.log(`totalRow: ${result.data.metadata.total_count}`);
                             this.totalRows = result.data.metadata.total_count;
-                            result.data.facets.tag.forEach(t => {
-                                t.open = false;
-                                t.select_all = false;
-                                t.sub_tags.forEach(st => { st.checked = false });
-                            });
-                            this.facets = result.data.facets;
-                             
-                            this.stats = result.data.stats;
                             this.prods = result.data.prods;
 
-                            $('#js-range-slider').ionRangeSlider({
-                                type: "double",
-                                grid: false,
-                                prettify_separator: ","
-                            });
+                            if (this.load_once) {
+                                result.data.facets.tag.forEach(t => {
+                                    t.open = false;
+                                    t.select_all = false;
+                                    t.sub_tags.forEach(st => { st.checked = false });
+                                });
+                                this.facets = result.data.facets;
+                                this.stats = result.data.stats;
 
-                            let range = $("#js-range-slider").data("ionRangeSlider");
-                            if (range) range.update({ min: this.stats.price.min, max: this.stats.price.max });
-                            $("#js-range-slider").on('change', function () {
-                                if (vm.sliderVal == null) vm.sliderVal = this.value; // prevent first time
-                                else vm.rangeChanged(this.value);
-                            });
+                                $('#js-range-slider').ionRangeSlider({
+                                    type: "double",
+                                    grid: false,
+                                    prettify_separator: ","
+                                });
 
+                                let range = $("#js-range-slider").data("ionRangeSlider");
+                                if (range) {
+                                    console.log(`range val updated!`)
+                                    range.update({ min: this.stats.price.min, max: this.stats.price.max });
+                                }
+
+                                $("#js-range-slider").on('change', function () {
+                                    vm.rangeChanged(this.value);
+                                });
+
+                                this.load_once = false;
+                            }
                         }
                         else {
-                            this.facets = {};
-                            this.stats = {};
+                            this.facets = this.stats = {};
                             this.prods = [];
                         }
 
@@ -426,19 +459,79 @@
                 return tag.select_all;
             },
             subTagToggleAll(tag) {
-                if (tag.select_all) tag.sub_tags.forEach(t => t.checked = false);
-                else tag.sub_tags.forEach(t => t.checked = true);
+                if (tag.select_all) {
+                    tag.sub_tags.forEach(t => t.checked = false);
+                    this.sel_sub_tags = this.sel_sub_tags.filter(t => !tag.sub_tags.some(s => s.id === t.id));
+                }
+                else {
+                    tag.sub_tags.forEach(st => {
+                        st.checked = true;
+                        this.sel_sub_tags.push(st);
+                    });
+                    this.sel_sub_tags = [...new Set(this.sel_sub_tags)];
+                }
             },
             subTagToggle(sub_tag) {
-                sub_tag.checked = !sub_tag.checked;
+                if (sub_tag.checked) {
+                    sub_tag.checked = false;
+                    this.sel_sub_tags = this.sel_sub_tags.filter(t => t.id != sub_tag.id);
+                }
+                else {
+                    sub_tag.checked = true;
+                    this.sel_sub_tags.push(sub_tag);
+                }
+            },
+            unselectTag(id) {
+                let sel_sub_tags = this.facets.tag.map(t => t.sub_tags.filter(st => st.id === id && st.checked).map(st => st)).flat();
+                if (sel_sub_tags.length) {
+                    this.sel_sub_tags = this.sel_sub_tags.filter(st => st.id != id);
+
+                    let sub_tags = this.facets.tag.map(t => t.sub_tags.filter(st => st.id === id).map(st => st)).flat();
+                    sub_tags.forEach(st => st.checked = false);
+                }
             },
             rangeChanged(val) {
-                this.sliderVal = val;                
+                this.currentPage = 1;
                 this.Query();
+            },
+            resetAllTags() {
+                let sub_tags = this.facets.tag.map(t => t.sub_tags.filter(st => st.checked).map(st => st)).flat();
+                sub_tags.forEach(st => st.checked = false);
+                this.sel_sub_tags = [];
             }
+        },
+        mounted: function () {
+            emitter.on('reset-all-tags', (data) => {
+                this.resetAllTags();
+            });
+
+            emitter.on('unselect-tag', (data) => {
+                this.unselectTag(data);
+            });
         }
     });
-     
-    app.$mount('#App');
 
+     Vue.component('tags-section', {
+        data: function () {
+             return {
+
+            }
+        },
+        template: `
+    <span v-if="this.$parent.sel_sub_tags.length">
+        <span class="chip" v-for="tag in this.$parent.sel_sub_tags"><a>{{tag.name}}</a> <span class="delete-chip" @@click.stop="unselectTag(tag.id)">✕</span></span>
+        <span class="chip clearall"><a href="javascript:;" @@click="resetAllTags()">清除所有</a></span>
+    </span>`,
+         created: function () {
+
+         },
+         methods: {
+             unselectTag(id) {
+                 emitter.emit('unselect-tag', id);
+             },
+             resetAllTags() {
+                 emitter.emit('reset-all-tags');
+             }
+         }
+    });
 </script>
