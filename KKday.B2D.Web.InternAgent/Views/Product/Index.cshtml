@@ -1691,13 +1691,17 @@
             emitter.on('unselect-package', (data) => {
                 if (data === this.pkg.pkg_no) {
                     this.sel_spec_items = [];
+                    if (this.specs.some(s => s.spec_oid === 'spec-single')) {
+                        this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
+                    }
+                    //
                     this.sel_time_slot = this.sel_date.s_date = this.sel_date.e_date = null;
                     this.time_slots.forEach(s => s.selected = false);
                     this.specs.map(s => s.spec_items).flat().forEach(i => {
                         i.selected = false;
                         i.disabled = false;
                     });
-
+                    //
                     if (this.mode === '01') this.single_qty = { ...spec_condition };
                     else {
                         Object.keys(this.ticket_qty).forEach(spec => {
