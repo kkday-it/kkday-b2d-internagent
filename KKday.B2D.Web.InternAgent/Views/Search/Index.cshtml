@@ -114,7 +114,7 @@
             width: 320px;
             left: 50%;
             margin-left: -150px;
-            height: 180px;
+            height: 160px;
             top: 50%;
             margin-top: -100px;
             background: #FFF;
@@ -234,19 +234,19 @@
                                 <i class="fa fa-caret-down pull-right" v-if="!show_duration"></i>
                             </h4>
                             <ul class="filter-list collapse in" v-if="show_duration">
-                                <li class="checkbox" @@click.stop="durations[0].checked=!durations[0].checked">
+                                <li class="checkbox" @@click.stop="durations[0].checked=!durations[0].checked; Query();">
                                     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[0].checked, 'ri-checkbox-fill': durations[0].checked }"></i>
                                     <span data-val="time|8h" class="checkbox-title">@Localizer["Journey_Time_0h_8h"]</span>
                                 </li>
-                                <li class="checkbox" @@click.stop="durations[1].checked=!durations[1].checked">
+                                <li class="checkbox" @@click.stop="durations[1].checked=!durations[1].checked; Query();">
                                     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[1].checked, 'ri-checkbox-fill': durations[1].checked }"></i>
                                     <span data-val="time|1d" class="checkbox-title">@Localizer["Journey_Time_8h_1d"]</span>
                                 </li>
-                                <li class="checkbox" @@click.stop="durations[2].checked=!durations[2].checked">
+                                <li class="checkbox" @@click.stop="durations[2].checked=!durations[2].checked; Query();">
                                     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[2].checked, 'ri-checkbox-fill': durations[2].checked }"></i>
                                     <span data-val="time|2d" class="checkbox-title">@Localizer["Journey_Time_1d_2d"]</span>
                                 </li>
-                                <li class="checkbox" @@click.stop="durations[3].checked=!durations[3].checked">
+                                <li class="checkbox" @@click.stop="durations[3].checked=!durations[3].checked; Query();">
                                     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[3].checked, 'ri-checkbox-fill': durations[3].checked }"></i>
                                     <span data-val="time|*" class="checkbox-title">@Localizer["Journey_Time_2d_more"]</span>
                                 </li>
@@ -299,6 +299,13 @@
                         </a>
                     </div>
                 </template>
+                <div class="product-listview search-info" v-if="prods.length < 1">
+                    <div class="row">
+                        <div class="col-12 p-5">
+                            @Localizer["No_Matched_Product"]
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Pagination -->
                 <div class="overflow-auto" v-if="prods.length > 0">
@@ -330,6 +337,16 @@
 <script type="text/javascript">
     const emitter = mitt();
 
+    $(function () {
+        $('#js-range-slider').ionRangeSlider({
+            type: "double",
+            grid: false,
+            prettify_separator: ",",
+            min: 0,
+            max: 0
+        });
+    })
+
     let app = new Vue({
         el: '#App',
         data() {
@@ -339,7 +356,7 @@
                 totalRows: 0,
                 perPage: 25,
                 limit: 8,
-                isLoading: false,
+                isLoading: false, 
                 locale: '@locale',
                 price_range: { min: null, max: null },
                 currency: '@Localizer[Website.Instance.Currency]',
@@ -375,7 +392,7 @@
                 this.isLoading = true;
                 setTimeout(() => {
                     this.Fetch();
-                }, 100)
+                }, 200)
             },
             Fetch() { 
                 let vm = this;
@@ -384,12 +401,14 @@
                     durations: this.durations.filter(d => d.checked).map(d => d.time)
                 };
                   
-                req.cat_keys = this.sel_sub_tags.length ? this.sel_sub_tags.map(st => st.id) : null;
+                if (this.sel_sub_tags.length) req.cat_keys = this.sel_sub_tags.map(st => st.id);
 
                 if (!this.load_once) {
                     var slider = $("#js-range-slider").data("ionRangeSlider");
-                    req.price_from = parseFloat(slider.result.from);
-                    req.price_to = parseFloat(slider.result.to);
+                    if (slider.result.from && slider.result.to) {
+                        req.price_from = parseFloat(slider.result.from);
+                        req.price_to = parseFloat(slider.result.to);
+                    }
                 }
 
                 console.log(`Fetch => ${JSON.stringify(req)}`);
@@ -407,11 +426,11 @@
                         return response.json()
                     })
                     .then(result => {
-                        // console.log(`${JSON.stringify(result)}`);
+                        console.log(`${JSON.stringify(result)}`);
                         if (result.data) {
-                            console.log(`totalRow: ${result.data.metadata.total_count}`);
                             this.totalRows = result.data.metadata.total_count;
                             this.prods = result.data.prods;
+                            console.log(`Fetch => totalRows:${this.totalRows}, product.len:${this.prods.length}`)
 
                             if (this.load_once) {
                                 result.data.facets.tag.forEach(t => {
@@ -421,17 +440,13 @@
                                 });
                                 this.facets = result.data.facets;
                                 this.stats = result.data.stats;
-
-                                $('#js-range-slider').ionRangeSlider({
-                                    type: "double",
-                                    grid: false,
-                                    prettify_separator: ","
-                                });
-
+                                 
                                 let range = $("#js-range-slider").data("ionRangeSlider");
                                 if (range) {
-                                    console.log(`range val updated!`)
-                                    range.update({ min: this.stats.price.min, max: this.stats.price.max });
+                                    range.update({
+                                        min: this.stats.price.min, max: this.stats.price.max,
+                                        from: this.stats.price.min, to: this.stats.price.max
+                                    }); 
                                 }
 
                                 $("#js-range-slider").on('change', function () {
@@ -444,6 +459,12 @@
                         else {
                             this.facets = this.stats = {};
                             this.prods = [];
+                            this.totalRows = 0;
+                            let range = $("#js-range-slider").data("ionRangeSlider");
+                            if (range) {
+                                range.update({ min: 0, max: 0});
+                            }
+                            this.load_once = true;
                         }
 
                         this.isLoading = false;
