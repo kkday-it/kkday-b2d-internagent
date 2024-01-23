@@ -1,6 +1,120 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+@{ 
+    var locale = CultureInfo.CurrentCulture; 
 }
 
+<div id="App">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <template>
+                    <div class="overflow-auto" v-if="items.length">
+
+                        <b-table id="my-table" striped hover
+                                 :fields="fields"
+                                 :items="items"
+                                 :per-page="0"
+                                 :current-page="currentPage"
+                                 small> 
+                            <template v-slot:cell(action)="data">
+                                <b-button size="sm" class="mr-1" @@click="viewOrder(data)"> More </b-button>
+                                <!-- <b-button size="sm" @@click="deleteRecord(data)"> Delete </b-button> -->
+                            </template>
+                        </b-table>
+
+                        <b-pagination v-model="currentPage" @@change="Query()"
+                                      :total-rows="this.totalRows"
+                                      :per-page="perPage"
+                                      aria-controls="my-table"></b-pagination>
+
+                        <p class="mt-3">Current Page: {{ currentPage }}</p>
+
+                    </div>
+                    <div class="overflow-auto" v-if="!items.length">
+                        No Data Found!
+                    </div>
+                </template>
+            </div>
+        </div> 
+    </div>
+   
+</div>
+
+<script>
+    let app = new Vue({
+        el: '#App',
+        data() {
+            return {
+                isLoading: false,
+                perPage: 10,
+                currentPage: 1,
+                totalRows: 0,
+                rnd: 1,
+                fields: [
+                    { key: 'order_no', label: '@Localizer["Order_No"]' },
+                    { key: 'order_date', label: '@Localizer["Order_Date"]' },
+                    { key: 'prod_s_date', label: '@Localizer["Dept_Date"]' },
+                    { key: 'prod_name', label: '@Localizer["Prod_Name"]' },
+                    { key: 'qty_total', label: '@Localizer["Qty"]' },
+                    { key: 'action', label: '' }
+                ],
+                items: [
+                ]
+            };
+        },
+        created: function () {
+            this.Query();
+        },
+        computed: {
+            rows() {
+                return this.totalRows;
+            }
+        },
+        methods: {
+            Query() {
+                console.log(`Query loading...`)
+                if (this.isLoading) {
+                    return;
+                }
+                this.isLoading = true;
+
+                setTimeout(() => {
+                    this.Fetch();
+                    this.isLoading = false;
+                    this.$forceUpdate();
+                }, 100);
+
+            },
+            Fetch() {
+                let req = {
+                    current_page: this.currentPage, page_size: this.perPage, time_zone: 'Asia/Taipei'
+                };
+
+                console.log(`Query fetch req => ${JSON.stringify(req)}`);
+
+                fetch(`${_root_path}Order/Query`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json;charset=utf-8',
+                        'Content-Type': 'application/json;charset=UTF-8'
+                    },
+                    body: JSON.stringify(req)
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(`Query fetch resp => ${JSON.stringify(data)}`);
+                        this.totalRows = data.order_qty;
+                        this.items = data.order;
+                    })
+                    .catch(error => console.error('Unable to get orders.', error));
+            },
+            viewOrder(data) {
+                console.log(`View Order => ${JSON.stringify(data)}`)
+            }
+        }
+
+    });
+</script>

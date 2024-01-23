@@ -33,7 +33,7 @@ namespace KKday.B2D.Web.InternAgent.Proxy
                         #region JSON Payload
 
                         var content = JsonConvert.SerializeObject(req, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-                        // Console.WriteLine($"Product Req Payload => {content}");
+                        // Console.WriteLine($"QueryOrder Req Payload => {content}");
 
                         #endregion JSON Payload
 
