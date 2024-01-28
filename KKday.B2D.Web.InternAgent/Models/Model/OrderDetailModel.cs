@@ -6,8 +6,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     public class OrderDetailModel
     {      
         public string partner_order_no { get; set; }
-        public string prod_no { get; set; }
-        public string pkg_no { get; set; }
+        public Int64 prod_no { get; set; }
+        public Int64 pkg_no { get; set; }
         public string buyer_first_name { get; set; }
         public string buyer_last_name { get; set; }
         public string buyer_Email { get; set; }

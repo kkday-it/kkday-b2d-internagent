@@ -3,6 +3,8 @@
   "Order_Date": "Order Date",
   "Dept_Date": "Dept Date",
   "Prod_Name": "Prod Name",
-  "Qty": "Qty"
+  "Total_Amount": "Amount USD",
+  "Qty": "Qty",
+  "More":  "More"
 }
 

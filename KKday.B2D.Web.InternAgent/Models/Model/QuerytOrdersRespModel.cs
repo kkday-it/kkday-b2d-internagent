@@ -24,6 +24,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public int qty_total { get; set; }
         public string prod_s_date { get; set; } // 2024-02-29 (Taipei)",
         public string prod_e_date { get; set; }
+        public decimal total_price { get; set; }
         public decimal cancel_fee { get; set; }
         public decimal refund_price { get; set; }
     }

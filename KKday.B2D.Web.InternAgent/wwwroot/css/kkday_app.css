@@ -17973,7 +17973,7 @@ div.union .report-result {
             border-bottom: 3px solid rgba(19,129,132,.5)
         }
 
-        .page-tab > li.active {
+        .page-tab > li.nav-item > button.active {
             border-bottom: 3px solid #138184
         }
 

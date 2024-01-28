@@ -106,7 +106,7 @@
         .calendar-table {
             padding-bottom: 30px;
         }
-
+        .pagination { display:flex !important; } 
         .popup-msg {
             display: block;
             position: fixed;
@@ -313,7 +313,7 @@
                                   :total-rows="totalRows"
                                   :per-page="perPage"
                                   :limit="limit"
-                                  align="center" class="d-flex" size="lg"></b-pagination>
+                                  align="center" size="lg"></b-pagination>
                     <p class="mt-3" v-html="`@Localizer["Current_Page"]: ${currentPage}`"></p>
                 </div>
 

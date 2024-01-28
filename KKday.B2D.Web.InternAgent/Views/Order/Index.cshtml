@@ -2,14 +2,26 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 
 @inject IViewLocalizer Localizer
-@{ 
-    var locale = CultureInfo.CurrentCulture; 
-}
+@{
+    Layout = "_KKdayLayout";
+    ViewData["Title"] = "Product";
 
+    var locale = CultureInfo.CurrentCulture;
+}
+@section Styles {
+    <style type="text/css">
+        .nowrap { white-space: nowrap; }
+        .th-cell {
+            white-space: nowrap !important;
+            background-color: #f2f2f2 !important;
+        }
+        .pagination { display:flex !important; } 
+    </style>
+}
 <div id="App">
     <div class="container">
         <div class="row">
-            <div class="col-12">
+            <div class="col-12" v-if="!isLoading">
                 <template>
                     <div class="overflow-auto" v-if="items.length">
 
@@ -18,29 +30,34 @@
                                  :items="items"
                                  :per-page="0"
                                  :current-page="currentPage"
-                                 small> 
+                                 small>
                             <template v-slot:cell(action)="data">
-                                <b-button size="sm" class="mr-1" @@click="viewOrder(data)"> More </b-button>
+                                <b-button size="sm" class="btn btn-primary mr-1" @@click="viewOrder(data)">@Localizer["More"] </b-button>
                                 <!-- <b-button size="sm" @@click="deleteRecord(data)"> Delete </b-button> -->
                             </template>
-                        </b-table>
-
-                        <b-pagination v-model="currentPage" @@change="Query()"
+                        </b-table> 
+                    </div>
+                    <div v-if="items.length">
+                        <b-pagination v-model="currentPage" @@page-click="PageClick"
                                       :total-rows="this.totalRows"
                                       :per-page="perPage"
                                       aria-controls="my-table"></b-pagination>
 
                         <p class="mt-3">Current Page: {{ currentPage }}</p>
-
                     </div>
+
                     <div class="overflow-auto" v-if="!items.length">
                         No Data Found!
                     </div>
                 </template>
             </div>
-        </div> 
+
+            <div class="col-12" v-if="isLoading">
+                <span>Loading....</span>
+            </div>
+        </div>
     </div>
-   
+
 </div>
 
 <script>
@@ -54,12 +71,13 @@
                 totalRows: 0,
                 rnd: 1,
                 fields: [
-                    { key: 'order_no', label: '@Localizer["Order_No"]' },
-                    { key: 'order_date', label: '@Localizer["Order_Date"]' },
-                    { key: 'prod_s_date', label: '@Localizer["Dept_Date"]' },
-                    { key: 'prod_name', label: '@Localizer["Prod_Name"]' },
-                    { key: 'qty_total', label: '@Localizer["Qty"]' },
-                    { key: 'action', label: '' }
+                    { key: 'order_no', label: '@Localizer["Order_No"]', thClass: 'th-cell', tdClass: 'nowrap' },
+                    { key: 'order_date', label: '@Localizer["Order_Date"]', thClass: 'th-cell', tdClass: 'nowrap' },
+                    { key: 'prod_s_date', label: '@Localizer["Dept_Date"]', thClass: 'th-cell', tdClass: 'nowrap' },
+                    { key: 'prod_name', label: '@Localizer["Prod_Name"]', thClass: 'th-cell', tdClass: 'nowrap' },
+                    { key: 'qty_total', label: '@Localizer["Qty"]', thClass: 'th-cell', tdClass: 'nowrap' },
+                    { key: 'total_price', label: '@Localizer["Total_Amount"]', thClass: 'th-cell', tdClass: 'nowrap' },
+                    { key: 'action', label: '', thStyle: { backgroundColor: '#f2f2f2' }, tdClass: 'nowrap' },
                 ],
                 items: [
                 ]
@@ -69,9 +87,9 @@
             this.Query();
         },
         computed: {
-            rows() {
-                return this.totalRows;
-            }
+            //rows() {
+            //    return this.totalRows;
+            //}
         },
         methods: {
             Query() {
@@ -83,7 +101,6 @@
 
                 setTimeout(() => {
                     this.Fetch();
-                    this.isLoading = false;
                     this.$forceUpdate();
                 }, 100);
 
@@ -108,11 +125,17 @@
                         console.log(`Query fetch resp => ${JSON.stringify(data)}`);
                         this.totalRows = data.order_qty;
                         this.items = data.order;
+                        this.isLoading = false;
                     })
                     .catch(error => console.error('Unable to get orders.', error));
             },
+            PageClick(event, page) {
+                this.currentPage = page;
+                this.Query();
+            },
             viewOrder(data) {
-                console.log(`View Order => ${JSON.stringify(data)}`)
+                // console.log(`View Order => ${JSON.stringify(data)}`)
+                location.href = `${_root_path}Order/Detail/${data.item.order_no}`;
             }
         }
 

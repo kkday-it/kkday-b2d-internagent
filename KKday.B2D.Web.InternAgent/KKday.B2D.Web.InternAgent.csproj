@@ -49,4 +49,8 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Resources\Views\Order\Detail.zh-TW" />
+    <Content Remove="Resources\Views\Order\Detail.en-Us" />
+  </ItemGroup>
 </Project>
