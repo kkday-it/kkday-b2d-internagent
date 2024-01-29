@@ -1,10 +1,11 @@
 ﻿{
+  "OrderList_Title": "訂單列表",
   "Order_No": "訂單編號",
   "Order_Date": "訂購日期",
   "Dept_Date": "出發日期",
   "Prod_Name": "商品名稱",
   "Total_Amount": "金額 USD",
-  "Qty": "數量", 
+  "Qty": "數量",
   "More": "更多"
 }
 

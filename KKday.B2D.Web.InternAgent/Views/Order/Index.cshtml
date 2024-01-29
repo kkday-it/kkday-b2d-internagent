@@ -4,7 +4,7 @@
 @inject IViewLocalizer Localizer
 @{
     Layout = "_KKdayLayout";
-    ViewData["Title"] = "Product";
+    ViewData["Title"] = Localizer["OrderList_Title"];
 
     var locale = CultureInfo.CurrentCulture;
 }

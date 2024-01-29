@@ -1,4 +1,5 @@
 ﻿{
+  "OrderDetail_Title": "Order Detail",
   "Order_Loading": "Order Loading...",
   "Order_Load_Failure": "The order \\'%1\\' can not be loaded!",
   "Back_Order_List": "Back Order List",
@@ -24,16 +25,16 @@
   "Your_Voucher": "Your Voucher",
   "Cancel_Order": "Cancel Order",
   "Cancellation_Policy": "Cancellation Policy",
-  "Tab_Product": "Product",
+  "Tab_Product": "What You Can Expect",
   "Tab_Itinerary": "Itinerary",
-  "Tab_Usage": "Usage",
+  "Tab_Usage": "How to Redeem",
   "Tab_Location": "Location",
-  "Tab_Order_Detail": "Detail",
+  "Tab_Order_Detail": "Order Detail",
   "Order_Note": "Order Note",
   "Reminders": "Reminders",
   "After_Sales_Precautions": "After-sales Precautions",
   "Included_NotIncluded": "Included/Not Included",
   "Traveler_Leader": "Traveler Leader",
-  "Travelers": "Travelers"
+  "Travelers": "Traveler"
 }
 

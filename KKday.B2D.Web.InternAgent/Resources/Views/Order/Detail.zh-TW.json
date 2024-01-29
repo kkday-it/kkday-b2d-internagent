@@ -1,4 +1,5 @@
 ﻿{
+  "OrderDetail_Title": "訂單內容",
   "Order_Loading": "訂單載入中...",
   "Order_Load_Failure": "訂單 \\'%1\\' 無法載入!",
   "Back_Order_List": "返回訂單管理",
