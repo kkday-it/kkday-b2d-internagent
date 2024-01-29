@@ -10,7 +10,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public Int64 pkg_no { get; set; }
         public string buyer_first_name { get; set; }
         public string buyer_last_name { get; set; }
-        public string buyer_Email { get; set; }
+        public string buyer_email { get; set; }
         public string buyer_tel_country_code { get; set; }
         public string buyer_tel_number { get; set; }
         public string s_date { get; set; }
