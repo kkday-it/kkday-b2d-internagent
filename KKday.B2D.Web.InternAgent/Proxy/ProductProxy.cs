@@ -248,7 +248,63 @@ namespace KKday.B2D.Web.InternAgent.Proxy
             {
                 throw ex;
             }
-        } 
-       
+        }
+
+        public string GetBookingField(BookingFieldReqModel req)
+        {
+            try
+            {
+                var jsonResult = "";
+                var kkdayUrl = Website.Instance.KKdayApiUrl;
+                var authorToken = Website.Instance.KKdayApiAuthorizeToken;
+
+                using (var handler = new HttpClientHandler())
+                {
+                    // Ignore Certificate Error!!
+                    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+
+                    using (var client = new HttpClient(handler))
+                    {
+
+                        #region JSON Payload
+
+                        // 過濾不必要的參數
+                        req = Newtonsoft.Json.JsonConvert.DeserializeObject<BookingFieldReqModel>(Newtonsoft.Json.JsonConvert.SerializeObject(req));
+
+                        var content = Newtonsoft.Json.JsonConvert.SerializeObject(req, new Newtonsoft.Json.JsonSerializerSettings { NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore });
+                        // Console.WriteLine($"Package Req Payload => {content}");
+
+                        #endregion JSON Payload
+
+                        string reqUrl = $"{kkdayUrl}/Product/QueryBookingField";
+                        using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, reqUrl))
+                        {
+                            request.Headers.Add("Authorization", $"Bearer {authorToken}");
+                            request.Headers.Add("Accept", "application/json");
+                            // Add body content
+                            request.Content = new StringContent(
+                                content,
+                                Encoding.UTF8,
+                                "application/json"
+                            );
+
+                            var response = client.SendAsync(request).Result;
+                            jsonResult = response.Content.ReadAsStringAsync().Result;
+
+                            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                            {
+                                throw new Exception($"{response.StatusCode} => {Newtonsoft.Json.JsonConvert.SerializeObject(jsonResult)} ");
+                            }
+                        }
+                    }
+                }
+
+                return jsonResult;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

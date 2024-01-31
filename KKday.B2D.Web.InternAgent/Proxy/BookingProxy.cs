@@ -14,7 +14,8 @@ namespace KKday.B2D.Web.InternAgent.Proxy
             _config = config;
         }
 
-        public string Booking(BookingDataModel req)
+        //public string Booking(BookingDataModel req)
+        public string Booking(B2DBookingModel req)
         {
             try
             {

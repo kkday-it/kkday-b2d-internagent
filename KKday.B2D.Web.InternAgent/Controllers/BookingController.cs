@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using KKday.B2D.Web.InternAgent.Models.Model;
 using Microsoft.AspNetCore.Mvc;
+using KKday.B2D.Web.InternAgent.AppCode;
+using KKday.B2D.Web.InternAgent.Proxy;
+using System.Globalization;
+using Newtonsoft.Json;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -20,22 +24,220 @@ namespace KKday.B2D.Web.InternAgent.Controllers
 
         public IActionResult LoadData([FromBody] BookingFillReqModel req) // object req)
         {
-            var jsonData = new Dictionary<string, object>();
-
-            // Convert to BookingModel
-            var bookingModel = JsonSerializer.Deserialize<BookingDataModel>(JsonSerializer.Serialize(req));
-
-            // Get BookingField by prod_no
-            var bookingField = new BookingFieldModel()
+            try
             {
-                 Custom = new Custom(),
-                 Traffic = new Traffic()
-            };
+                ViewData["prodOid"] = req.prod_no;
 
-            jsonData.Add("bookingmodel", bookingModel ?? new BookingDataModel());
-            jsonData.Add("bookingfield", bookingField);
+                var jsonData = new Dictionary<string, object>();
 
-            return Json(jsonData);
+                // Convert to BookingModel
+                var preBookingModel = JsonConvert.DeserializeObject<BookingDataModel>(JsonConvert.SerializeObject(req));
+
+                // Get BookingField by prod_no
+                var prodProxy = HttpContext.RequestServices.GetService<ProductProxy>();
+                // Check current cultureinfo
+                var locale = LocaleMapHelper.RfcToKKday(CultureInfo.CurrentCulture.ToString());
+
+                var result = prodProxy.GetBookingField(new BookingFieldReqModel()
+                {
+                    prod_no = req.prod_no,
+                    locale = locale,
+                    state = "TW", //eric補嗎？
+                    pkg_no = req.pkg_no,
+                    s_date = req.s_date //"2024-01-30"
+                });
+                var bookingfield = new BookingField();
+                bookingfield = Newtonsoft.Json.JsonConvert.DeserializeObject<BookingField>(result);
+
+                //
+                //和B2DBookingModel多增加了contact 
+                B2DBookingEcModel bookingmodel = new B2DBookingEcModel();
+
+                bookingmodel.buyer_Email = "kkday@intern.xxx.com";
+                bookingmodel.buyer_first_name = "是人";
+                bookingmodel.buyer_last_name = "我";
+                bookingmodel.buyer_country = "TW";
+                bookingmodel.buyer_tel_country_code = "886";
+                bookingmodel.buyer_tel_number = "3939889";
+                bookingmodel.buyer_country = "TW";// "A01-001";
+                bookingmodel.guid = preBookingModel.guid;
+
+                bookingmodel.prod_no = preBookingModel?.prod_no.ToString();
+                bookingmodel.item_no = preBookingModel?.item_no.ToString();
+                bookingmodel.pkg_no = preBookingModel?.pkg_no.ToString();
+                bookingmodel.state = "TW"; //eric 要補？
+                bookingmodel.locale = LocaleMapHelper.RfcToKKday(CultureInfo.CurrentCulture.ToString());
+                bookingmodel.skus = JsonConvert.DeserializeObject<List<Sku>>(JsonConvert.SerializeObject(preBookingModel.skus));
+                bookingmodel.pay_type = "01"; //
+                bookingmodel.total_price = preBookingModel.total_price;
+                bookingmodel.guide_lang = "zh-tw";//先寫死
+                bookingmodel.s_date = req.s_date;
+                bookingmodel.e_date = req.e_date == null ? req.s_date : req.e_date;
+                bookingmodel.event_time = req.event_time;
+
+                var cus_type = (bookingfield?.custom?.CusType?.ListOption.Where(x => x == "cus_01")?.ToList()?.Count > 0) ? "cus_01" : "cus_02";
+
+
+                    var qty = req.skus.Sum(t => t.qty);
+                if(cus_type == "cus_01") { qty = 1; }
+                List<CustomBooking> cus = new List<CustomBooking>();
+                for (int i = 0; i < qty; i++)
+                {
+                    cus.Add(new CustomBooking() {
+                        cus_type= cus_type,
+                        nationality ="JP",
+                        native_first_name ="張",
+                        native_last_name ="大千",
+                        english_first_name ="chang",
+                        english_last_name ="feng jung",
+                        birth ="1988-01-01",
+                        gender ="M",
+                        passport_no ="T1I2II",
+                        
+                        tel_country_code ="886",
+                        tel_number ="09383838383",
+                        meal ="0001"
+                    });
+                }
+                bookingmodel.custom = cus;
+
+                //testing default
+                if (bookingfield?.custom?.CusType?.ListOption.Where(x => x == "contact")?.ToList()?.Count > 0)
+                {
+                    bookingmodel.contact = new CustomBooking() {
+                        cus_type ="contact",
+                        native_first_name ="2寶",
+                        native_last_name = "張",
+                        tel_country_code = "886",
+                        tel_number = "09383838384",
+                    };
+                }
+                if (bookingfield?.custom?.CusType?.ListOption.Where(x => x == "send")?.ToList()?.Count > 0)
+                {
+                    bookingmodel.send = new CustomBooking()
+                    {
+                        cus_type = "send",
+                        native_first_name = "2寶",
+                        native_last_name = "張",
+                    };
+                }
+
+                List<TrafficBooking> traffic = new List<TrafficBooking>();
+                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "flight").ToList()?.Count() > 0)
+                {
+                    traffic.Add(new TrafficBooking
+                    {
+                        traffic_type = "flight"
+                    });
+                    
+                }
+                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "rentcar_01").ToList()?.Count() > 0)
+                {
+                    traffic.Add(new TrafficBooking
+                    {
+                        traffic_type = "rentcar_01"
+                    });
+                }
+                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "rentcar_02").ToList()?.Count() > 0)
+                {
+                    traffic.Add(new TrafficBooking
+                    {
+                        traffic_type = "rentcar_02"
+                    });
+                }
+                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "rentcar_03").ToList()?.Count() > 0)
+                {
+                    traffic.Add(new TrafficBooking
+                    {
+                        traffic_type = "rentcar_03"
+                    });
+                }
+
+                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "pickup_03").ToList()?.Count() > 0)
+                {
+                    traffic.Add(new TrafficBooking
+                    {
+                        traffic_type = "pickup_03"
+                    });
+                }
+                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "pickup_04").ToList()?.Count() > 0)
+                {
+                    traffic.Add(new TrafficBooking
+                    {
+                        traffic_type = "pickup_04"
+                    });
+                }
+                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "psg_qty").ToList()?.Count() > 0)
+                {
+                    traffic.Add(new TrafficBooking
+                    {
+                        traffic_type = "psg_qty"
+                    });
+                }
+                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "voucher").ToList()?.Count() > 0)
+                {
+                    traffic.Add(new TrafficBooking
+                    {
+                        traffic_type = "voucher"
+                    });
+                }
+
+                bookingmodel.traffic = traffic;
+                if(bookingfield?.mobile_device != null) {
+                    bookingmodel.mobile_device = new MobileDeviceBooking() {
+                        mobile_model_no = "",
+                        IMEI ="",
+                        active_date =""      
+                    };
+                }
+                
+
+                jsonData.Add("prebookingmodel", preBookingModel ?? new BookingDataModel());
+                jsonData.Add("bookingmodel", bookingmodel);
+                jsonData.Add("bookingfield", bookingfield);
+
+                return Json(jsonData);
+            }
+            catch (Exception ex)
+            {
+                return Json(null);
+            }
+        }
+
+        public IActionResult Booking([FromBody] B2DBookingEcModel req)
+        {
+           // req = JsonConvert.DeserializeObject<B2DBookingEcModel>("{\"contact\":{\"cus_type\":\"contact\",\"english_last_name\":null,\"english_first_name\":null,\"native_last_name\":\"峰\",\"native_first_name\":\"張\",\"tel_country_code\":\"886\",\"tel_number\":\"09383838384\",\"gender\":null,\"contact_app\":null,\"contact_app_account\":null,\"country_cities\":null,\"zipcode\":null,\"address\":null,\"hotel_name\":null,\"hotel_tel_number\":null,\"booking_order_no\":null,\"booking_website\":null,\"check_in_date\":null,\"check_out_date\":null,\"nationality\":null,\"mtp_no\":null,\"id_no\":null,\"passport_no\":null,\"passport_expdate\":null,\"birth\":null,\"height\":null,\"height_unit\":null,\"weight\":null,\"weight_unit\":null,\"shoe\":null,\"shoe_unit\":null,\"shoe_type\":null,\"glass_degree\":null,\"meal\":null,\"allergy_food\":null,\"have_app\":null},\"guid\":\"42b24e7425045b8abe6776416f3c2b7d\",\"partner_order_no\":null,\"prod_no\":\"103966\",\"pkg_no\":\"313920\",\"item_no\":\"59697\",\"locale\":\"zh-tw\",\"state\":\"TW\",\"buyer_first_name\":\"是人\",\"buyer_last_name\":\"我\",\"buyer_Email\":\"kkday@intern.xxx.com\",\"buyer_tel_country_code\":\"886\",\"buyer_tel_number\":\"3939889\",\"buyer_country\":\"A01-001\",\"s_date\":\"2024-02-29\",\"e_date\":\"2024-02-29\",\"event_time\":null,\"skus\":[{\"sku_id\":\"fb0dbc6f7afae01a6ae0d87b03769aed\",\"qty\":2,\"price\":765}],\"custom\":[{\"cus_type\":\"cus_02\",\"english_last_name\":\"feng jung\",\"english_first_name\":\"chang\",\"native_last_name\":null,\"native_first_name\":null,\"tel_country_code\":\"886\",\"tel_number\":\"09383838383\",\"gender\":\"M\",\"contact_app\":null,\"contact_app_account\":null,\"country_cities\":null,\"zipcode\":null,\"address\":null,\"hotel_name\":null,\"hotel_tel_number\":null,\"booking_order_no\":null,\"booking_website\":null,\"check_in_date\":null,\"check_out_date\":null,\"nationality\":null,\"mtp_no\":null,\"id_no\":null,\"passport_no\":\"T1I2II\",\"passport_expdate\":null,\"birth\":\"1988-01-01\",\"height\":null,\"height_unit\":null,\"weight\":null,\"weight_unit\":null,\"shoe\":null,\"shoe_unit\":null,\"shoe_type\":null,\"glass_degree\":null,\"meal\":\"0001\",\"allergy_food\":null,\"have_app\":null},{\"cus_type\":\"cus_02\",\"english_last_name\":\"feng jung\",\"english_first_name\":\"chang\",\"native_last_name\":null,\"native_first_name\":null,\"tel_country_code\":\"886\",\"tel_number\":\"09383838383\",\"gender\":\"M\",\"contact_app\":null,\"contact_app_account\":null,\"country_cities\":null,\"zipcode\":null,\"address\":null,\"hotel_name\":null,\"hotel_tel_number\":null,\"booking_order_no\":null,\"booking_website\":null,\"check_in_date\":null,\"check_out_date\":null,\"nationality\":null,\"mtp_no\":null,\"id_no\":null,\"passport_no\":\"T1I2II\",\"passport_expdate\":null,\"birth\":\"1988-01-01\",\"height\":null,\"height_unit\":null,\"weight\":null,\"weight_unit\":null,\"shoe\":null,\"shoe_unit\":null,\"shoe_type\":null,\"glass_degree\":null,\"meal\":\"0001\",\"allergy_food\":null,\"have_app\":null}],\"traffic\":null,\"mobile_device\":null,\"guide_lang\":\"zh-tw\",\"order_note\":null,\"total_price\":1530,\"pay_type\":\"01\"}");
+
+            Dictionary<string, string> rs = new Dictionary<string, string>();
+            rs.Add("result", "OK");
+            return Json(rs);
+            try
+            {
+                B2DBookingModel booking = JsonConvert.DeserializeObject<B2DBookingModel>(JsonConvert.SerializeObject(req));
+                if (req?.contact != null)
+                {
+                    booking.custom.Add(JsonConvert.DeserializeObject<CustomBooking>(JsonConvert.SerializeObject(req.contact)));
+                }
+                if (req?.send != null)
+                {
+                    booking.custom.Add(JsonConvert.DeserializeObject<CustomBooking>(JsonConvert.SerializeObject(req.send)));
+                }
+
+                if (booking != null)
+                {
+                    //call booking
+                    var bookProxy = HttpContext.RequestServices.GetService<BookingProxy>();
+                    var result = bookProxy.Booking(booking);
+
+                }
+                rs.Add("result", "OK");
+                return Json(rs);
+            }
+            catch (Exception ex)
+            {
+                rs.Add("result", "Failure");
+                return Json(rs);
+            }
         }
     }
 }
