@@ -73,6 +73,11 @@
                                         {{ order.pkg_name }}
                                     </div>
                                     <!--Specs-->
+                                    <div class="fill-group price-detail" v-for="spec in order.skus[0].spec_ref">
+                                        <label>{{ spec.spec_title }}</label>
+                                        {{ spec.spec_value }}
+                                    </div>
+
                                     <!--Others-->
                                     <div class="fill-group price-detail">
                                         <!--Show Qty & Price -->
@@ -374,8 +379,126 @@
                                         <!-- Order Time-solt -->
                                         <!-- Traffic：Qty -->
                                         <!-- Custom: Send -->
+                                        <div class="info-section" v-if="order.custom.some(c => c.cus_type === 'send')">
+                                            <div class="traveler-con">
+                                                <template v-for="(cus, seq) in order.custom.filter(c => c.cus_type === 'send')">
+                                                    <h4 class="sub-title">
+                                                        @Localizer["Send_Title"] 
+                                                    </h4>
+                                                    <div class="row">
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.nationality">
+                                                            <div class="fill-group">
+                                                                <label>Nationality</label>
+                                                                {{ cus.nationality }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_first_name">
+                                                            <div class="fill-group">
+                                                                <label>First Name</label>
+                                                                {{ cus.native_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_last_name">
+                                                            <div class="fill-group">
+                                                                <label>Last Name</label>
+                                                                {{ cus.native_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.id_no">
+                                                            <div class="fill-group">
+                                                                <label>Identity No</label>
+                                                                {{ cus.id_no }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.english_first_name">
+                                                            <div class="fill-group">
+                                                                <label>English First Name</label>
+                                                                {{ cus.english_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.english_last_name">
+                                                            <div class="fill-group">
+                                                                <label>English Last Name</label>
+                                                                {{ cus.english_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.passport_no">
+                                                            <div class="fill-group">
+                                                                <label>Passport No</label>
+                                                                {{ cus.passport_no }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.gender">
+                                                            <div class="fill-group">
+                                                                <label>Gender</label>
+                                                                {{ cus.gender }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.birth">
+                                                            <div class="fill-group">
+                                                                <label>Birthday</label>
+                                                                {{ cus.birth }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
                                         <!-- Mobile -->
                                         <!--Custom: Contact -->
+                                        <div class="info-section" v-if="order.custom.some(c => c.cus_type === 'contact')">
+                                            <div class="traveler-con">
+                                                <template v-for="(cus, seq) in order.custom.filter(c => c.cus_type === 'contact')">
+                                                    <h4 class="sub-title">
+                                                        @Localizer["Contact_Title"]
+                                                    </h4>
+                                                    <div class="row">
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_first_name">
+                                                            <div class="fill-group">
+                                                                <label>First Name</label>
+                                                                {{ cus.native_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_last_name">
+                                                            <div class="fill-group">
+                                                                <label>Last Name</label>
+                                                                {{ cus.native_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.birth">
+                                                            <div class="fill-group">
+                                                                <label>Birthday</label>
+                                                                {{ cus.birth }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.tel_country_code">
+                                                            <div class="fill-group">
+                                                                <label>Tel Country Code</label>
+                                                                {{ cus.tel_country_code }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.tel_number">
+                                                            <div class="fill-group">
+                                                                <label>Tel Number</label>
+                                                                {{ cus.tel_number }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.have_app && cus.contact_app">
+                                                            <div class="fill-group">
+                                                                <label>Contact App</label>
+                                                                {{ cus.contact_app }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.have_app && cus.contact_app_account">
+                                                            <div class="fill-group">
+                                                                <label>Contact App Account</label>
+                                                                {{ cus.contact_app_account }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
                                         <!-- Order Note -->
                                         <div class="info-section">
                                             <div class="traveler-con">
@@ -432,172 +555,8 @@
 
                         </div>
                     </div>
-                </div>
-
-                <!-- Cancel Order modal -->
-                <div class="modal fade" id="cancel-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
-                    <div class="modal-dialog modal-md">
-                        <div class="modal-content">
-                            <form id="cancel_form" role="form" action="/Order/CancelOrderV2" method="post" novalidate="novalidate" class="bv-form" onsubmit="return checkform(this);">
-                                <input type="hidden" name="orderMid" value="24KK256685871">
-                                <input type="hidden" name="percent" value="0">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-remove" aria-hidden="true"></span></button>
-                                    <h2 class="modal-title">取消我的訂單</h2>
-                                    <div class="tip">
-                                        <i class="icons icon-info"></i>
-                                        取消時間依照商品時區決定
-                                    </div>
-                                </div>
-                                <div class="modal-body">
-                                    <table class="cancel-info">
-                                        <thead>
-                                            <tr>
-                                                <th class="col-sm-7">取消日期</th>
-                                                <th>取消手續費</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <span>2024-01-26 ~ 2024-02-08</span>
-                                                </td>
-                                                <td>
-                                                    0 % <i class="icons icon-check text-lg pull-right text-primary"></i>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <span>2024-02-09 ~ 2024-02-09</span>
-                                                </td>
-                                                <td>
-                                                    100 %
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <div class="fill-group price-detail">
-                                        <label>費用明細</label>
-                                        <div class="mt-10">
-                                            <span class="pull-left">實際付款金額</span>
-                                            <span class="pull-right">KRW 25750</span>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                        <div class="mt-10 text-danger">
-                                            <span class="pull-left">取消手續費 0 %</span>
-                                            <span class="pull-right">- KRW 0</span>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                        <hr>
-                                        <div class="mt-10">
-                                            <span class="pull-left">退款金額</span>
-                                            <div class="product-pricing pull-right">
-                                                <span class="text-primary">KRW</span>
-                                                <h4>25750</h4>
-                                            </div>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>請選擇取消原因</label>
-                                        <select name="cancelType" class="form-control">
-                                            <option value="" selected="" disabled="">請選擇</option>
-                                            <option value="MC004">個人因素</option>
-                                            <option value="MC001">行程變更或取消</option>
-                                            <option value="MC005">交通因素</option>
-                                            <option value="MC003">價格因素</option>
-                                            <option value="MC002">重複訂購</option>
-                                            <option value="MC006">聯絡不上店家</option>
-                                            <option value="MC999">其他</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group otherReason">
-                                        <label>其他原因</label>
-                                        <textarea rows="3" name="cancelDesc" class="form-control" placeholder="請輸入其他原因"></textarea>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button class="btn btn-default" data-dismiss="modal">保留訂單 不取消了</button>
-                                    <button type="submit" class="btn btn-primary">我要取消訂單</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Modal of download receipt -->
-                <div class="modal fade" id="downloadReceipt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form id="receipt_form" role="form" method="post" action="/Order/SendInvoice" novalidate="novalidate" class="bv-form">
-
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-remove" aria-hidden="true"></span></button>
-                                    <h2 class="modal-title">寄送報帳收據</h2>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="form-group has-error">
-                                        <label>
-                                            旅客代表人姓*<br>
-                                        </label>
-                                        <input class="form-control" name="firstName" placeholder="英文姓" data-bv-field="firstName" type="text">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>
-                                            旅客代表人名*<br>
-                                        </label>
-                                        <input class="form-control" name="lastName" placeholder="Receipt_Contact_Lastname_Hine" data-bv-field="lastName" type="text">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>
-                                            公司名稱
-                                        </label>
-                                        <input class="form-control" name="companyName" type="text">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>
-                                            部門名稱
-                                        </label>
-                                        <input class="form-control" name="companyDepartment" type="text">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>
-                                            統一編號
-                                        </label>
-                                        <input class="form-control" name="companyInvoice" type="text">
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                                    <button type="submit" class="btn btn-primary btn_receipt">送出</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Swipe Modal -->
-                <div id="cancel-info-modal" class="modal fade" style="top:50px">
-                    <div class="modal-dialog modal-md" id="policy-sec">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-remove" aria-hidden="true"></span></button>
-                                <h3 class="modal-title">取消政策</h3>
-                                <div class="tip">
-                                    <i class="icons icon-info"></i>
-                                    取消時間依照商品時區決定
-                                </div>
-                            </div>
-                            <ul>
-                                <li>所選日期 1 天（含）之前取消，收取手續費 0%</li>
-                                <li>所選日期  0 ~ 0 天之間取消，收取手續費 100%</li>
-                            </ul>
-
-
-                        </div>
-                    </div>
-                </div>
-
+                </div> 
+             
             </div>
         </div>
     </div>

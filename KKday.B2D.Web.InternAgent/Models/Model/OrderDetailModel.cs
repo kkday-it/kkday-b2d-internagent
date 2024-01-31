@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace KKday.B2D.Web.InternAgent.Models.Model
 {
     public class OrderDetailModel
-    {      
+    {
         public string partner_order_no { get; set; }
         public Int64 prod_no { get; set; }
         public Int64 pkg_no { get; set; }
@@ -130,12 +130,22 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string IMEI { get; set; }
         public string active_date { get; set; }
     }
-     
+
     public class OrderSkuModel
     {
         public string sku_id { get; set; }
         public Dictionary<string, string> spec { get; set; }
         public int qty { get; set; }
         public double? price { get; set; }
+        public List<OrderSkuSpecRefModel> spec_ref { get; set; }
+
+    }
+
+    public class OrderSkuSpecRefModel
+    {
+        public string spec_title_id { get; set; }
+        public string spec_value_id { get; set; }
+        public string spec_title { get; set; }
+        public string spec_value { get; set; }
     }
 }
