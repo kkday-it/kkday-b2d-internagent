@@ -171,8 +171,19 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 {
                     traffic.Add(new TrafficBooking
                     {
-                        traffic_type = "psg_qty"
-                    });
+                        traffic_type = "psg_qty",
+                        carpsg_adult = "0",
+                        carpsg_child = "0",
+                        carpsg_infant = "0",
+                        luggage_carry = "0",
+                        luggage_check = "0",
+                        safetyseat_self_child = "0",
+                        safetyseat_sup_child = "0",
+                        safetyseat_sup_infant = "0",
+                        safetyseat_self_infant = "0"
+
+
+                    }); ;
                 }
                 if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "voucher").ToList()?.Count() > 0)
                 {
@@ -209,8 +220,6 @@ namespace KKday.B2D.Web.InternAgent.Controllers
            // req = JsonConvert.DeserializeObject<B2DBookingEcModel>("{\"contact\":{\"cus_type\":\"contact\",\"english_last_name\":null,\"english_first_name\":null,\"native_last_name\":\"峰\",\"native_first_name\":\"張\",\"tel_country_code\":\"886\",\"tel_number\":\"09383838384\",\"gender\":null,\"contact_app\":null,\"contact_app_account\":null,\"country_cities\":null,\"zipcode\":null,\"address\":null,\"hotel_name\":null,\"hotel_tel_number\":null,\"booking_order_no\":null,\"booking_website\":null,\"check_in_date\":null,\"check_out_date\":null,\"nationality\":null,\"mtp_no\":null,\"id_no\":null,\"passport_no\":null,\"passport_expdate\":null,\"birth\":null,\"height\":null,\"height_unit\":null,\"weight\":null,\"weight_unit\":null,\"shoe\":null,\"shoe_unit\":null,\"shoe_type\":null,\"glass_degree\":null,\"meal\":null,\"allergy_food\":null,\"have_app\":null},\"guid\":\"42b24e7425045b8abe6776416f3c2b7d\",\"partner_order_no\":null,\"prod_no\":\"103966\",\"pkg_no\":\"313920\",\"item_no\":\"59697\",\"locale\":\"zh-tw\",\"state\":\"TW\",\"buyer_first_name\":\"是人\",\"buyer_last_name\":\"我\",\"buyer_Email\":\"kkday@intern.xxx.com\",\"buyer_tel_country_code\":\"886\",\"buyer_tel_number\":\"3939889\",\"buyer_country\":\"A01-001\",\"s_date\":\"2024-02-29\",\"e_date\":\"2024-02-29\",\"event_time\":null,\"skus\":[{\"sku_id\":\"fb0dbc6f7afae01a6ae0d87b03769aed\",\"qty\":2,\"price\":765}],\"custom\":[{\"cus_type\":\"cus_02\",\"english_last_name\":\"feng jung\",\"english_first_name\":\"chang\",\"native_last_name\":null,\"native_first_name\":null,\"tel_country_code\":\"886\",\"tel_number\":\"09383838383\",\"gender\":\"M\",\"contact_app\":null,\"contact_app_account\":null,\"country_cities\":null,\"zipcode\":null,\"address\":null,\"hotel_name\":null,\"hotel_tel_number\":null,\"booking_order_no\":null,\"booking_website\":null,\"check_in_date\":null,\"check_out_date\":null,\"nationality\":null,\"mtp_no\":null,\"id_no\":null,\"passport_no\":\"T1I2II\",\"passport_expdate\":null,\"birth\":\"1988-01-01\",\"height\":null,\"height_unit\":null,\"weight\":null,\"weight_unit\":null,\"shoe\":null,\"shoe_unit\":null,\"shoe_type\":null,\"glass_degree\":null,\"meal\":\"0001\",\"allergy_food\":null,\"have_app\":null},{\"cus_type\":\"cus_02\",\"english_last_name\":\"feng jung\",\"english_first_name\":\"chang\",\"native_last_name\":null,\"native_first_name\":null,\"tel_country_code\":\"886\",\"tel_number\":\"09383838383\",\"gender\":\"M\",\"contact_app\":null,\"contact_app_account\":null,\"country_cities\":null,\"zipcode\":null,\"address\":null,\"hotel_name\":null,\"hotel_tel_number\":null,\"booking_order_no\":null,\"booking_website\":null,\"check_in_date\":null,\"check_out_date\":null,\"nationality\":null,\"mtp_no\":null,\"id_no\":null,\"passport_no\":\"T1I2II\",\"passport_expdate\":null,\"birth\":\"1988-01-01\",\"height\":null,\"height_unit\":null,\"weight\":null,\"weight_unit\":null,\"shoe\":null,\"shoe_unit\":null,\"shoe_type\":null,\"glass_degree\":null,\"meal\":\"0001\",\"allergy_food\":null,\"have_app\":null}],\"traffic\":null,\"mobile_device\":null,\"guide_lang\":\"zh-tw\",\"order_note\":null,\"total_price\":1530,\"pay_type\":\"01\"}");
 
             Dictionary<string, string> rs = new Dictionary<string, string>();
-            rs.Add("result", "OK");
-            return Json(rs);
             try
             {
                 B2DBookingModel booking = JsonConvert.DeserializeObject<B2DBookingModel>(JsonConvert.SerializeObject(req));

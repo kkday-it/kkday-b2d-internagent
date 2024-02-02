@@ -576,6 +576,9 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public partial class TimeInfo
     {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
         [JsonProperty("hour")]
         public long Hour { get; set; }
 
