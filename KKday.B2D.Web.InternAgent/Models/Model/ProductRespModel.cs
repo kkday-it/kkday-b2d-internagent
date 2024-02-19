@@ -15,7 +15,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public class ProductdMarketing
     {
-        public string purchase_type { get; set; } // PT01文案異動,PT02短期停售,PT03季節商品,空值為可以訂購
+        public string purchase_type { get; set; } // PT01: Content Amend,PT02: Short Term Suspension, PT03: Seaon Product, null: Available
         public string purchase_date {get; set; } //  "2021-09-30 15:00:00",
         public bool is_search { get; set; }
         public bool is_sale { get; set; }

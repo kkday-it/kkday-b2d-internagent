@@ -10426,7 +10426,7 @@ button.close {
         clear: none !important
     }
 }
-
+/* 
 .select2-container {
     box-sizing: border-box;
     display: inline-block;
@@ -11060,7 +11060,8 @@ button.close {
 .select2-container--classic.select2-container--open .select2-dropdown {
     border-color: #5897fb
 }
- 
+*/
+
 body, html {
     -webkit-overflow-scrolling: touch
 }
@@ -12021,7 +12022,7 @@ select::-ms-expand {
 }
 
 .input-dropdown, .select2-container .select2-selection--single, select.form-control {
-    padding: 0 25px 0 8px;
+    /* padding: 0 25px 0 8px; */
     background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_dropdown.svg);
     background-size: 11px 6px;
     background-position: center right 12px;

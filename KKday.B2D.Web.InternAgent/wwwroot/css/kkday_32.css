@@ -778,8 +778,7 @@ label {
     line-height: 1.7
 }
 
-.form-control, .form-control[readonly], .select2-container--default .select2-search--dropdown .select2-search__field,
-.select2-container .select2-selection--single {
+.form-control, .form-control[readonly] {
     height: 45px;
     padding: 10px 12px;
     color: #333;
@@ -1010,14 +1009,14 @@ select::-ms-expand {
     display: none
 }
 
-.input-dropdown, .select2-container .select2-selection--single, select.form-control {
+.input-dropdown, select.form-control {
     padding: 0 25px 0 8px;
     background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_dropdown.svg);
     background-size: 11px 6px;
     background-position: center right 12px;
     background-repeat: no-repeat;
     margin: 0
-}
+} 
 
     select.form-control:focus {
         border: 1px solid #26bec9
@@ -2196,7 +2195,7 @@ a[data-toggle=dropdown].disabled > .fa-angle-down {
     display: none
 }
 
-.daterangepicker, .dropdown-menu, .select2-dropdown {
+.daterangepicker, .dropdown-menu {
     background-color: #fff;
     border: none;
     border-radius: 6px;
@@ -2254,7 +2253,7 @@ a[data-toggle=dropdown].disabled > .fa-angle-down {
     right: 15px
 }
 
-.dropdown-menu .checkbox, .dropdown-menu .radio, .dropdown-menu li > a, .select2-results__option {
+.dropdown-menu .checkbox, .dropdown-menu .radio, .dropdown-menu li > a {
     padding: 8px 16px;
     margin: 0
 }
@@ -4212,49 +4211,6 @@ ul.price-include, ul.price-not {
     border-bottom-color: #ef7a70
 }
 
-.select2-container .select2-selection--single {
-    display: flex;
-    align-items: center
-}
-
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    padding: 0;
-    line-height: inherit
-}
-
-.select2-container--default .select2-selection--single .select2-selection__arrow b {
-    display: none
-}
-
-.select2-dropdown {
-    border: 0;
-    padding-bottom: 10px
-}
-
-.select2-search--dropdown {
-    border-bottom: 1px solid #eee;
-    padding: 10px;
-    margin: 0 0 10px
-}
-
-.select2-container--default .select2-search--dropdown .select2-search__field {
-    height: 30px;
-    padding: 10px
-}
-
-.select2-results__options {
-    overscroll-behavior: contain
-}
-
-.select2-container--default .select2-results__option[aria-selected=true] {
-    background-color: transparent
-}
-
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background: transparent;
-    color: #333;
-    background-color: #f4f4f4
-}
 
 .btn-wish {
     display: flex;
@@ -9099,6 +9055,94 @@ div.union .report-result {
             opacity: 1
         }
 
- 
-   
- 
+
+/* ------ select2 ------ */
+
+.select2-dropdown {
+    background-color: #fff;
+    border: none;
+    border-radius: 6px;
+    margin-top: 1px;
+    opacity: 1;
+    visibility: initial;
+    transition: .25s;
+    box-shadow: 0 2px 20px rgba(0,0,0,.15);
+    min-width: 250px;
+    overflow-y: auto;
+    overscroll-behavior-y: contain
+}
+
+.select2-container .select2-selection--single {
+    display: flex;
+    align-items: center
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding: 0;
+    line-height: inherit
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    display: none
+}
+
+.select2-dropdown {
+    border: 0;
+    padding-bottom: 10px
+}
+
+.select2-search--dropdown {
+    border-bottom: 1px solid #eee;
+    padding: 10px;
+    margin: 0 0 10px
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    height: 30px;
+    padding: 10px
+}
+
+.select2-results__options {
+    overscroll-behavior: contain
+}
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: transparent
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background: transparent;
+    color: #333;
+    background-color: #f4f4f4
+}
+
+.select2-results__option {
+    padding: 8px 16px;
+    margin: 0
+}
+
+
+.select2-container--default .select2-search--dropdown .select2-search__field,
+.select2-container .select2-selection--single {
+    height: 45px;
+    padding: 10px 12px;
+    color: #333;
+    font-family: inherit;
+    font-size: 1.5rem;
+    line-height: 1.5;
+    letter-spacing: .5px;
+    border-radius: 4px;
+    background-color: #fff;
+    border: 1px solid #e1e1e1;
+    box-shadow: none;
+    opacity: 1
+}
+
+.select2-container .select2-selection--single {
+    padding: 0 25px 0 8px;
+    background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_dropdown.svg);
+    background-size: 11px 6px;
+    background-position: center right 12px;
+    background-repeat: no-repeat;
+    margin: 0
+}

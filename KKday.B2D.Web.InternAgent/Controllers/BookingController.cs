@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Text.Json;
+using System.Threading.Tasks; 
 using KKday.B2D.Web.InternAgent.Models.Model;
 using Microsoft.AspNetCore.Mvc;
 using KKday.B2D.Web.InternAgent.AppCode;
 using KKday.B2D.Web.InternAgent.Proxy;
-using System.Globalization;
-using Newtonsoft.Json;
+using System.Globalization; 
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -30,100 +29,73 @@ namespace KKday.B2D.Web.InternAgent.Controllers
 
                 var jsonData = new Dictionary<string, object>();
 
-                // Convert to BookingModel
-                var preBookingModel = JsonConvert.DeserializeObject<BookingDataModel>(JsonConvert.SerializeObject(req));
-
                 // Get BookingField by prod_no
                 var prodProxy = HttpContext.RequestServices.GetService<ProductProxy>();
                 // Check current cultureinfo
                 var locale = LocaleMapHelper.RfcToKKday(CultureInfo.CurrentCulture.ToString());
 
-                var result = prodProxy.GetBookingField(new BookingFieldReqModel()
+                var bookingfieldJson = prodProxy.GetBookingField(new BookingFieldReqModel()
                 {
                     prod_no = req.prod_no,
                     locale = locale,
-                    state = "TW", //eric補嗎？
+                    state = Website.Instance.Marketing, 
                     pkg_no = req.pkg_no,
-                    s_date = req.s_date //"2024-01-30"
+                    s_date = req.s_date
                 });
-                var bookingfield = new BookingField();
-                bookingfield = Newtonsoft.Json.JsonConvert.DeserializeObject<BookingField>(result);
 
-                //
-                //和B2DBookingModel多增加了contact 
-                B2DBookingEcModel bookingmodel = new B2DBookingEcModel();
+                Console.WriteLine($"BookingField => {bookingfieldJson}");
+                var bookingfield = System.Text.Json.JsonSerializer.Deserialize<BookingField>(bookingfieldJson);
 
-                bookingmodel.buyer_Email = "kkday@intern.xxx.com";
-                bookingmodel.buyer_first_name = "是人";
-                bookingmodel.buyer_last_name = "我";
-                bookingmodel.buyer_country = "TW";
-                bookingmodel.buyer_tel_country_code = "886";
-                bookingmodel.buyer_tel_number = "3939889";
-                bookingmodel.buyer_country = "TW";// "A01-001";
-                bookingmodel.guid = preBookingModel.guid;
+                /////
+                
+                var bookingmodel = new B2DBookingEcModel();
 
-                bookingmodel.prod_no = preBookingModel?.prod_no.ToString();
-                bookingmodel.item_no = preBookingModel?.item_no.ToString();
-                bookingmodel.pkg_no = preBookingModel?.pkg_no.ToString();
-                bookingmodel.state = "TW"; //eric 要補？
+                bookingmodel.guid = req.guid;
+                bookingmodel.prod_no = req.prod_no.ToString();
+                bookingmodel.item_no = req.item_no.ToString();
+                bookingmodel.pkg_no = req.pkg_no.ToString();
+                bookingmodel.state = Website.Instance.Marketing;
                 bookingmodel.locale = LocaleMapHelper.RfcToKKday(CultureInfo.CurrentCulture.ToString());
-                bookingmodel.skus = JsonConvert.DeserializeObject<List<Sku>>(JsonConvert.SerializeObject(preBookingModel.skus));
-                bookingmodel.pay_type = "01"; //
-                bookingmodel.total_price = preBookingModel.total_price;
-                bookingmodel.guide_lang = "zh-tw";//先寫死
+                bookingmodel.skus = JsonSerializer.Deserialize<List<Sku>>(JsonSerializer.Serialize(req.skus));
+                bookingmodel.pay_type = "01"; // Default is "01": Credit
+                bookingmodel.total_price = req.total_price;
+                bookingmodel.guide_lang = ""; 
                 bookingmodel.s_date = req.s_date;
-                bookingmodel.e_date = req.e_date == null ? req.s_date : req.e_date;
+                bookingmodel.e_date = (req.e_date == null) ? req.s_date : req.e_date;
                 bookingmodel.event_time = req.event_time;
 
-                var cus_type = (bookingfield?.custom?.CusType?.ListOption.Where(x => x == "cus_01")?.ToList()?.Count > 0) ? "cus_01" : "cus_02";
+                bookingmodel.buyer_country = "";
+                bookingmodel.buyer_tel_country_code = "";
+                bookingmodel.buyer_tel_number = "";
 
+                var qty = req.skus.Sum(t => t.qty);
 
-                    var qty = req.skus.Sum(t => t.qty);
-                if(cus_type == "cus_01") { qty = 1; }
-                List<CustomBooking> cus = new List<CustomBooking>();
-                for (int i = 0; i < qty; i++)
-                {
-                    cus.Add(new CustomBooking() {
-                        cus_type= cus_type,
-                        nationality ="JP",
-                        native_first_name ="張",
-                        native_last_name ="大千",
-                        english_first_name ="chang",
-                        english_last_name ="feng jung",
-                        birth ="1988-01-01",
-                        gender ="M",
-                        passport_no ="T1I2II",
-                        
-                        tel_country_code ="886",
-                        tel_number ="09383838383",
-                        meal ="0001"
-                    });
-                }
-                bookingmodel.custom = cus;
+                // var cus_type = (bookingfield?.custom?.cus_type?.list_option.Where(x => x == "cus_01")?.ToList()?.Count > 0) ? "cus_01" : "cus_02";
+                var has_psg = bookingfield?.custom?.cus_type?.list_option.Where(x => x == "cus_01" || x == "cus_02").Count() > 0 ? true : false;
 
-                //testing default
-                if (bookingfield?.custom?.CusType?.ListOption.Where(x => x == "contact")?.ToList()?.Count > 0)
+                bookingmodel.custom = new List<CustomBooking>();
+
+                // Expand travelers
+                if (req.extra.unit_code == "01" && has_psg)
                 {
-                    bookingmodel.contact = new CustomBooking() {
-                        cus_type ="contact",
-                        native_first_name ="2寶",
-                        native_last_name = "張",
-                        tel_country_code = "886",
-                        tel_number = "09383838384",
-                    };
-                }
-                if (bookingfield?.custom?.CusType?.ListOption.Where(x => x == "send")?.ToList()?.Count > 0)
-                {
-                    bookingmodel.send = new CustomBooking()
+                    for(var psg = 0; psg < qty; psg++)
                     {
-                        cus_type = "send",
-                        native_first_name = "2寶",
-                        native_last_name = "張",
-                    };
+                        bookingmodel.custom.Add(new CustomBooking() { cus_type = qty == 1 ? "cus_01" : "cus_02" });
+                    }
+                }
+                 
+                if (bookingfield?.custom?.cus_type?.list_option.Where(x => x == "contact")?.ToList()?.Count > 0)
+                {
+                    bookingmodel.custom.Add(new CustomBooking() { cus_type = "contact" });
+                }
+                 
+                if (bookingfield?.custom?.cus_type?.list_option.Where(x => x == "send")?.ToList()?.Count > 0)
+                {
+                    bookingmodel.custom.Add(new CustomBooking() { cus_type = "send" }); 
                 }
 
                 List<TrafficBooking> traffic = new List<TrafficBooking>();
-                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "flight").ToList()?.Count() > 0)
+                if (bookingfield?.traffics.Where(x => x.traffic_type.traffic_type_value == "flight").ToList()?.Count() > 0)
                 {
                     traffic.Add(new TrafficBooking
                     {
@@ -131,21 +103,21 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                     });
                     
                 }
-                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "rentcar_01").ToList()?.Count() > 0)
+                if (bookingfield?.traffics.Where(x => x.traffic_type.traffic_type_value == "rentcar_01").ToList()?.Count() > 0)
                 {
                     traffic.Add(new TrafficBooking
                     {
                         traffic_type = "rentcar_01"
                     });
                 }
-                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "rentcar_02").ToList()?.Count() > 0)
+                if (bookingfield?.traffics.Where(x => x.traffic_type.traffic_type_value == "rentcar_02").ToList()?.Count() > 0)
                 {
                     traffic.Add(new TrafficBooking
                     {
                         traffic_type = "rentcar_02"
                     });
                 }
-                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "rentcar_03").ToList()?.Count() > 0)
+                if (bookingfield?.traffics.Where(x => x.traffic_type.traffic_type_value == "rentcar_03").ToList()?.Count() > 0)
                 {
                     traffic.Add(new TrafficBooking
                     {
@@ -153,21 +125,21 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                     });
                 }
 
-                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "pickup_03").ToList()?.Count() > 0)
+                if (bookingfield?.traffics.Where(x => x.traffic_type.traffic_type_value == "pickup_03").ToList()?.Count() > 0)
                 {
                     traffic.Add(new TrafficBooking
                     {
                         traffic_type = "pickup_03"
                     });
                 }
-                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "pickup_04").ToList()?.Count() > 0)
+                if (bookingfield?.traffics.Where(x => x.traffic_type.traffic_type_value == "pickup_04").ToList()?.Count() > 0)
                 {
                     traffic.Add(new TrafficBooking
                     {
                         traffic_type = "pickup_04"
                     });
                 }
-                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "psg_qty").ToList()?.Count() > 0)
+                if (bookingfield?.traffics.Where(x => x.traffic_type.traffic_type_value == "psg_qty").ToList()?.Count() > 0)
                 {
                     traffic.Add(new TrafficBooking
                     {
@@ -185,7 +157,7 @@ namespace KKday.B2D.Web.InternAgent.Controllers
 
                     }); ;
                 }
-                if (bookingfield?.traffics.Where(x => x.TrafficType.TrafficTypeValue == "voucher").ToList()?.Count() > 0)
+                if (bookingfield?.traffics.Where(x => x.traffic_type.traffic_type_value == "voucher").ToList()?.Count() > 0)
                 {
                     traffic.Add(new TrafficBooking
                     {
@@ -201,10 +173,8 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                         active_date =""      
                     };
                 }
-                
-
-                jsonData.Add("prebookingmodel", preBookingModel ?? new BookingDataModel());
-                jsonData.Add("bookingmodel", bookingmodel);
+                  
+                jsonData.Add("booking", bookingmodel);
                 jsonData.Add("bookingfield", bookingfield);
 
                 return Json(jsonData);
@@ -222,23 +192,15 @@ namespace KKday.B2D.Web.InternAgent.Controllers
             Dictionary<string, string> rs = new Dictionary<string, string>();
             try
             {
-                B2DBookingModel booking = JsonConvert.DeserializeObject<B2DBookingModel>(JsonConvert.SerializeObject(req));
-                if (req?.contact != null)
-                {
-                    booking.custom.Add(JsonConvert.DeserializeObject<CustomBooking>(JsonConvert.SerializeObject(req.contact)));
-                }
-                if (req?.send != null)
-                {
-                    booking.custom.Add(JsonConvert.DeserializeObject<CustomBooking>(JsonConvert.SerializeObject(req.send)));
-                }
-
+                B2DBookingModel booking = JsonSerializer.Deserialize<B2DBookingModel>(JsonSerializer.Serialize(req));
+                
                 if (booking != null)
                 {
                     //call booking
                     var bookProxy = HttpContext.RequestServices.GetService<BookingProxy>();
                     var result = bookProxy.Booking(booking);
-
                 }
+
                 rs.Add("result", "OK");
                 return Json(rs);
             }

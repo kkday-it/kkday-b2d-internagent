@@ -124,7 +124,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         /// This order total price(The total sum of quantities and prices for all filled SKU)
         /// </summary>
         /// <example>1000</example>
-        public double total_price { get; set; }
+        public decimal total_price { get; set; }
         /// <summary>
         /// Payment method (currently fixed value is 01).
         /// </summary>
