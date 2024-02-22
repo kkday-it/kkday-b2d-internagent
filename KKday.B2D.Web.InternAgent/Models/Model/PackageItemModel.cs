@@ -33,8 +33,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string sale_s_date_event { get; set; }
         public DateTimeOffset sale_e_date { get; set; }
         public string sale_e_date_event { get; set; }
-        public long inventory_set { get; set; }
-        public long inventory_type { get; set; }
+        public long? inventory_set { get; set; }
+        public string inventory_type { get; set; }
         public Skus[] skus { get; set; } 
         public Spec[] specs { get; set; }
         public bool? is_swipe { get; set; }
