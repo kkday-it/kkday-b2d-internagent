@@ -190,7 +190,7 @@
                     </div>
                 </div>
                 <!-- Email -->
-                <div class="col-md-8 col-xs-12">
+                <div class="col-md-4 col-sm-6 col-xs-12">
                     <div class="form-group must">
                         <label>@Localizer["common_email"] <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" id="txtEmail" name="txtEmail" placeholder="" v-model="booking.buyer_Email">
@@ -352,7 +352,7 @@
                             </div>
                             <!-- Height Unit -->
                             <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.height_unit', 'cus_01,cus_02')">
-                                <label>@Localizer["booking_step1_cust_data_height"]<span class="text-danger">*</span></label>
+                                <label>@Localizer["booking_step1_cust_data_height"]@Localizer["booking_step1_cust_data_unit"]<span class="text-danger">*</span></label>
                                 <select name="heightUnit0-0" class="form-control" v-model="pax.height_unit" required>
                                     <option disabled="disabled" value="">@Localizer["booking_step1_cust_data_unit"]</option>
                                     <template v-for="height in getBookingFieldReference('custom.height_unit')">
@@ -367,7 +367,7 @@
                             </div>
                             <!-- Weight Unit -->
                             <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.weight_unit', 'cus_01,cus_02')">
-                                <label>@Localizer["booking_step1_cust_data_weight"]<span class="text-danger">*</span></label>
+                                <label>@Localizer["booking_step1_cust_data_weight"]@Localizer["booking_step1_cust_data_unit"]<span class="text-danger">*</span></label>
                                 <select name="weightUnit0-0" class="form-control" v-model="pax.weight_unit" required>
                                     <option disabled="disabled" value="">@Localizer["booking_step1_cust_data_unit"]</option>
                                     <template v-for="weight in getBookingFieldReference('custom.weight_unit')">
@@ -422,7 +422,7 @@
                                 <select class="form-control" name="meal0-0" v-model="pax.meal" required>
                                     <option disabled="disabled" value="">@Localizer["booking_step1_cust_data_meal_placeholder"]</option>
                                     <template v-for="temp in getBookingFieldReference('custom.meal')">
-                                        <option :value="temp.mealType" v-html="temp.mealTypeName" v-if="temp.is_provided==true"></option>
+                                        <option :value="temp.meal_type" v-html="temp.meal_type_name" v-if="temp.is_provided==true"></option>
                                     </template>
                                 </select>
                             </div>
@@ -432,7 +432,7 @@
             </template>
 
             <!-- Guide Language -->
-            <template v-show="bookingField?.guide_lang && bookingField?.guide_lang?.is_require === true">
+            <template v-if="bookingField?.guide_lang && bookingField?.guide_lang?.is_require === true">
                 <div class="traveler-con">
                     <div class="sub-title">@Localizer["common_guide_lang"]</div>
                     <div class="row">
@@ -1557,8 +1557,9 @@
                 }
             },
             getBookingFieldReference(path) {
+                getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+
                 if (path.indexOf('glass') == -1) {
-                    getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
                     var ref = getValue(this.bookingField, path);
                     if (ref == null) {
                         return [];
@@ -1567,27 +1568,26 @@
                         let refTemp = getValue(this.bookingField, path + '.list_option');
                         return refTemp;
                     }
-                    console.log(`getBookingFieldReference,  path => bookingfield.${path}.${key}, vale=>${JSON.stringify(ref)}`);
+                    // console.log(`getBookingFieldReference,  path => bookingfield.${path}.${key}, vale=>${JSON.stringify(ref)}`);
                 }
+                // for glass_degree
                 else {
-                    getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
-                    var ref = getValue(this.bookingField, path);
-                    if (ref == null) {
-                        return [];
-                    }
-                    else {
-                        let start = parseFloat(ref[0].range.split('~')[0]);
-                        let end = parseFloat(ref[0].range.split('~')[1]);
-                        let interval = parseFloat(ref[0].interval);
-                        while (start < end) {
+                    let refTemp = [];
+                    let option = getValue(this.bookingField, path + '.list_option');
+                    if (option) { 
+                        let range = option[0].range.split('~'); 
+                        let start = parseFloat(range[0]);
+                        let end = parseFloat(range[1]);
+                        let interval = parseFloat(option[0].interval); 
+                        while (start < end) { 
                             refTemp.push({
-                                Code: start,
-                                Value: start
+                                code: start,
+                                value: start
                             });
                             start += interval;
                         }
-                        return refTemp;
                     }
+                    return refTemp;
                 }
             },
             getBookingFieldReferenceforFlight(path) {
@@ -1713,14 +1713,16 @@
 
                 if (shoe_type == "M") sel_unit = this.bookingField.custom.shoe.list_option.find(t => t.man).man;
                 else if (shoe_type == "W") sel_unit = this.bookingField.custom.shoe.list_option.find(t => t.woman).woman;
-                //@* console.log(` shoe list => ${JSON.stringify(sel_unit)}`) *@
+                else if (shoe_type == "C") sel_unit = this.bookingField.custom.shoe.list_option.find(t => t.child).child;
+                // console.log(` shoe list => ${JSON.stringify(sel_unit)}`)
 
-                sel_unit = sel_unit ? sel_unit.find(u => u.UnitCode === shoe_unit) : undefined;
-                //@* console.log(` final items => ${JSON.stringify(sel_unit)}`); *@
+                sel_unit = sel_unit ? sel_unit.find(u => u.unit_code === shoe_unit) : undefined;
+                // console.log(` sel size unit => ${JSON.stringify(sel_unit)}`)
 
+                $(`#shoeSizeValue_${idx} :not(:first-child)`).remove();
                 if (sel_unit) {
-                    let start = parseFloat(sel_unit.sizeRangeStart);
-                    let end = parseFloat(sel_unit.sizeRangeEnd);
+                    let start = parseFloat(sel_unit.size_range_start);
+                    let end = parseFloat(sel_unit.size_range_end);
                     let interval = parseFloat(sel_unit.interval);
                     while (start < end) {
                         $(`#shoeSizeValue_${idx}`).append($('<option>', {
