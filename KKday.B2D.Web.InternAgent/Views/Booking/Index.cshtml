@@ -213,7 +213,7 @@
                     </div>
                     <div class="board active pax-item"> 
                         <div class="row">
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.nationality', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.nationality', 'cus_01,cus_02')">
                                 <!-- Nationality -->
                                 <div class="form-group">
                                     <label>@Localizer["common_nationality"]<span class="text-danger">*</span></label>
@@ -234,7 +234,7 @@
                         </div>
                         <div class="row">
                             <!-- Native First Name -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.native_first_name', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.native_first_name', 'cus_01,cus_02')">
                                 <div class="form-group">
                                     <label><span v-html="`@Localizer["booking_step1_cust_data_local_firstname"]`"></span><span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["KHSR_Booking_FirstName_PlaceHolder"]" name="`localFirstName-${idx}`" type="text" maxlength="50" class="form-control"
@@ -242,7 +242,7 @@
                                 </div>
                             </div>
                             <!-- Native Last Name -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.native_last_name', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.native_last_name', 'cus_01,cus_02')">
                                 <div class="form-group">
                                     <label><span v-html="`@Localizer["booking_step1_cust_data_local_lastname"]`"></span><span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["KHSR_Booking_LastName_PlaceHolder"]" name="`localLastName-${idx}`" type="text" maxlength="50" class="form-control"
@@ -250,7 +250,7 @@
                                 </div>
                             </div>
                             <!-- English First Name (Passport) -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.english_first_name', 'cus_01, cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.english_first_name', 'cus_01, cus_02')">
                                 <div class="form-group">
                                     <label>@Localizer["booking_step1_cust_data_passport_english_firstname"]<span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["KHSR_Booking_FirstName_PlaceHolder"]" name="`enFirstName-${idx}`" type="text" maxlength="50" class="form-control"
@@ -258,7 +258,7 @@
                                 </div>
                             </div>
                             <!-- English Last Name (Passport) -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.english_last_name', 'cus_01, cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.english_last_name', 'cus_01, cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_passport_english_lastname"]<span class="text-danger">*</span></label>
                                 <input placeholder="@Localizer["KHSR_Booking_LastName_PlaceHolder"]" name="`enlLastName-${idx}`" type="text" maxlength="50" class="form-control"
                                        v-model="pax.english_last_name" required />
@@ -266,7 +266,7 @@
                         </div>
                         <div class="row">
                             <!-- Birth -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.birth', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.birth', 'cus_01,cus_02')">
                                 <div class="form-group">
                                     <label>@Localizer["component_form_date_of_birth_title"]<span class="text-danger">*</span></label>
                                     <div class="input-group mb-3">
@@ -280,7 +280,7 @@
                                 </div>
                             </div>
                             <!-- Passport No -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.passport_no', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.passport_no', 'cus_01,cus_02')">
                                 <div class="form-group">
                                     <label>@Localizer["component_form_passport_number_title"]<span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["component_form_passport_number_placeholder"]" name="`passport-${idx}`" type="text" class="form-control"
@@ -288,7 +288,7 @@
                                 </div>
                             </div>
                             <!-- Passport Expired Date -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.passport_expdate', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.passport_expdate', 'cus_01,cus_02')">
                                 <div class="form-group">
                                     <label>@Localizer["component_form_passport_expire_date_title"]<span class="text-danger">*</span></label>
                                     <div class="input-group mb-3">
@@ -301,7 +301,7 @@
                                 </div>
                             </div>
                             <!-- Taiwan Identity Number -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.id_no', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.id_no', 'cus_01,cus_02')">
                                 <div class="form-group">
                                     <label>@Localizer["order_show_cust_data_tw_identity_number"]<span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["component_form_tw_identity_number_placeholder"]" name="`twIdentity-${idx}`" type="text" class="form-control"
@@ -309,7 +309,7 @@
                                 </div>
                             </div>
                             <!-- MTP Number -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.mtp_no', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.mtp_no', 'cus_01,cus_02')">
                                 <div class="form-group">
                                     <label>@Localizer["order_show_cust_data_mtp_number"]<span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["component_form_mtp_number_placeholder"]" name="`mtp_no-${idx}`" type="text" v-model="pax.mtp_no"
@@ -317,7 +317,7 @@
                                 </div>
                             </div>
                             <!-- Gender -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.gender', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.gender', 'cus_01,cus_02')">
                                 <div class="form-group">
                                     <label>@Localizer["booking_step1_cus_cusGender"]<span class="text-danger">*</span></label>
                                     <select name="`pax-gender-${idx}`" class="form-control" v-model="pax.gender" required>
@@ -329,7 +329,7 @@
                                 </div>
                             </div>
                             <!-- Tel Country Code & Phone Number -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.tel_number', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.tel_number', 'cus_01,cus_02')">
                                 <div class="form-group">
                                     <label>@Localizer["component_form_contact_tel_title"]<span class="text-danger">*</span></label>
                                     <div class="input-group buyer-tel-country">
@@ -346,7 +346,7 @@
                                 </div>
                             </div>
                             <!-- Height -->
-                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.height', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-if="checkBookingField('custom.height', 'cus_01,cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_height"]<span class="text-danger">*</span></label>
                                 <input placeholder="@Localizer["component_form_title_placeholder"]" autocomplete="on" type="number" name="height0-0" min="0" class="form-control" v-model="pax.height" required />
                             </div>
@@ -361,12 +361,12 @@
                                 </select>
                             </div>
                             <!--  Wegiht -->
-                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.weight', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-if="checkBookingField('custom.weight', 'cus_01,cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_weight"]<span class="text-danger">*</span></label>
                                 <input placeholder="@Localizer["component_form_title_placeholder"]" autocomplete="on" type="number" name="weight0-0" min="0" class="form-control" v-model="pax.weight" required>
                             </div>
                             <!-- Weight Unit -->
-                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.weight_unit', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-if="checkBookingField('custom.weight_unit', 'cus_01,cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_weight"]@Localizer["booking_step1_cust_data_unit"]<span class="text-danger">*</span></label>
                                 <select name="weightUnit0-0" class="form-control" v-model="pax.weight_unit" required>
                                     <option disabled="disabled" value="">@Localizer["booking_step1_cust_data_unit"]</option>
@@ -376,7 +376,7 @@
                                 </select>
                             </div>
                             <!-- Shoe Size -->
-                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.shoe_type', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-if="checkBookingField('custom.shoe_type', 'cus_01,cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_shoe_size"]<span class="text-danger">*</span></label>
                                 <select :id="`shoeSizeType_${idx}`" class="form-control" name="shoeSizeType0-0" @@change="refreshShoeSize(idx)" v-model="pax.shoe_type" required>
                                     <option value="">@Localizer["component_form_title_placeholder"]</option>
@@ -389,7 +389,7 @@
                                 </div>
                             </div>
                             <!-- Shoe Unit -->
-                            <div class="col-md-2 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.shoe_unit', 'cus_01,cus_02')">
+                            <div class="col-md-2 col-sm-6 col-xs-12 form-group" v-if="checkBookingField('custom.shoe_unit', 'cus_01,cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_shoe_size"]<span class="text-danger">*</span></label>
                                 <select :id="`shoeSizeUnit_${idx}`" class="form-control" name="shoeSizeUnit0-0" @@change="refreshShoeSize(idx)" v-model="pax.shoe_unit" required>
                                     <option value="">@Localizer["booking_step1_cust_data_shoe_size_placeholder"]</option>
@@ -399,14 +399,14 @@
                                 </select>
                             </div>
                             <!-- Shoe Size -->
-                            <div class="col-md-2 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.shoe', 'cus_01,cus_02')">
+                            <div class="col-md-2 col-sm-6 col-xs-12 form-group" v-if="checkBookingField('custom.shoe', 'cus_01,cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_shoe_size"]<span class="text-danger">*</span></label>
                                 <select :id="`shoeSizeValue_${idx}`" class="form-control" name="shoeSizeValue0-0" v-model="pax.shoe" required>
                                     <option value="">@Localizer["component_form_title_placeholder"]</option>
                                 </select>
                             </div>
                             <!-- Glasses Degree -->
-                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.glass_degree', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-if="checkBookingField('custom.glass_degree', 'cus_01,cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_glass_diopter"] <span class="text-danger">*</span></label>
                                 <select name="glassDiopter0-0" class="form-control" v-model="pax.glass_degree" required>
                                     <option disabled="disabled" value="">@Localizer["booking_step1_cust_data_glass_diopter_placeholder"]</option>
@@ -417,7 +417,7 @@
                                 </select>
                             </div>
                             <!-- Meal Selection -->
-                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.meal', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12 form-group" v-if="checkBookingField('custom.meal', 'cus_01,cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_meal"]<span class="text-danger">*</span></label>
                                 <select class="form-control" name="meal0-0" v-model="pax.meal" required>
                                     <option disabled="disabled" value="">@Localizer["booking_step1_cust_data_meal_placeholder"]</option>
@@ -1370,6 +1370,8 @@
         return Array.from(arguments).some(i => this.includes(i));
     }
 
+    getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+
     Vue.component('v-select', VueSelect.VueSelect);
 
     let app = new Vue({
@@ -1473,10 +1475,9 @@
             },
             checkBookingField(path, keys, mandatory) {
                 try {
-                    getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
-
+                    // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
                     let key_array = keys.split(',');
-                    let using = getValue(this.bookingField, path + '.use');
+                    let using = getValue(this.bookingField, path + '.use'); 
 
                     let is_required = using ? using.filter(v => key_array.includes(v)).length : getValue(this.bookingField, path + '.is_require');
                     let result = is_required ? true : false;
@@ -1484,13 +1485,13 @@
                     // console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)}/matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
                     return result;
                 } catch (e) {
-                    // console.log(`path: ${path}`) => error : ${e}`);
+                    // console.log(`checkBookingField, path: ${path} => error : ${e}`);
                     return false;
                 }
             },
             checkBookingFieldforFlight(path) {
                 try {
-                    getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+                    // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
 
                     //debugger;
                     let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'flight');
@@ -1498,7 +1499,7 @@
                     let result = is_required == "True" ? true : false;
                     return result;
                 } catch (e) {
-                    // console.log(`path: ${path} => error : ${e}`);
+                    // console.log(`checkBookingFieldforFlight, path: ${path} => error : ${e}`);
                     return false;
                 }
             },
@@ -1514,7 +1515,7 @@
                     }
 
                     if (flight == undefined) { return false; }
-                    getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+                    // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
 
                     let is_revisible = getValue(flight, path + '.is_visible');
                     let is_required = getValue(flight, path + '.is_require');
@@ -1528,7 +1529,7 @@
                     }
                     // console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)}/matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
                 } catch (e) {
-                    // console.log(`path: ${path} (${keys}) => error : ${e}`);
+                    // console.log(`checkBookingFieldforRentCar, path: ${path} => error : ${e}`);
                     return false;
                 }
             },
@@ -1537,9 +1538,9 @@
                     //debugger;
                     let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'pickup_03' || t.traffic_type?.traffic_type_value == 'pickup_04');
                     if (flight == undefined) { return false; }
-                    getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
 
-                    //要確認要不要加  is_flight_used
+                    // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+
                     let is_revisible = getValue(flight, path + '.is_visible');
                     let is_required = getValue(flight, path + '.is_require');
                     if (path.indexOf('provide') == -1) {
@@ -1552,12 +1553,12 @@
                     }
                     // console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)}/matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
                 } catch (e) {
-                    // console.log(`path: ${path} (${keys}) => error : ${e}`);
+                    // console.log(`checkBookingFieldforPickUp, path: ${path} => error : ${e}`);
                     return false;
                 }
             },
             getBookingFieldReference(path) {
-                getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+                // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
 
                 if (path.indexOf('glass') == -1) {
                     var ref = getValue(this.bookingField, path);
@@ -1593,7 +1594,7 @@
             getBookingFieldReferenceforFlight(path) {
 
                 let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'flight');
-                getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+                // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
 
                 try {
                     if (flight != null) {
@@ -1615,7 +1616,7 @@
                 else {
                     rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue);
                 }
-                getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+                // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
 
                 try {
                     if (rendCar != null) {
@@ -1642,7 +1643,7 @@
             getBookingFieldReferenceforVoucher(path) {
 
                 let rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'voucher');
-                getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+                // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
 
                 try {
                     if (rendCar != null) {
