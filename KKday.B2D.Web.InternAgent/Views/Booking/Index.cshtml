@@ -1187,7 +1187,7 @@
             </template>
 
             <!-- Mobile Device -->
-            <template v-if="bookingField?.mobile_device">
+            <template v-if="bookingField?.mobile_device && $.isEmptyObject(bookingField?.mobile_device) === false">
                 <div class="traveler-con traveler-other">
                     <div class="sub-title"> @Localizer["booking_step1_other_data"] </div>
                     <div class="row">
