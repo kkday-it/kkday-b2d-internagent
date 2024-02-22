@@ -1,6 +1,6 @@
 # kkday-b2d-internagent
 
-This project is a demonstration based on KKday B2D API version 4.0 (<a href="https://api-b2d.kkday.com/Redoc">link</a>), which can be executed independently and provide actions: search, product, package selection, booking (no payment). The code includes major BootstrapVue and portion DotNet 7.0, you need to have development skills in Javascript and object-oriented programming.
+This project is a demonstration based on KKday B2D API version 4.0 (<a href="https://api-b2d.kkday.com/Redoc">link</a>), which can be executed independently and provide actions: Search, Product, Package and Selection, Booking (no payment), Order. The code includes major BootstrapVue and portion DotNet 7.0, you need to have development skills in Javascript and object-oriented programming.
 
 The PMDL(Product Model Definition Layer) will be presented and composite into whole product page. The purpose of BookingField (Order Model Definition Layer) is a conditon which satisfy to supplier operation, and this project shows you how to transform required fields into BookingModel for booking. We also show you inline BookingModel during you fill in information on Web page.
 
