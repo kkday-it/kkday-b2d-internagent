@@ -1475,7 +1475,6 @@
             },
             checkBookingField(path, keys, mandatory) {
                 try {
-                    // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
                     let key_array = keys.split(',');
                     let using = getValue(this.bookingField, path + '.use'); 
 
@@ -1491,8 +1490,6 @@
             },
             checkBookingFieldforFlight(path) {
                 try {
-                    // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
-
                     //debugger;
                     let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'flight');
                     let is_required = getValue(flight, path + '.is_require');
@@ -1514,8 +1511,7 @@
                         flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue);
                     }
 
-                    if (flight == undefined) { return false; }
-                    // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+                    if (flight == undefined) { return false; } 
 
                     let is_revisible = getValue(flight, path + '.is_visible');
                     let is_required = getValue(flight, path + '.is_require');
@@ -1539,8 +1535,6 @@
                     let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'pickup_03' || t.traffic_type?.traffic_type_value == 'pickup_04');
                     if (flight == undefined) { return false; }
 
-                    // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
-
                     let is_revisible = getValue(flight, path + '.is_visible');
                     let is_required = getValue(flight, path + '.is_require');
                     if (path.indexOf('provide') == -1) {
@@ -1558,8 +1552,6 @@
                 }
             },
             getBookingFieldReference(path) {
-                // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
-
                 if (path.indexOf('glass') == -1) {
                     var ref = getValue(this.bookingField, path);
                     if (ref == null) {
@@ -1592,9 +1584,7 @@
                 }
             },
             getBookingFieldReferenceforFlight(path) {
-
                 let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'flight');
-                // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
 
                 try {
                     if (flight != null) {
@@ -1616,8 +1606,7 @@
                 else {
                     rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue);
                 }
-                // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
-
+                
                 try {
                     if (rendCar != null) {
                         if (path == "s_time" && rendCar.s_time == null) { return []; }
@@ -1641,9 +1630,7 @@
                 catch (e) { return []; }
             },
             getBookingFieldReferenceforVoucher(path) {
-
-                let rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'voucher');
-                // getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+                let rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'voucher'); 
 
                 try {
                     if (rendCar != null) {
@@ -1676,8 +1663,8 @@
                     $('#selShuttleCusMinute :not(:first-child)').remove();
                 }
                 else {
-                    this.booking.traffic.find(t => t.traffic_type == 'pickup_04').s_time = val;
-                    this.booking = { ... this.booking }; // refresh booking-model
+                    // this.booking.traffic.find(t => t.traffic_type == 'pickup_04').s_time = val;
+                    this.$set(this.booking.traffic.find(t => t.traffic_type == 'pickup_04'), "s_time", val);
                 }
             },
             changeShuttleHour() {
@@ -1701,8 +1688,8 @@
                 }
             },
             changeShuttleMinute() { 
-                this.booking.traffic.find(t => t.traffic_type == 'pickup_04').s_time = `${$('#selShuttleCusHour').val()}:${$('#selShuttleCusMinute').val()}`;
-                this.booking = { ... this.booking }; // refresh booking-model
+                // this.booking.traffic.find(t => t.traffic_type == 'pickup_04').s_time = `${$('#selShuttleCusHour').val()}:${$('#selShuttleCusMinute').val()}`;
+                this.$set(this.booking.traffic.find(t => t.traffic_type == 'pickup_04'), "s_time", `${$('#selShuttleCusHour').val()}:${$('#selShuttleCusMinute').val()}`);
             },
             refreshShoeSize(idx) {
                 $(`#shoeSizeValue_${idx} option:not(:first)`).remove();
@@ -1826,10 +1813,10 @@
                 this.show_cus_route = (val === 'customize');
                 let rentcar03 = this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar_03'));
 
-                rentcar03.is_rent_customize = this.show_cus_route ? true : false;
-                rentcar03.s_location = val;
-
-                this.booking = { ... this.booking }; // refresh booking-model
+                // rentcar03.is_rent_customize = this.show_cus_route ? true : false;
+                // rentcar03.s_location = val;
+                this.$set(rentcar03, "is_rent_customize", this.show_cus_route ? true : false);
+                this.$set(rentcar03, "s_location", val);
             },
             addCusRoute() {
                 this.booking_custom_routes.push($('#booking-shuttle-custom-route').val());
@@ -1838,9 +1825,8 @@
                     $('#booking-shuttle-custom-route').attr('disabled', true);
                     $('.btn-next').attr('disabled', true);
                 }
-                this.booking.traffic.find(t => t.traffic_type == 'rentcar_03').s_address = this.booking_custom_routes.join(',');
-
-                this.booking = { ... this.booking }; // refresh booking-model
+                // this.booking.traffic.find(t => t.traffic_type == 'rentcar_03').s_address = this.booking_custom_routes.join(',');
+                 this.$set(this.booking.traffic.find(t => t.traffic_type == 'rentcar_03'), "s_address", this.booking_custom_routes.join(','));
             },
             removeCusRoute(idx) {
                 this.booking_custom_routes.splice(idx, 1);
@@ -1848,9 +1834,8 @@
                     $('#booking-shuttle-custom-route').attr('disabled', false);
                     $('.btn-next').attr('disabled', false);
                 }
-                this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).s_address = this.booking_custom_routes.join(',');
-
-                this.booking = { ... this.booking }; // refresh booking-model
+                // this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).s_address = this.booking_custom_routes.join(',');
+                this.$set(this.booking.traffic.find(t => t.traffic_typestartsWith('rentcar')), "s_address", this.booking_custom_routes.join(','));
             },
             showTravelContactTel(flag) {
                 this.show_travel_contact_phone = flag;
