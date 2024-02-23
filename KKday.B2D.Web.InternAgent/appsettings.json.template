@@ -10,8 +10,8 @@
   "Currency": "TWD",
   "Marketing": "TW",
   "KKdayApi": {
-    "Url": "https://api-b2d.sit.kkday.com/v4",
-    "Url_QA": "https://api-b2d-214.sit.kkday.com/v4",
+    "Url": "https://api-b2d-10.sit.kkday.com/v4",
+    "Url-QA": "https://api-b2d-214.sit.kkday.com/v4",
     "AuthorToken": "YOUR_B2D_API_TOKEN"
   }
 }
