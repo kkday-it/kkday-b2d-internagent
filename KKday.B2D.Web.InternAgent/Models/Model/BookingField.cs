@@ -188,9 +188,9 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     {
         public string unit_code { get; set; }
         public string unit_name { get; set; }
-        public string size_range_start { get; set; }
-        public string size_range_end { get; set; }
-        public string interval { get; set; }
+        public decimal? size_range_start { get; set; }
+        public decimal? size_range_end { get; set; }
+        public decimal? interval { get; set; }
     }
 
     public partial class MealTypeInfo
@@ -314,7 +314,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
          
         public long? sort { get; set; }
         public string code { get; set; }
-        public string interval { get; set; }
+        public long? interval { get; set; }
         public string s_time { get; set; }
         public string e_time { get; set; }
         public string route_local { get; set; }
@@ -325,8 +325,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     public partial class TimeInfo
     { 
         public string id { get; set; }
-        public long hour { get; set; }
-        public long min { get; set; }
+        public long? hour { get; set; }
+        public long? min { get; set; }
         public string time_range { get; set; }
     }
 

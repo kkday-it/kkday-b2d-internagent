@@ -458,7 +458,7 @@
                         @Localizer["booking_step1_flight_info_departure_info"]?.Value.Replace("%s", string.Empty).Replace(" ", string.Empty)
                     </div>
                     <div class="row">
-                        <div class="col-md-6 col-sm-6 col-xs-12" v-show="checkBookingFieldforFlight('departure_flightType')">
+                        <div class="col-md-6 col-sm-6 col-xs-12" v-if="checkBookingFieldforFlight('departure_flightType')">
                             <!-- Flight Type -->
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_flight_type"]<span class="text-danger">*</span></label>
@@ -471,7 +471,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6 col-sm-6 col-xs-12" v-show="checkBookingFieldforFlight('departure_airport')">
+                        <div class="col-md-6 col-sm-6 col-xs-12" v-if="checkBookingFieldforFlight('departure_airport')">
                             <!-- Airport -->
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_departure_airport"]<span class="text-danger">*</span></label>
@@ -486,7 +486,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6 col-sm-6 col-xs-12" v-show="checkBookingFieldforFlight('departure_terminalNo')">
+                        <div class="col-md-6 col-sm-6 col-xs-12" v-if="checkBookingFieldforFlight('departure_terminalNo')">
                             <!-- Terminal No -->
                             <div class="form-group">
                                 <label>@Localizer["order_show_flight_info_terminal_no"]<span class="text-danger">*</span></label>
@@ -494,7 +494,7 @@
                                        v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_terminalNo" required />
                             </div>
                         </div>
-                        <div class="col-md-6 col-sm-6 col-xs-12" v-show="checkBookingFieldforFlight('departure_airlineName')">
+                        <div class="col-md-6 col-sm-6 col-xs-12" v-if="checkBookingFieldforFlight('departure_airlineName')">
                             <!-- Airline -->
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_airline"]<span class="text-danger">*</span></label>
@@ -504,7 +504,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6 col-sm-6 col-xs-12" v-show="checkBookingFieldforFlight('departure_flightNo')">
+                        <div class="col-md-6 col-sm-6 col-xs-12" v-if="checkBookingFieldforFlight('departure_flightNo')">
                             <!-- Flight No -->
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_flight_no"]<span class="text-danger">*</span></label>
@@ -514,16 +514,16 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6 col-sm-6 col-xs-12 form-group" v-show="checkBookingFieldforFlight('departure_date')">
+                        <div class="col-md-6 col-sm-6 col-xs-12 form-group" v-if="checkBookingFieldforFlight('departure_date')">
                             <!-- Departure Date -->
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_departure_date"]<span class="text-danger">*</span></label>
-                                <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_date" placeholder="@Localizer["booking_step1_flight_info_arrival_time_placeholder"]"></datepicker>
+                                <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_date" placeholder="@Localizer["booking_step1_flight_info_departure_date_placeholder"]"></datepicker>
                                 @*<input placeholder="@Localizer["booking_step1_flight_info_arrival_time_placeholder"]" autocomplete="on" type="text" id="booking-flight-departure-flight-number" name="departureFlightNo0" class="form-control"
                     v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_date" required />*@
                             </div>
                         </div>
-                        <div class="col-sm-6 col-sm-6 col-xs-12 form-group" v-show="checkBookingFieldforFlight('departure_time')">
+                        <div class="col-sm-6 col-sm-6 col-xs-12 form-group" v-if="checkBookingFieldforFlight('departure_time')">
                             <!-- Departure Time -->
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_departure_time"]<span class="text-danger">*</span></label>
@@ -597,7 +597,7 @@
                             <!-- Arrival Date -->
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_arrival_date"]<span class="text-danger">*</span></label>
-                                <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').arrival_date" placeholder="@Localizer["booking_step1_flight_info_arrival_time_placeholder"]"></datepicker>
+                                <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').arrival_date" placeholder="@Localizer["booking_step1_flight_info_arrival_date_placeholder"]"></datepicker>
                                 @*<input placeholder="@Localizer["booking_step1_flight_info_arrival_time_placeholder"]" autocomplete="on" type="text" id="booking-flight-departure-flight-number" name="departureFlightNo0" class="form-control"
                                     v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').arrival_date" required />*@
                             </div>
@@ -657,8 +657,9 @@
                             <!-- Pickup Date -->
                             <label>@Localizer["booking_step1_rent_car_pick_up_date"]<span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <input id="rentPickUpDate0" name="pickUpDate0" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]" type="text"
-                                       v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_date" class="form-control has-datepicker" required>
+                                <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_date" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]"></datepicker>
+                                @*<input id="rentPickUpDate0" name="pickUpDate0" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]" type="text"
+                                       v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_date" class="form-control has-datepicker" required>*@
                                 <div class="input-group-append">
                                     <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                 </div>
@@ -667,9 +668,11 @@
                         <div class="col-md-4 col-sm-4 col-xs-12 form-group" v-show="checkBookingFieldforRentCar('s_time')">
                             <!-- Pickup Time -->
                             <label>@Localizer["booking_step3_car_rentals_dep_time"]<span class="text-danger">*</span></label>
-                            <select class="form-control"
-                                    id="booking_pickup_time" v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_time" required>
-                                <option value="">@Localizer["booking_step1_rent_car_pick_up_office_placeholder"]</option>
+                            <select class="form-control" id="booking_pickup_time" v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_time" required>
+                                <option value="">@Localizer["common_select_set"]</option>
+                                <template v-for="temp in getBookingFieldReferenceTimeforRentCar('s_time', ['rentcar_01', 'rentcar_02'])">
+                                    <option :value="temp.id" v-html="temp.name"></option>
+                                </template>
                             </select>
                         </div>
                     </div>
@@ -679,10 +682,10 @@
                             <label>@Localizer["booking_step1_rent_car_drop_off_office"]<span class="text-danger">*</span></label>
                             <select class="form-control" v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).e_location" @@change="changeRentLocation($event.target.value, 'drop')" required>
                                 <option value="">@Localizer["booking_step1_rent_car_drop_off_office_placeholder"]</option>
-                                <template v-for="temp in getBookingFieldReferenceforRentCar('e_location','rentcar_01')">
+                                <template v-for="temp in getBookingFieldReferenceforRentCar('e_location', 'rentcar_01')">
                                     <option :value="temp.id" v-html="temp.name"></option>
                                 </template>
-                                <template v-for="temp in getBookingFieldReferenceforRentCar('e_location','rentcar_02')">
+                                <template v-for="temp in getBookingFieldReferenceforRentCar('e_location', 'rentcar_02')">
                                     <option :value="temp.id" v-html="temp.name"></option>
                                 </template>
                             </select>
@@ -693,8 +696,9 @@
                             <!-- Dropoff Date -->
                             <label>@Localizer["booking_step1_rent_car_drop_off_date"]<span class="text-danger">*</span></label>
                             <div class="input-group" name="rentDropOffDate0">
-                                <input name="dropOffDate0" v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).e_date"
-                                       placeholder="@Localizer["booking_step1_rent_car_drop_off_date_placeholder"]" type="text" class="form-control has-datepicker" required>
+                                <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).e_date" placeholder="@Localizer["booking_step1_rent_car_drop_off_date_placeholder"]"></datepicker>
+                                @*<input name="dropOffDate0" v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).e_date"
+                                       placeholder="@Localizer["booking_step1_rent_car_drop_off_date_placeholder"]" type="text" class="form-control has-datepicker" required>*@
                                 <div class="input-group-append">
                                     <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                 </div>
@@ -704,8 +708,8 @@
                             <!-- Dropoff Time -->
                             <label>@Localizer["booking_step1_rent_car_drop_off_time"]<span class="text-danger">*</span></label>
                             <select id="booking_dropoff_time" name="dropOffTime0" class="form-control" v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).e_time" required>
-                                <option value=""> -- </option>
-                                <template v-for="temp in getBookingFieldReferenceforRentCar('e_location')">
+                                <option value="">@Localizer["common_select_set"]</option>
+                                <template v-for="temp in getBookingFieldReferenceTimeforRentCar('e_time', ['rentcar_01', 'rentcar_02'])">
                                     <option :value="temp.id" v-html="temp.name"></option>
                                 </template>
                             </select>
@@ -745,8 +749,9 @@
                             <!-- Pickup Date -->
                             <label>@Localizer["booking_step1_rent_car_pick_up_03_date"]<span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <input id="rentPickUpDate0" name="pickUpDate0" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]" type="text"
-                                       v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup_03')).s_date" class="form-control has-datepicker" required>
+                                <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup_03')).s_date" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]"></datepicker>
+                                @*<input id="rentPickUpDate0" name="pickUpDate0" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]" type="text"
+                                       v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup_03')).s_date" class="form-control has-datepicker" required>*@
                                 <div class="input-group-append">
                                     <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                 </div>
@@ -761,7 +766,7 @@
                                     v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup')).s_location" required>
                                 <option value="">@Localizer["booking_step1_rent_car_pick_up_office_placeholder"]</option>
                                 <template v-for="temp in getBookingFieldReferenceforRentCar('s_location','pickup_03')">
-                                    <option :value="temp.id" v-html="`${temp.name}${temp.s_time}~${temp.e_time}`"></option>
+                                    <option :value="temp.id" v-html="`${temp.name} ${temp.address} / ${temp.s_time}~${temp.e_time}`"></option>
                                 </template>
                             </select>
                         </div>
@@ -1503,29 +1508,22 @@
             checkBookingFieldforRentCar(path, trafficTypeValue) {
                 try {
                     //debugger;
-                    let flight = Object();
-                    if (trafficTypeValue == null || trafficTypeValue == undefined) {
-                        flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'rentcar_01' || t.traffic_type?.trafficTypeValue == 'rentcar_02');
-                    }
-                    else {
-                        flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue);
-                    }
+                    let rentcar = (trafficTypeValue) ?
+                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue) :
+                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'rentcar_01' || t.traffic_type?.traffic_type_value == 'rentcar_02');
 
-                    if (flight == undefined) { return false; } 
-
-                    let is_revisible = getValue(flight, path + '.is_visible');
-                    let is_required = getValue(flight, path + '.is_require');
-                    if (path.indexOf('provide') == -1) {
-                        var result = is_required == "True" ? true : false;
-                        return result;
+                    let result = false;
+                    if (rentcar) {
+                        let is_required = getValue(rentcar, path + '.is_require'); 
+                        result = (is_required == "True") ? true : false;
+                        if (path.indexOf('provide') == -1) {
+                            result = (is_required == "True") ? true : false;
+                        }
                     }
-                    else {
-                        var result = is_revisible == "True" ? true : false;
-                        return result;
-                    }
-                    // console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)}/matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
+                    // console.log(`rentcar => ${path}, is_require: ${result}`);
+                    return result;
                 } catch (e) {
-                    // console.log(`checkBookingFieldforRentCar, path: ${path} => error : ${e}`);
+                    // console.log(`rentcar => ${path}, error : ${e}`);
                     return false;
                 }
             },
@@ -1598,21 +1596,17 @@
                 catch (e) { return []; }
             },
             getBookingFieldReferenceforRentCar(path, trafficTypeValue) {
-
-                let rendCar = Object();
-                if (trafficTypeValue == null || trafficTypeValue == undefined) {
-                    rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'rentcar_01' || t.traffic_type?.traffic_type_value == 'rentcar_02' || t.traffic_type?.traffic_type_value == 'rentcar_03' || t.traffic_type?.traffic_type_value == 'pickup_03' || t.traffic_type?.traffic_type_value == 'pickup_04' || t.traffic_type?.traffic_type_value == 'voucher');
-                }
-                else {
-                    rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue);
-                }
-                
                 try {
-                    if (rendCar != null) {
-                        if (path == "s_time" && rendCar.s_time == null) { return []; }
-                        let refTemp = getValue(rendCar, path + '.list_option');
+                    let rentCar = (trafficTypeValue) ?
+                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue) : 
+                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value != 'flight');
+                        // this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'rentcar_01' || t.traffic_type?.traffic_type_value == 'rentcar_02' || t.traffic_type?.traffic_type_value == 'rentcar_03' || t.traffic_type?.traffic_type_value == 'pickup_03' || t.traffic_type?.traffic_type_value == 'pickup_04' || t.traffic_type?.traffic_type_value == 'voucher');
+                    
+                    if (rentCar) {
+                        let _type = rentCar.traffic_type.traffic_type_value;
+                        let refTemp = getValue(rentCar, path + '.list_option');
 
-                        if (path == 's_time' && rendCar.traffic_type.traffic_type_value == "pickup_04") {
+                        if (path == 's_time' && _type == "pickup_04") {
                             if (refTemp.some(t => t.time_range)) return [];
                             refTemp.forEach(function (element) {
                                 if (element.hour != 0) {
@@ -1623,11 +1617,33 @@
                         }
                         return refTemp;
                     }
-                    else {
-                        return [];
+                }
+                catch (e) { }
+
+                return [];
+            },
+            getBookingFieldReferenceTimeforRentCar(path) {
+                try {
+                    let rentCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value === 'rentcar_01' || t.traffic_type?.traffic_type_value === 'rentcar_02');
+                   
+                    if (rentCar) {
+                        let ref_path = (path === 'e_time') ? 'e_location' : 's_location';
+
+                        let refData = getValue(rentCar, ref_path + '.list_option')[0];
+                        let s_time = moment.utc(refData.s_time, 'HH:mm');
+                        let interval = refData.interval;
+                        let time_list = [];
+     
+                        while (s_time <= moment.utc(refData.e_time, 'HH:mm')) {
+                            time_list.push({ id: s_time.format('HH:mm'), name: s_time.format('HH:mm') }); 
+                            s_time = s_time.add(refData.interval, 'minute');
+                        }
+                        return time_list;
                     }
                 }
-                catch (e) { return []; }
+                catch (e) { console.log(e); }
+
+                return [];
             },
             getBookingFieldReferenceforVoucher(path) {
                 let rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'voucher'); 

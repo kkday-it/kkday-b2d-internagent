@@ -561,7 +561,7 @@
                     let req = {
                         prod_no: this.prod.prod_no,
                         pkg_no: pkg.pkg_no
-                    }; 
+                    };
                     // console.log(`load pkg req => ${JSON.stringify(req)}`);
 
                     fetch(uri, {
@@ -637,7 +637,7 @@
 
                             this.fetchAllotment(pkg_no, s_date);
                         });
-                      
+
                         emitter.emit('load-package-complete', pkg_no);
                     })
                     .catch(error => {
@@ -662,10 +662,10 @@
                     body: JSON.stringify(req)
                 })
                     .then(res => res.json())
-                    .then(data => { 
+                    .then(data => {
                         console.log(`fetchAllotment (pkg:${pkg_no}) => ${JSON.stringify(data)}`)
                         let pkg = this.pkg.find(p => p.pkg_no === pkg_no);
-                        if (!pkg.allotment) { pkg.allotment = []; } 
+                        if (!pkg.allotment) { pkg.allotment = []; }
                         if (data.result == '00') {
                             data.allotment[0].itemCal_qty?.forEach(q => {
                                 pkg.allotment.push(q);
@@ -674,7 +674,7 @@
                     })
                     .catch(error => {
                         console.error(`Unable to fetch allotment(pkg:${pkg_no}) `, error);
-                    }); 
+                    });
             },
             journeyTime() {
                 if (!(this.prod.days || this.prod.hours || this.prod.duration)) return '';
@@ -798,13 +798,13 @@
         <table class="date-table">
             <thead>
                 <tr class="row-day">
+                    <th class="cell-day">@Localizer["Sun"]</th>
                     <th class="cell-day">@Localizer["Mon"]</th>
                     <th class="cell-day">@Localizer["Tue"]</th>
                     <th class="cell-day">@Localizer["Wed"]</th>
                     <th class="cell-day">@Localizer["Thu"]</th>
                     <th class="cell-day">@Localizer["Fri"]</th>
                     <th class="cell-day">@Localizer["Sat"]</th>
-                    <th class="cell-day">@Localizer["Sun"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -949,7 +949,7 @@
                         let range_dates = this.getDateRange(this.sel_sdate, this.sel_edate);
                         this.dates.filter(d => range_dates.some(r => r === d.full_date)).forEach(d => d.selected = true);
                     }
-                } 
+                }
             },
             checkPrevMonth() {
                 let prev_month_date = moment(this.date).subtract(1, 'months');
@@ -1006,9 +1006,9 @@
 
                 if (sel_date.disabled || sel_date.invalid) return;
 
-                // date range 
+                // date range
                 if (this.is_date_range) {
-                    // picked the start date 
+                    // picked the start date
                     if (!this.sel_sdate) {
                         this.sel_sdate = sel_date.full_date;
                         this.sel_edate = null;
@@ -1077,8 +1077,8 @@
                 }
             }
         },
-        created: function () { 
-            this.go_date_setting = this.$parent.prod.go_date_setting; 
+        created: function () {
+            this.go_date_setting = this.$parent.prod.go_date_setting;
             this.is_date_range = date_range_types.some(t => this.go_date_setting.type == t);
         },
         setup(props) {
@@ -1225,24 +1225,24 @@
                 handler: function () {
                     console.log(`date changed, dates: ${JSON.stringify(this.sel_date)}, pkg_no: ${this.pkg.pkg_no}`);
                     this.checkTimeslot();
-                    this.refrehTotal(); 
+                    this.refrehTotal();
                 }
             },
             sel_spec_items: {
-                handler: function () { 
-                    this.refrehTotal(); 
+                handler: function () {
+                    this.refrehTotal();
                 }
             },
             sel_time_slot: {
                 handler: function () {
-                    this.refrehTotal(); 
+                    this.refrehTotal();
                 }
             }
         },
         methods: {
             Render() {
                 // console.log(`Spec Render, prod_no => ${this.prod_no}, pkg_no => ${this.pkg.pkg_no}`);
-                console.log(`Spec Render, pkg => ${JSON.stringify(this.pkg)}`); 
+                console.log(`Spec Render, pkg => ${JSON.stringify(this.pkg)}`);
                 this.price = this.pkg.b2b_min_price;
                 this.specs = this.pkg.item[0].specs;
 
@@ -1256,7 +1256,7 @@
                 this.unit = this.pkg.item[0].unit;
 
                 this.mode = '01'; // default mode:'01'(single)
-                if (this.specs.some(s => s.spec_oid === 'spec-single')) { 
+                if (this.specs.some(s => s.spec_oid === 'spec-single')) {
                     this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
                     this.single_qty = { ...spec_condition };
                 }
@@ -1428,7 +1428,7 @@
                 // console.log(`CheckOut => ${JSON.stringify(this.sel_date)}, range days: ${range_days} `);
 
                 // (2) get grand total
-                if (this.mode === '01' && this.single_qty.valid) { 
+                if (this.mode === '01' && this.single_qty.valid) {
                     total_qty = this.single_qty.count;
                     console.log(`CheckOut, Single => count: ${this.single_qty.count}, price: ${this.single_qty.price} `);
                     grand_total = this.single_qty.count * this.single_qty.price * range_days;
@@ -1447,7 +1447,7 @@
                             grand_total += spec.count * spec.price * range_days
                         }
                     });
-                   
+
                 }
 
                 console.log(`Check Out, grand_total: ${grand_total}, total_qty: ${total_qty}`)
@@ -1471,7 +1471,7 @@
                 this.totalPrice = grand_total;
                 this.isBookable = this.totalPrice > 0;
             },
-            checkQuantity(total_qty, skus) { 
+            checkQuantity(total_qty, skus) {
                 let unmatch_count = 0;
                 let has_event = this.pkg.item[0].has_event;
                 let inventory_set = this.pkg.item[0].inventory_set;
@@ -1485,7 +1485,7 @@
                 }
                 else {
                     // inventory is based on total quantity
-                    if (inventory_type === 0) { 
+                    if (inventory_type === 0) {
                         // item
                         if (inventory_set === 1) {
                             console.log(`CheckQuantity, allotment.item_remain_qty: ${this.pkg.allotment.item_remain_qty} total_qty:${total_qty} `);
@@ -1493,23 +1493,23 @@
                         }
                         // sku
                         else if (inventory_set === 2) {
-                            if (skus && this.pkg.allotment?.sku_remain_qty) { 
+                            if (skus && this.pkg.allotment?.sku_remain_qty) {
                                 skus.forEach(s => {
                                     let sku_remain = this.pkg.allotment.sku_remain_qty.find(q => q.sku_id === s.sku_id);
                                     if (s.qty > sku_remain.remain_qty) unmatched_cnt++;
-                                }); 
+                                });
                             }
                         }
                     }
-                    // inventory is based on date 
+                    // inventory is based on date
                     else if (inventory_type === 1) {
                         console.log(`CheckQuantity, pkg.allotment: ${JSON.stringify(this.pkg.allotment)} `);
-                        // item 
+                        // item
                         if (inventory_set === 1) {
                             let remain_qty = [];
                             if (this.is_date_range) remain_qty = this.pkg.allotment.filter(q => q.date >= this.sel_date.s_date && q.date <= this.sel_date.e_date).map(q => q.remain_qty);
                             else remain_qty = this.pkg.allotment.filter(q => q.date === this.sel_date.s_date).map(q => q.remain_qty);
-                            
+
                             if (remain_qty.length != range_days) unmatch_count++;
                             if (!remain_qty.map(q => q[has_event ? this.sel_time_slot : 'fullday']).every(q => q >= total_qty)) unmatch_count++;
                         }
@@ -1561,7 +1561,7 @@
                 if (spec) {
                     // reset other siblings to unselected in same layer.
                     spec.spec_items.filter(i => i.spec_item_oid != spec_item_oid).forEach(i => i.selected = false);
-                    let spec_item = spec.spec_items.find(i => i.spec_item_oid === spec_item_oid); 
+                    let spec_item = spec.spec_items.find(i => i.spec_item_oid === spec_item_oid);
                     if (spec_item) spec_item.selected = !spec_item.selected;
                     // regenerate
                     this.sel_spec_items = [...new Set([].concat(...this.specs.map(s => s.spec_items.filter(i => i.selected).map(i => i.spec_item_oid))))];
@@ -1580,14 +1580,14 @@
                                 }
                             });
                         });
-                    } 
+                    }
                 }
             },
             refrehTotal() {
                 setTimeout(() => {
                     this.checkOut();
                     this.$forceUpdate();
-                }, 20); 
+                }, 20);
             },
             booking() {
                 let req = {
@@ -1670,10 +1670,10 @@
         created: function () {
             this.prod_no = this.$parent.prod.prod_no;
             this.is_date_range = date_range_types.some(t => this.$parent.prod.go_date_setting.type == t);
-            this.prod_name = this.$parent.prod.prod_name; 
-            console.log(`Spec created, prod_no: ${this.prod_no}, prod_name: ${this.prod_name}`); 
+            this.prod_name = this.$parent.prod.prod_name;
+            console.log(`Spec created, prod_no: ${this.prod_no}, prod_name: ${this.prod_name}`);
         },
-        setup(props) { 
+        setup(props) {
             this.pkg = props.pkg;
         },
         mounted: function () {
