@@ -974,10 +974,15 @@
 
                         let min_date = this.go_date_setting.days.min <= 1 ? moment(this.sel_sdate) : moment(this.sel_sdate).add(this.go_date_setting.days.min - 1, 'd');
                         let max_date = moment(this.sel_sdate).add(this.go_date_setting.days.max - 1, 'd');
-                        // if (end_date >= min_date && end_date <= max_date)
-                        //   this.dates.filter(d => range_dates.some(r => r === d.full_date)).forEach(d => d.selected = true);
-                        if (moment(dt.full_date) > moment(this.sel_sdate))
-                            this.dates.filter(d => moment(d.full_date) >= min_date && moment(d.full_date) <= max_date && range_dates.some(r => r === d.full_date)).forEach(d => d.selected = true);
+
+                        if (moment(dt.full_date) > moment(this.sel_sdate)) {
+                            let hover_days = this.dates.filter(d => moment(d.full_date) >= min_date && moment(d.full_date) <= max_date && range_dates.some(r => r === d.full_date));
+                            hover_days.forEach(d => d.selected = true);
+                            if (hover_days.length != range_dates.length) {
+                                let diff_dates = range_dates.filter(x => !hover_days.map(d => d.full_date).includes(x));
+                                this.dates.filter(d => moment(d.full_date) <= max_date && diff_dates.some(f => f === d.full_date)).forEach(d => d.selected = true);
+                            }
+                        }
                     }
                 }
             },
