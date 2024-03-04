@@ -1,10 +1,10 @@
 # kkday-b2d-internagent
 
-This project is a demonstration based on KKday B2D API version 4.0 (<a href="https://api-b2d.kkday.com/Redoc">link</a>), which can be executed independently and provide actions: Search, Product, Package and Selection, Booking (no payment), Order. The code includes major BootstrapVue and portion DotNet 7.0, you need to have development skills in Javascript and object-oriented programming.
+This project is a demonstration based on KKday B2D API version 4.0 (<a href="https://api-b2d.kkday.com/Redoc">link</a>), which can be executed independently and provide actions: Search, Product, Package and Selection, Booking (no payment), Order. The code includes major BootstrapVue and portion DotNet 7.0, you need to have development skills in Javascript and object-oriented programming. Most kernel knowledge of B2D API is at ~/Views/, there has some directories and the file ext-name is .cshtml under it to let you easy to handle it, or you can read these files directly.
 
-The PMDL(Product Model Definition Layer) will be presented and composite into whole product page. The purpose of BookingField (Order Model Definition Layer) is a conditon which satisfy to supplier operation, and this project shows you how to transform required fields into BookingModel for booking. We also show you inline BookingModel during you fill in information on Web page.
+The PMDL(Product Model Definition Layer) will be presented and composite into whole product page. The purpose of BookingField (Order Model Definition Layer) is a conditon which satisfy to supplier operation, and this project shows you how to transform required fields into BookingModel for booking. We also show you inline BookingModel during you fill in information on Web page. 
 
-You must be approved distributors(agents) on SIT environment, then to get a token key of API account through B2D website first.
+You must be approved distributors(agents) on SIT environment fisrt, then to get a token key of API account through B2D website.
 
 Support languages:
 1. zh-TW (https://localhost:5001/zh-tw/) 
