@@ -9,6 +9,4 @@ bin/
 Debug/
 xs/
 obj/
-KKday.Web.B2D/KKday.Web.B2D/logs/KKday.Web.B2D.EC/KKday.Web.B2D.EC.json
-KKday.Web.B2D/KKday.Web.B2D/logs/KKday.Web.B2D.EC/KKday.Web.B2D.EC.json
-KKday.Web.B2D/KKday.Web.B2D/logs/KKday.Web.B2D.EC/KKday.Web.B2D.EC.json
+

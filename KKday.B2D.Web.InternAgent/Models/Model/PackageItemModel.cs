@@ -20,20 +20,21 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public long item_no { get; set; }
         public string unit { get; set; }
         public string unit_code { get; set; }
-        public bool has_event { get; set; }
-        public bool last_spec_multi { get; set; }
-        public long price_type { get; set; }
-        public long price_rule_type { get; set; }
+        public string unit_max { get; set; }
+        public bool has_event { get; set; } // Has to call QueryBackupEvent in booking, when it's true
+        public bool last_spec_multi { get; set; } // Allow combined multiple spec items for booking
+        public long price_type { get; set; } // 0:N/A, 1:Item-based inventory set, 2:SKU-based inventory set
+        public long? price_rule_type { get; set; } // null: Unlimited, 0:Total quantity, 1:Based on date
         public string voucher_type { get; set; }
         public UnitQuantityRule unit_quantity_rule { get; set; }
-        public double b2c_min_price { get; set; }
-        public double b2b_min_price { get; set; }
+        public decimal b2c_min_price { get; set; }
+        public decimal b2b_min_price { get; set; }
         public DateTimeOffset sale_s_date { get; set; }
         public string sale_s_date_event { get; set; }
         public DateTimeOffset sale_e_date { get; set; }
         public string sale_e_date_event { get; set; }
-        public long inventory_set { get; set; }
-        public long inventory_type { get; set; }
+        public long? inventory_set { get; set; }
+        public string inventory_type { get; set; }
         public Skus[] skus { get; set; } 
         public Spec[] specs { get; set; }
         public bool? is_swipe { get; set; }
@@ -44,9 +45,9 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string sku_id { get; set; } 
         public string spec_token { get; set; } 
         public SpecRef[] specs_ref { get; set; } 
-        public double? official_price { get; set; } 
-        public double? b2c_price { get; set; } 
-        public double b2b_price { get; set; } 
+        public decimal? official_price { get; set; } 
+        public decimal? b2c_price { get; set; } 
+        public decimal b2b_price { get; set; } 
         public string ticket_rule_spec_item { get; set; } 
         public Dictionary<string, Dictionary<string, Dictionary<string, object>>> calendar_detail { get; set; } 
         public SpecRule spec_rule { get; set; } 
@@ -82,7 +83,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public partial class PartialRefund
     { 
-        public double? value { get; set; } 
+        public decimal? value { get; set; } 
         public long? day_min { get; set; } 
         public long? day_max { get; set; }
     }

@@ -1,0 +1,617 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization 
+
+@inject IViewLocalizer Localizer
+@{
+    Layout = "_KKdayLayout";
+    ViewData["Title"] = Localizer["OrderDetail_Title"];
+
+    var locale = CultureInfo.CurrentCulture;
+}
+@section Styles {
+    <style type="text/css">
+        .nowrap {
+            white-space: nowrap;
+        }
+
+        .modal-content:before {
+            display: none;
+        }
+
+        .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+            border: 0;
+            border-color: transparent;
+        }
+
+        .nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+            /* border-color: #e9ecef #e9ecef #dee2e6; */
+            border-color: transparent;
+        }
+    </style>
+}
+
+<div class="be-page-wrap member-wrap" id="App">
+    <div class="container-fluid" id="divLayout2">
+        <div class="row">
+            <div class="col-md-12">
+             
+                <div class="container">
+                    <div class="breadcrumb m-3">
+                        <a href="javascript:history.back()"><i class="fa fa-angle-left fa-lg"></i> @Localizer["Back_Order_List"]</a>
+                    </div>
+
+                    <div class="text-center" v-if="isLoading">
+                        <img id="loading" src="@Url.Content("~/images/loading-spin.gif")" style="width: 32px;" />
+                        @Localizer["Order_Loading"]
+                    </div>
+
+                    <div class="row" v-if="!isLoading && !order_load_fail">
+                        <div class="col-md-4">
+                            <aside class="page-aside">
+                                <!--Left-->
+                                <div class="aside-box">
+                                    <div class="product-img img-bg" :style="`height: 160px; background-image: url('${ order.prod_img_url }');`"></div>
+
+                                    <!--Product Name-->
+                                    <div class="order-main-title">
+                                        <h2>{{ order.prod_name }}</h2>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <!--Use Date-->
+                                    <div class="row">
+                                        <div class="col-md-8 col-lg-7">
+                                            <div class="fill-group">
+                                                <label>@Localizer["Use_Date"]</label>
+                                                {{ order.s_date }}
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <!--Package Name-->
+                                    <div class="fill-group">
+                                        <label>@Localizer["Package_Name"]</label>
+                                        {{ order.pkg_name }}
+                                    </div>
+                                    <!--Specs-->
+                                    <div class="fill-group price-detail" v-for="spec in order.skus[0].spec_ref">
+                                        <label>{{ spec.spec_title }}</label>
+                                        {{ spec.spec_value }}
+                                    </div>
+
+                                    <!--Others-->
+                                    <div class="fill-group price-detail">
+                                        <!--Show Qty & Price -->
+                                        <label>@Localizer["Quantity"]</label>
+                                        <div class="mt-10">
+                                            {{ order.qty_total }} {{ order.unit }}
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <hr> <!-- Normal -->
+                                        <div class="mt-10">
+                                            <span class="pull-left">@Localizer["Total_Amount"]</span>
+                                            <div class="product-pricing pull-right text-primary">
+                                                <span class="text-primary">{{ order.currency }}</span>
+                                                <h4>{{ order.total_pay }}</h4>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <!-- Cancelled -->
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+                        <div class="col-md-8">
+                            <!--Right Top -->
+                            <div class="board order-cta">
+                                <div class="page-head">
+                                    <div class="order-status">
+                                        <!-- Show Order Status -->
+                                        <div class="label label-info">{{ order_status_mapping[order.order_status] }}</div>
+                                        <p style="margin-top:3px;"></p>
+                                        <div class="clearfix"></div>
+                                        <!-- Show Refund Information -->
+                                        <!-- <span class="flash-tag">
+                                            <i class="fa fa-refresh text-danger"></i>退款作業進行中
+                                        </span> -->
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-8">
+                                        <h3>@Localizer["Order_No"] {{ order_no }}</h3>
+                                        <div class="critical-info">
+                                            <i class="icons icon-info"></i>
+                                            @Localizer["Product_No"]：
+                                            <span>{{ order.prod_no }}</span>
+                                        </div>
+                                        <div class="critical-info">
+                                            <i class="icons icon-user"></i>
+                                            @Localizer["Buyer_Name"]：
+                                            <span>{{ order.buyer_first_name }}{{ order.buyer_last_name }}</span>
+                                        </div>
+                                        <div class="critical-info">
+                                            <i class="icons icon-envelope"></i>
+                                            @Localizer["Email"]：
+                                            <span>{{ order.buyer_email }}</span>
+                                        </div>
+                                        <div class="critical-info">
+                                            <i class="icons icon-phone"></i>
+                                            @Localizer["Contact_Phone"]：
+                                            <span>{{ '+' + order.buyer_tel_country_code }} {{ order.buyer_tel_number }}</span>
+                                        </div>
+                                        <div class="critical-info">
+                                            <i class="icons icon-calendar"></i>
+                                            @Localizer["Booking_Date"]：
+                                            <span>{{ order.order_date }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Top and Actions -->
+                                    <div class="col-md-5 col-lg-4">
+                                        <a href="#" class="btn btn-primary btn-block" data-toggle="modal" data-target="#voucher-modal">@Localizer["Your_Voucher"]</a>
+                                        <a href="#" class="btn btn-danger btn-block" data-toggle="modal" data-target="#cancel-modal">@Localizer["Cancel_Order"]</a> <div class="mt-10 text-right">
+                                            <a href="#" data-toggle="modal" data-target="#cancel-info-modal">@Localizer["Cancellation_Policy"]</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--Right Bottom-->
+                            <div class="board">
+                                <div class="page-head">
+                                    <ul class="nav nav-tabs page-tab">
+                                        <li class="nav-item">
+                                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#product-tab" type="button" role="tab" aria-controls="product-tab" aria-selected="false">
+                                                @Localizer["Tab_Product"]
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#itinerary-tab" type="button" role="tab" aria-controls="itinerary-tab" aria-selected="false">
+                                                @Localizer["Tab_Itinerary"]
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#howtouse-tab" type="button" role="tab" aria-controls="howtouse-tab" aria-selected="false">
+                                                @Localizer["Tab_Usage"]
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#meeting-tab" type="button" role="tab" aria-controls="meeting-tab" aria-selected="false">
+                                                @Localizer["Tab_Location"]
+                                            </button>
+                                        </li>
+                                        <li class="nav-item">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#order-tab" type="button" role="tab" aria-controls="order-tab" aria-selected="false">
+                                                @Localizer["Tab_Order_Detail"]
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="tab-content">
+                                    <!-- Tab: Product Content -->
+                                    <div class="tab-pane fade show active" id="product-tab">
+
+                                        <div class="info-section">
+
+                                            <div class="board bg-highlihgt mt-20">
+                                                <h4 class="info-subtitle mt-0">@Localizer["Reminders"]</h4>
+
+                                                <span class="label label-warning"></span>
+                                                <ul>
+                                                    <li>blah blah blah</li>
+                                                    <li>blah blah blah</li>
+                                                </ul>
+                                                <span class="label label-warning">@Localizer["After_Sales_Precautions"]</span>
+                                                <ul>
+                                                    <li>blah blah blah</li>
+                                                    <li>blah blah blah</li>
+                                                </ul>
+
+                                            </div>
+                                        </div>
+                                        <!-- Included and Not Included -->
+                                        <!-- Product Summary -->
+                                        <!-- Product Descriptions -->
+                                        <!-- Chater & Routing -->
+                                        <!-- Sim Card & Wifi -->
+                                    </div>
+
+                                    <!-- Tab: Itinerary -->
+                                    <div class="tab-pane fade" id="itinerary-tab">
+                                        <div class="info-section" id="schedule-sec">
+                                        </div>
+                                    </div>
+
+                                    <!-- Tab: How To Use -->
+                                    <div class="tab-pane fade" id="howtouse-tab">
+                                        <div class="info-section" id="usage-sec">
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Tab: Location or Meeting Palce -->
+                                    <div class="tab-pane fade" id="howtouse-tab">
+                                        <div class="info-section" id="location-sec">
+
+                                        </div>
+                                    </div>
+
+                                    <!-- Tab: Order Detail -->
+                                    <div class="tab-pane fade" id="order-tab">
+                                        <!-- Custom: Traveler Leader (cus_01) -->
+                                        <div class="info-section" v-if="order.custom.some(c => c.cus_type === 'cus_01')">
+                                            <div class="traveler-con">
+                                                <h4 class="sub-title">
+                                                    @Localizer["Traveler_Leader"]
+                                                </h4>
+                                                <template v-for="cus in order.custom.filter(c => c.cus_type === 'cus_01')">
+                                                    <div class="row">
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.nationality">
+                                                            <div class="fill-group">
+                                                                <label>Nationality</label>
+                                                                {{ cus.nationality }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_first_name">
+                                                            <div class="fill-group">
+                                                                <label>First Name</label>
+                                                                {{ cus.native_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_last_name">
+                                                            <div class="fill-group">
+                                                                <label>Last Name</label>
+                                                                {{ cus.native_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.id_no">
+                                                            <div class="fill-group">
+                                                                <label>Identity No</label>
+                                                                {{ cus.id_no }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.english_first_name">
+                                                            <div class="fill-group">
+                                                                <label>English First Name</label>
+                                                                {{ cus.english_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.english_last_name">
+                                                            <div class="fill-group">
+                                                                <label>English Last Name</label>
+                                                                {{ cus.english_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.passport_no">
+                                                            <div class="fill-group">
+                                                                <label>Passport No</label>
+                                                                {{ cus.passport_no }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.gender">
+                                                            <div class="fill-group">
+                                                                <label>Gender</label>
+                                                                {{ cus.gender }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.birth">
+                                                            <div class="fill-group">
+                                                                <label>Birthday</label>
+                                                                {{ cus.birth }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <!-- Custom: Travelers (cus_02) -->
+                                        <div class="info-section" v-if="order.custom.some(c => c.cus_type === 'cus_02')">
+                                            <div class="traveler-con">
+                                                <template v-for="(cus, seq) in order.custom.filter(c => c.cus_type === 'cus_02')">
+                                                    <h4 class="sub-title">
+                                                        @Localizer["Travelers"] {{ seq + 1 }} - {{ `${cus.native_first_name} ${cus.native_last_name}` }}
+                                                    </h4>
+                                                    <div class="row">
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.nationality">
+                                                            <div class="fill-group">
+                                                                <label>Nationality</label>
+                                                                {{ cus.nationality }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_first_name">
+                                                            <div class="fill-group">
+                                                                <label>First Name</label>
+                                                                {{ cus.native_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_last_name">
+                                                            <div class="fill-group">
+                                                                <label>Last Name</label>
+                                                                {{ cus.native_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.id_no">
+                                                            <div class="fill-group">
+                                                                <label>Identity No</label>
+                                                                {{ cus.id_no }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.english_first_name">
+                                                            <div class="fill-group">
+                                                                <label>English First Name</label>
+                                                                {{ cus.english_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.english_last_name">
+                                                            <div class="fill-group">
+                                                                <label>English Last Name</label>
+                                                                {{ cus.english_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.passport_no">
+                                                            <div class="fill-group">
+                                                                <label>Passport No</label>
+                                                                {{ cus.passport_no }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.gender">
+                                                            <div class="fill-group">
+                                                                <label>Gender</label>
+                                                                {{ cus.gender }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.birth">
+                                                            <div class="fill-group">
+                                                                <label>Birthday</label>
+                                                                {{ cus.birth }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <!-- Backup Timeslots -->
+                                        <!-- Guid Lang -->
+                                        <!-- Traffic: Flight -->
+                                        <!-- Traffic: Pickup & Drop -->
+                                        <!-- Traffic: RentCar (rentcar_01)-->
+                                        <!-- Order Time-solt -->
+                                        <!-- Traffic：Qty -->
+                                        <!-- Custom: Send -->
+                                        <div class="info-section" v-if="order.custom.some(c => c.cus_type === 'send')">
+                                            <div class="traveler-con">
+                                                <template v-for="(cus, seq) in order.custom.filter(c => c.cus_type === 'send')">
+                                                    <h4 class="sub-title">
+                                                        @Localizer["Send_Title"] 
+                                                    </h4>
+                                                    <div class="row">
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.nationality">
+                                                            <div class="fill-group">
+                                                                <label>Nationality</label>
+                                                                {{ cus.nationality }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_first_name">
+                                                            <div class="fill-group">
+                                                                <label>First Name</label>
+                                                                {{ cus.native_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_last_name">
+                                                            <div class="fill-group">
+                                                                <label>Last Name</label>
+                                                                {{ cus.native_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.id_no">
+                                                            <div class="fill-group">
+                                                                <label>Identity No</label>
+                                                                {{ cus.id_no }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.english_first_name">
+                                                            <div class="fill-group">
+                                                                <label>English First Name</label>
+                                                                {{ cus.english_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.english_last_name">
+                                                            <div class="fill-group">
+                                                                <label>English Last Name</label>
+                                                                {{ cus.english_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.passport_no">
+                                                            <div class="fill-group">
+                                                                <label>Passport No</label>
+                                                                {{ cus.passport_no }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.gender">
+                                                            <div class="fill-group">
+                                                                <label>Gender</label>
+                                                                {{ cus.gender }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.birth">
+                                                            <div class="fill-group">
+                                                                <label>Birthday</label>
+                                                                {{ cus.birth }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <!-- Mobile -->
+                                        <!--Custom: Contact -->
+                                        <div class="info-section" v-if="order.custom.some(c => c.cus_type === 'contact')">
+                                            <div class="traveler-con">
+                                                <template v-for="(cus, seq) in order.custom.filter(c => c.cus_type === 'contact')">
+                                                    <h4 class="sub-title">
+                                                        @Localizer["Contact_Title"]
+                                                    </h4>
+                                                    <div class="row">
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_first_name">
+                                                            <div class="fill-group">
+                                                                <label>First Name</label>
+                                                                {{ cus.native_first_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.native_last_name">
+                                                            <div class="fill-group">
+                                                                <label>Last Name</label>
+                                                                {{ cus.native_last_name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.birth">
+                                                            <div class="fill-group">
+                                                                <label>Birthday</label>
+                                                                {{ cus.birth }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.tel_country_code">
+                                                            <div class="fill-group">
+                                                                <label>Tel Country Code</label>
+                                                                {{ cus.tel_country_code }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.tel_number">
+                                                            <div class="fill-group">
+                                                                <label>Tel Number</label>
+                                                                {{ cus.tel_number }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.have_app && cus.contact_app">
+                                                            <div class="fill-group">
+                                                                <label>Contact App</label>
+                                                                {{ cus.contact_app }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.have_app && cus.contact_app_account">
+                                                            <div class="fill-group">
+                                                                <label>Contact App Account</label>
+                                                                {{ cus.contact_app_account }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <!-- Order Note -->
+                                        <div class="info-section">
+                                            <div class="traveler-con">
+                                                <h4 class="sub-title">
+                                                    @Localizer["Order_Note"]
+                                                </h4>
+                                                <div class="fill-group mt-10">
+                                                    {{ order.order_note }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" v-if="!isLoading && order_load_fail">
+                        <div class="col-12 text-center m-3 p-3">
+                            <sapn class="fs-3" v-text="'@Localizer["Order_Load_Failure"]'.replace('%1', order_no)"></sapn>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voucher Modal Start-->
+                <div class="modal fade order-detail-wrap" id="voucher-modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-md">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-remove" aria-hidden="true"></span></button>
+                                <h2 class="modal-title">憑證或檔案下載</h2>
+                            </div>
+                            <div class="modal-body overflow-x">
+                                <table class="table table-bordered table-sripted">
+                                    <colgroup>
+                                        <col class="w-30">
+                                        <col class="w-150">
+                                        <col>
+                                        <col>
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>檔案名稱</th>
+                                            <th>檔案說明</th>
+                                            <th>下載</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-sm">
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div> 
+             
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const order_status_mapping = {
+        'GO': '@Localizer["Order_GO"]', 'GO_OK': '@Localizer["Order_GO_OK"]',
+        'CX_ING': '@Localizer["Order_CX_ING"]', 'CX': '@Localizer["Order_CX"]',
+    };
+
+    let app = new Vue({
+        el: '#App',
+        data() {
+            return {
+                isLoading: false,
+                order_load_fail: false,
+                order_no: null,
+                order: {}
+            };
+        },
+        created: function () {
+            this.Query();
+        },
+        methods: {
+            Query() {
+                console.log(`Query loading...`)
+                if (this.isLoading) return;
+                this.isLoading = true;
+
+                setTimeout(() => {
+                    this.Fetch();
+                }, 100);
+
+            },
+            Fetch() {
+                this.order_no = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1);
+                console.log(`OrderDetail fetch => order_no:${this.order_no}`);
+
+                fetch(`${_root_path}Order/GetDetail/${this.order_no}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(`Query fetch resp => ${JSON.stringify(data)}`);
+                        this.order = data;
+
+                        this.isLoading = false;
+                        this.order_load_fail = false;
+                    })
+                    .catch(error => {
+                        this.isLoading = false;
+                        this.order_load_fail = true;
+                        console.error('Unable to get order detail. ', error);
+                    });
+            }
+        }
+
+    });
+</script>

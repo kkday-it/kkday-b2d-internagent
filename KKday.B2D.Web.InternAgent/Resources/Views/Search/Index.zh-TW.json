@@ -1,6 +1,7 @@
 ﻿{
   "Search_Title": "商品搜尋",
   "Clear_All": "清除所有",
+  "ExperienceFound": "項體驗行程",
   "Confirm": "確認",
   "Cancel": "取消",
   "Refresh": "更新",
@@ -21,6 +22,7 @@
   "TWD": "台幣",
   "Current_Page": "頁面",
   "No_Matched_Product": "找不到商品!",
-  "Search_Loading": "商品搜尋中..."
+  "Search_Loading": "商品搜尋中...",
+  "Original_Price": "KKday 售價"
 }
 

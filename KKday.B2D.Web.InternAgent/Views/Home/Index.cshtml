@@ -8,7 +8,7 @@
 
 <div class="d-flex" style="min-height:300px; background-color:#f2f2f2;">
     <div class="input-group align-self-center mx-auto" style="width:60%;">
-        <input type="text" class="form-control" placeholder="Search a product from KKday">
+        <input type="text" id="search" class="form-control" placeholder="Search a product from KKday">
         <div class="input-group-append">
             <button class="btn btn-primary" type="button" onclick="SearchNow()">
                 <i class="ri-search-line"></i>
@@ -19,7 +19,8 @@
 
 <script type="text/javascript">
     function SearchNow() {
-        location.href = `${_root_path}Search`;
+        let uri = `${_root_path}Search/?key=${$('#search').val()}`;
+        location.href = uri;
     }
 </script>
 

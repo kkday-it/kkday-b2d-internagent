@@ -8,6 +8,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string result { get; set; } 
         public string result_msg { get; set; } 
         public List<CountryCitiesCodeModel> countries { get; set; }
+        public List<CountryAreasModel> country_areas { get; set; }
     }
 
     public class CountryCitiesCodeModel
@@ -30,5 +31,12 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string city_code { get; set; }
         public string country_code { get; set; }
         public string name { get; set; }
+    }
+
+    public class CountryAreasModel
+    {
+        public string tel_area { get; set; }
+        public string country_code { get; set; }
+        public string country_name { get; set; }
     }
 }

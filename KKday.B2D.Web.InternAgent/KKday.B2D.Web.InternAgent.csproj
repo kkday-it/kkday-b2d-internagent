@@ -20,6 +20,7 @@
     <None Remove="AppData\" />
     <None Remove="Resources\Views\Shared\" />
     <None Remove="Views\Booking\" />
+    <None Remove="Resources\Views\Order\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Search\" />
@@ -33,6 +34,7 @@
     <Folder Include="AppData\" />
     <Folder Include="Resources\Views\Shared\" />
     <Folder Include="Views\Booking\" />
+    <Folder Include="Resources\Views\Order\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.14" />
@@ -46,5 +48,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Resources\Views\Order\Detail.zh-TW" />
+    <Content Remove="Resources\Views\Order\Detail.en-Us" />
   </ItemGroup>
 </Project>

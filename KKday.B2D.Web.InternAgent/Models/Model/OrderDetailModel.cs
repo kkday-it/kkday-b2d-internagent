@@ -4,13 +4,13 @@ using System.Collections.Generic;
 namespace KKday.B2D.Web.InternAgent.Models.Model
 {
     public class OrderDetailModel
-    {      
+    {
         public string partner_order_no { get; set; }
-        public string prod_no { get; set; }
-        public string pkg_no { get; set; }
+        public Int64 prod_no { get; set; }
+        public Int64 pkg_no { get; set; }
         public string buyer_first_name { get; set; }
         public string buyer_last_name { get; set; }
-        public string buyer_Email { get; set; }
+        public string buyer_email { get; set; }
         public string buyer_tel_country_code { get; set; }
         public string buyer_tel_number { get; set; }
         public string s_date { get; set; }
@@ -130,12 +130,22 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string IMEI { get; set; }
         public string active_date { get; set; }
     }
-     
+
     public class OrderSkuModel
     {
         public string sku_id { get; set; }
         public Dictionary<string, string> spec { get; set; }
         public int qty { get; set; }
         public double? price { get; set; }
+        public List<OrderSkuSpecRefModel> spec_ref { get; set; }
+
+    }
+
+    public class OrderSkuSpecRefModel
+    {
+        public string spec_title_id { get; set; }
+        public string spec_value_id { get; set; }
+        public string spec_title { get; set; }
+        public string spec_value { get; set; }
     }
 }
