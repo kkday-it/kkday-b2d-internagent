@@ -538,6 +538,11 @@
                     .then(res => res.json())
                     .then(data => {
                         console.log(`${JSON.stringify(data)}`);
+                        if (data.result != '00') {
+                            alert(data.result_msg);
+                            return;
+                        }
+
                         this.prod_marketing = data.prod_marketing;
                         this.prod = data.prod;
                         document.title = this.prod.prod_name;
