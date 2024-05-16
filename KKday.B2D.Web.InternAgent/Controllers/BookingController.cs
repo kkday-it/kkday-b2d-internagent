@@ -72,16 +72,21 @@ namespace KKday.B2D.Web.InternAgent.Controllers
 
                 // var cus_type = (bookingfield?.custom?.cus_type?.list_option.Where(x => x == "cus_01")?.ToList()?.Count > 0) ? "cus_01" : "cus_02";
                 var has_psg = bookingfield?.custom?.cus_type?.list_option.Where(x => x == "cus_01" || x == "cus_02").Count() > 0 ? true : false;
+                var allow_change_pax = req.extra.unit_code != "01" && has_psg ? true : false;
 
                 bookingmodel.custom = new List<CustomBooking>();
 
                 // Expand travelers
-                if (req.extra.unit_code == "01" && has_psg)
+                if (has_psg)
                 {
-                    for(var psg = 0; psg < qty; psg++)
+                    if (req.extra.unit_code == "01")
                     {
-                        bookingmodel.custom.Add(new CustomBooking() { cus_type = qty == 1 ? "cus_01" : "cus_02" });
+                        for (var psg = 0; psg < qty; psg++)
+                        {
+                            bookingmodel.custom.Add(new CustomBooking() { cus_type = qty == 1 ? "cus_01" : "cus_02" });
+                        }
                     }
+                    else bookingmodel.custom.Add(new CustomBooking() { cus_type = "cus_02" });
                 }
                  
                 if (bookingfield?.custom?.cus_type?.list_option.Where(x => x == "contact")?.ToList()?.Count > 0)
@@ -176,6 +181,7 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                   
                 jsonData.Add("booking", bookingmodel);
                 jsonData.Add("bookingfield", bookingfield);
+                jsonData.Add("allow_change_pax", allow_change_pax);
 
                 return Json(jsonData);
             }
@@ -199,6 +205,10 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                     //call booking
                     var bookProxy = HttpContext.RequestServices.GetService<BookingProxy>();
                     var result = bookProxy.Booking(booking);
+                    if (string.IsNullOrEmpty(result.order_no))
+                    {
+                        throw new Exception(result.result_msg);
+                    }
                 }
 
                 rs.Add("result", "OK");
@@ -206,7 +216,7 @@ namespace KKday.B2D.Web.InternAgent.Controllers
             }
             catch (Exception ex)
             {
-                rs.Add("result", "Failure");
+                rs.Add("result", $"Booking Failure: {ex.Message}");
                 return Json(rs);
             }
         }

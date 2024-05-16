@@ -432,7 +432,7 @@
             </template>
 
             <!-- Guide Language -->
-            <template v-if="bookingField?.guide_lang && bookingField?.guide_lang?.is_require === true">
+            <template v-if="bookingField?.guide_lang && bookingField?.guide_lang?.is_require === 'True'">
                 <div class="traveler-con">
                     <div class="sub-title">@Localizer["common_guide_lang"]</div>
                     <div class="row">
@@ -1480,13 +1480,13 @@
             },
             checkBookingField(path, keys, mandatory) {
                 try {
-                    let key_array = keys.split(',');
+                    let key_array = keys.split(',').map(s => s.trim());
                     let using = getValue(this.bookingField, path + '.use'); 
 
                     let is_required = using ? using.filter(v => key_array.includes(v)).length : getValue(this.bookingField, path + '.is_require');
                     let result = is_required ? true : false;
 
-                    // console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)}/matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
+                    console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)} / matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
                     return result;
                 } catch (e) {
                     // console.log(`checkBookingField, path: ${path} => error : ${e}`);
