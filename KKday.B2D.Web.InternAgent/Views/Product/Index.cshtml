@@ -877,8 +877,9 @@
                 }
 
                 let pkg_low_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
-                let pkg_high_price = orgin_low_price; // Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price)); 
-                
+                let pkg_high_price = pkg_low_price; // Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price)); 
+                console.log(`cal render => low: ${pkg_low_price}, height: ${pkg_high_price}`)
+
                 // Loop to add the dates of the current month
                 for (let i = 1; i <= lastdate; i++) {
 
