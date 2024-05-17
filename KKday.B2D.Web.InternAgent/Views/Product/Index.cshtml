@@ -179,7 +179,7 @@
                             <span v-if="isSoldout(item)">@Localizer["Sold_Out"]</span>
                             <div class="product-pricing" v-if="!isSoldout(item)">
                                 <h4>
-                                    <span class="text-grey" v-html="`@Localizer[Website.Instance.Currency] ${item.b2b_min_price}`"></span>
+                                    <span class="text-grey">@Localizer[Website.Instance.Currency] {{ item.b2b_min_price ?? prod.b2b_min_price }}</span>
                                     <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span>
                                 </h4>
                             </div>
@@ -601,7 +601,9 @@
                                 pkg.selectable = pkg.item && pkg.item.length > 0;
 
                                 const av_dates = [...new Set([].concat(...pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
-                                this.fetchAllotment(pkg.pkg_no, av_dates[0]);
+                                if (pkg.item[0].inventory_set != 0) {
+                                    this.fetchAllotment(pkg.pkg_no, av_dates[0]);
+                                }
                             }
                             else console.error(`The package(${pkg.pkg_no}) was Loading failed`);
 
@@ -640,7 +642,10 @@
                                 sku.calendar_detail[dt] = s.calendar_detail[dt];
                             });
 
-                            this.fetchAllotment(pkg_no, s_date);
+                            // Check the pkg needs to check inventory
+                            if (pkg.item[0].inventory_set != 0) {
+                                this.fetchAllotment(pkg_no, s_date);
+                            }
                         });
 
                         emitter.emit('load-package-complete', pkg_no);
@@ -657,7 +662,6 @@
                 };
 
                 // console.log(`fetchAllotment req => ${JSON.stringify(req)}`);
-
                 fetch(`${_root_path}Product/GetAllotment`, {
                     method: 'POST',
                     headers: {
@@ -872,6 +876,9 @@
                     });
                 }
 
+                let pkg_low_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
+                let pkg_high_price = orgin_low_price; // Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price)); 
+                
                 // Loop to add the dates of the current month
                 for (let i = 1; i <= lastdate; i++) {
 
@@ -880,15 +887,15 @@
                         && this.month === new Date().getMonth()
                         && this.year === new Date().getFullYear()) ? true : false;
 
-                    let _low_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
-                    let _high_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
+                    let _low_price = pkg_low_price, _high_price = pkg_high_price;
                     let _disabled = false, _invalid = false;
                     let szdate = `${this.year}-${('0' + (this.month + 1)).slice(-2)}-${('0' + i).slice(-2)}`;
+                    // If it's invalid date then show empty info
                     if (!this.av_dates.find(d => d === szdate)) {
                         _low_price = _high_price = null;
                         _disabled = _invalid = true;
                     }
-
+                   
                     calendar.push({
                         date: `${i}`, full_date: szdate, isToday: _isToday, disabled: _disabled, invalid: _invalid, selected: false,
                         lowest_price: _low_price, highest_price: _high_price,
