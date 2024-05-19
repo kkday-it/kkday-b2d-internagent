@@ -786,7 +786,8 @@
                 sel_sdate: '',
                 sel_edate: '',
                 go_date_setting: null,
-                is_date_range: false
+                is_date_range: false,
+                filter_options: { sku_id: null, timeslot: null }
             }
         },
         template: `
@@ -876,9 +877,8 @@
                     });
                 }
 
-                let pkg_low_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
-                let pkg_high_price = pkg_low_price; // Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price)); 
-                console.log(`cal render => low: ${pkg_low_price}, height: ${pkg_high_price}`)
+                let purposed_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price)); 
+                // console.log(`cal render => low: ${pkg_low_price}, height: ${pkg_high_price}`)
 
                 // Loop to add the dates of the current month
                 for (let i = 1; i <= lastdate; i++) {
@@ -888,9 +888,14 @@
                         && this.month === new Date().getMonth()
                         && this.year === new Date().getFullYear()) ? true : false;
 
-                    let _low_price = pkg_low_price, _high_price = pkg_high_price;
+                    let _low_price = purposed_price, _high_price = purposed_price;
                     let _disabled = false, _invalid = false;
                     let szdate = `${this.year}-${('0' + (this.month + 1)).slice(-2)}-${('0' + i).slice(-2)}`;
+
+                    // Precise price processing
+                    let precise_price = this.getPrecisePrice(szdate);
+                    if (precise_price) _high_price = _low_price = precise_price;
+                      
                     // If it's invalid date then show empty info
                     if (!this.av_dates.find(d => d === szdate)) {
                         _low_price = _high_price = null;
@@ -998,6 +1003,37 @@
                         }
                     }
                 }
+            },
+            getPrecisePrice(date) {
+                let price = null;
+                if (this.filter_options.sku_id) {
+                    let match_sku = this.pkg.item[0].skus.find(s => s.sku_id === this.filter_options.sku_id);
+                    if (match_sku) {
+                        let matched_date = match_sku.calendar_detail[date];
+                        if (matched_date?.b2b_price) {
+                            if (this.filter_options.timeslot) price = matched_date.b2b_price[this.filter_options.timeslot]; 
+                            else if (!this.pkg.item[0].has_event) price = matched_date.b2b_price["fullday"]; 
+                        }
+                        else console.log(`cal => ${date}: no b2b_price`)
+                    }
+                    else console.log(`cal => ${date}: no match sku(${this.filter_options.sku_id})`)
+                }
+                
+                return price;
+            },
+            RefreshPrice() {
+                console.log(`cal filter_options => ${JSON.stringify(this.filter_options)}`)
+                let purposed_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
+                this.dates.forEach(d => {  
+                    if (!d.disabled) {
+                        let price = this.getPrecisePrice(d.full_date);
+                        console.log(`cal refresh => ${d.full_date}, sku_id=${this.filter_options.sku_id}, precise_price: ${price}`)
+                        if(!price) price = purposed_price;
+                        d.highest_price = d.lowest_price = price;
+                        
+                    }
+                });
+                this.$forceUpdate();
             },
             PriceFormat(price) {
                 if (price == null) return '';
@@ -1129,6 +1165,12 @@
 
                     this.$forceUpdate();
                 }
+            });
+
+            emitter.on('show_precise_price', (data) => {
+                this.filter_options.sku_id = data.sku_id;
+                this.filter_options.timeslot = data.timeslot;
+                this.RefreshPrice(); 
             });
         }
     });
@@ -1390,7 +1432,7 @@
                     // console.log(`GetSkuPrice, match_skus = ${JSON.stringify(match_skus)}`)
                     if (match_skus) {
                         let matched_date = match_skus.calendar_detail[this.sel_date.s_date];
-                        console.log(`GetSkuPrice, date=${JSON.stringify(this.sel_date)}, match_skus.calendar = ${JSON.stringify(matched_date)}`)
+                        console.log(`GetSkuPrice, spec=${spec_item_oid}, date=${JSON.stringify(this.sel_date)}, match_skus.calendar = ${JSON.stringify(matched_date)}`)
                         if (Object.keys(matched_date).length) {
                             if (this.sel_time_slot) price = matched_date.b2b_price[this.sel_time_slot];
                             else if (!this.pkg.item[0].has_event) price = matched_date.b2b_price["fullday"];
@@ -1602,6 +1644,12 @@
                 }
             },
             refrehTotal() {
+                // Show precise price on calendar
+                let sel_specs = [...this.sel_spec_items];
+                if (this.mode === '02') sel_specs.push('adult');
+                let sku_id = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => sel_specs.indexOf(r.spec_value_id) != -1)).map(s => s.sku_id).join(",");
+                emitter.emit('show_precise_price', { sku_id: sku_id, timeslot: this.sel_time_slot });
+
                 setTimeout(() => {
                     this.checkOut();
                     this.$forceUpdate();
