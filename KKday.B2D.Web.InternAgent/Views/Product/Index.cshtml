@@ -623,6 +623,7 @@
                     pkg_no: pkg_no,
                     s_date: s_date
                 };
+                // console.log(`FetchPackage, req => ${JSON.stringify(req)}`);
 
                 fetch(uri, {
                     method: 'POST',
@@ -634,7 +635,7 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        // console.log(`load more pkg => ${JSON.stringify(data)}`);
+                        // console.log(`FetchPackage, res => ${JSON.stringify(data)}`);
                         let pkg = this.pkg.find(p => p.pkg_no === pkg_no);
                         data.item[0].skus.forEach(s => {
                             let sku = pkg.item[0].skus.find(s2 => s2.sku_id === s.sku_id);
@@ -647,7 +648,7 @@
                                 this.fetchAllotment(pkg_no, s_date);
                             }
                         });
-
+                        
                         emitter.emit('load-package-complete', pkg_no);
                     })
                     .catch(error => {
@@ -1122,10 +1123,12 @@
             },
             loadMoreData(dt) {
                 let target_date = moment(dt, 'YYYY-MM-DD').subtract(2, 'months');
-                // console.log(`last_date: ${dt}, target_date: ${target_date.format('YYYY-MM-DD')}, sale_e_date: ${this.pkg.sale_e_date}`)
+                if (moment(target_date, 'YYYY-MM-DD') < moment(dt, 'YYYY-MM-DD')) target_date = moment(dt, 'YYYY-MM-DD').add(1, 'months');
+
+                console.log(`last_date: ${dt}, target_date: ${target_date.format('YYYY-MM-DD')}, sale_e_date: ${this.pkg.sale_e_date}`)
 
                 if (this.year === target_date.year() && this.month === target_date.month() - 1) {
-                    if (moment(dt, 'YYYY-MM-DD') < moment(this.pkg.sale_e_date, 'YYYY-MM-DD')) {
+                    if (moment(dt, 'YYYY-MM-DD') < moment(this.pkg.sale_e_date, 'YYYY-MM-DD')) { 
                         emitter.emit('load-package', { pkg_no: this.pkg.pkg_no, sdate: moment(dt, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD') });
                     }
                 }
@@ -1155,6 +1158,7 @@
             emitter.on('load-package-complete', (data) => {
                 if (data === this.pkg.pkg_no) {
                     this.getAvDates();
+                    this.Render();
                 }
             });
 
