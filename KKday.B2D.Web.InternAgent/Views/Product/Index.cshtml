@@ -118,7 +118,7 @@
                             <div class="container">
                                 <div class="price-info">
                                     <div class="product-pricing text-left">
-                                        <h2 class="text-heavy" v-html="'@Localizer[Website.Instance.Currency] ' + (prod.b2b_min_price ? prod.b2b_min_price : '-')"></h2> <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span> <!---->
+                                        <h2 class="text-heavy" v-html="'@Localizer[Website.Instance.Currency] ' + (prod.b2b_min_price ? Number(prod.b2b_min_price.toFixed(02)) : '-')"></h2> <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span> <!---->
                                     </div>
 
                                     <div class="product-score" v-if="prod.prod_comment_info && prod.prod_comment_info.avg_scores != '0'">
@@ -179,7 +179,7 @@
                             <span v-if="isSoldout(item)">@Localizer["Sold_Out"]</span>
                             <div class="product-pricing" v-if="!isSoldout(item)">
                                 <h4>
-                                    <span class="text-grey">@Localizer[Website.Instance.Currency] {{ item.b2b_min_price ?? prod.b2b_min_price }}</span>
+                                    <span class="text-grey">@Localizer[Website.Instance.Currency] {{ Number((item.b2b_min_price ?? prod.b2b_min_price).toFixed(02)) }}</span>
                                     <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span>
                                 </h4>
                             </div>
