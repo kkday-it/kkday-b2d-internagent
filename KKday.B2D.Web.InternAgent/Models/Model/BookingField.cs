@@ -287,7 +287,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public partial class Slocation : TrafficAttribute
     { 
-        public List<SlocaitonInfo> list_option { get; set; }
+        public List<SlocaitonInfo> list_option { get; set; } 
     }
 
     public partial class TrafficTime : TrafficAttribute
@@ -311,6 +311,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string note { get; set; }
          
         public List<BusinessHours> businessHours { get; set; }
+        public List<LocationTimes> time_list { get; set; }
          
         public long? sort { get; set; }
         public string code { get; set; }
@@ -335,6 +336,19 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string to { get; set; }
         public string from { get; set; }
         public string weekDays { get; set; }
+    }
+
+    public partial class LocationTimes
+    {
+        public LocationTimeInfo to { get; set; }
+        public LocationTimeInfo from { get; set; }
+        public string weekDays { get; set; }
+    }
+
+    public partial class LocationTimeInfo
+    {
+        public int hour { get; set; }
+        public int minute { get; set; }
     }
 
     #endregion Traffic --- end

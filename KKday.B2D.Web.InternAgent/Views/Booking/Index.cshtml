@@ -1228,13 +1228,18 @@
                         <div class="col-md-6 col-sm-6 col-xs-12 form-group" v-show="checkBookingFieldforRentCar('s_location','voucher')">
                             <!-- Voucher Exchange Counter -->
                             <label>@Localizer["booking_step1_voucher_info_voucher_counter"]<span class="text-danger">*</span></label>
-                            <select class="form-control"
+                            <select ref="voucher_ddl" class="form-control"
                                     v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('voucher')).s_location" required>
                                 <option value="">@Localizer["booking_step1_rent_car_pick_up_office_placeholder"]</option>
                                 <template v-for="temp in getBookingFieldReferenceforVoucher('s_location')">
                                     <option :value="temp.id" v-html="temp.name"></option>
                                 </template>
                             </select>
+
+                            <div class="mt-1">{{ getBookingFieldReferenceforVoucher('s_location').find(v => v.id === $refs?.voucher_ddl?.value)?.address }}</div>
+                            <template v-for="tm_info in getBookingFieldReferenceforVoucher('s_location').find(v => v.id === $refs?.voucher_ddl?.value)?.time_list">
+                                <div>{{ tm_info.from.hour }}:{{ tm_info.from?.minute ?? 0 }}~{{ tm_info.to.hour }}:{{ tm_info.to?.minute ?? 0 }} {{ getLocationWeekday(tm_info.weekDays) }}</div>
+                            </template> 
                         </div>
                     </div>
                 </div>
@@ -1340,7 +1345,7 @@
             </template>
 
             <!-- Order Note -->
-            <div class="traveler-con" style="margin-top: 50px;">
+            <div class="traveler-con" style="margin-top: 20px;">
                 <div class="sub-title">@Localizer["booking_step1_order_note"] </div>
                 <div class="row mt-10">
                     <div class="col-md-8 col-sm-12">
@@ -1658,6 +1663,19 @@
                     }
                 }
                 catch (e) { return []; }
+            },
+            getLocationWeekday(week) {
+                const weekday = [];
+                weekday[0] = "Mon"; // Monday
+                weekday[1] = "Tue"; // Tuesday
+                weekday[2] = "Wed"; // Wednesday
+                weekday[3] = "Thu"; // Thursday
+                weekday[4] = "Fri"; // Friday
+                weekday[5] = "Sat"; // Saturday
+                weekday[6] = "Sun"; // Sunday
+
+                let idx = week.replace(/,/g, '').indexOf('Y');
+                return idx != -1 ? weekday[idx] : '';
             },
             changeShuttleTime(val) { 
                 this.show_cus_shuttle = val === 'customize';
