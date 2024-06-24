@@ -798,11 +798,11 @@
                                 <div class="col-sm-6 col-xs-12 form-group">
                                     <select id="booking-shuttle-time" class="form-control" name="shuttlePickUpTime0" @@change="changeShuttleTime($event.target.value)" required>
                                         <option value="">@Localizer["booking_step1_shuttle_data_pick_up_time_placeholder"]</option>
-                                        <template v-for="pk in getBookingFieldReferenceforRentCar('s_time','pickup_04')">
-                                            <option :value="pk.id" v-html="`${pk.hour}:${pk.min}`" v-if="pk.hour !=0"></option>
+                                        <template v-for="pk in getPickupTime()">
+                                            <option :value="pk.id" v-if="pk.hour !=0">{{ ('00' + pk.hour).slice(-2) }}:{{ ('00' + pk.min).slice(-2) }}</option>
                                         </template>
                                         <!-- Custom Pickup Time -->
-                                        <template v-for="pk in bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ? bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => t.time_range) : []">
+                                        <template v-for="pk in getPickupCustomTime()">
                                             <option value="customize" :data-range="pk.time_range">@Localizer["booking_step1_shuttle_data_customized_shuttle_time"]</option>
                                         </template>
                                     </select>
@@ -1663,6 +1663,14 @@
                     }
                 }
                 catch (e) { return []; }
+            },
+            getPickupTime() {
+                return this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ?
+                            this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => !t.time_range) : []
+            },
+            getPickupCustomTime() {
+                return this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ?
+                            this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => t.time_range && t.time_range != '~') : []
             },
             getLocationWeekday(week) {
                 const weekday = [];

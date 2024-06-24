@@ -326,8 +326,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     public partial class TimeInfo
     { 
         public string id { get; set; }
-        public long? hour { get; set; }
-        public long? min { get; set; }
+        public string hour { get; set; }
+        public string min { get; set; }
         public string time_range { get; set; }
     }
 
