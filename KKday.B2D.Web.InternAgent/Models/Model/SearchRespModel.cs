@@ -41,8 +41,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public class SearchStatsPrice
     {
-        public float min { get; set; }
-        public float max { get; set; }
+        public decimal? min { get; set; }
+        public decimal? max { get; set; }
         public int count { get; set; }
         public string currency { get; set; }
     }
