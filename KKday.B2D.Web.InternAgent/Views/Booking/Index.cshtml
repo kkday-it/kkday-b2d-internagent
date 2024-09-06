@@ -300,11 +300,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Taiwan Identity Number -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.id_no', 'cus_01,cus_02')" v-show="checkTwResident(pax)">
+                            <!-- Identity Number -->
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.id_no', 'cus_01,cus_02')">
                                 <div class="form-group">
-                                    <label>@Localizer["order_show_cust_data_tw_identity_number"]<span class="text-danger">*</span></label>
-                                    <input placeholder="@Localizer["component_form_tw_identity_number_placeholder"]" name="`twIdentity-${idx}`" type="text" class="form-control"
+                                    <label><span v-html="checkTwResident(pax) ? '@Localizer["order_show_cust_data_tw_identity_number"]' : '@Localizer["order_show_cust_data_identity_number"]' "></span> <span class="text-danger">*</span></label>
+                                    <input :placeholder="checkTwResident(pax) ? '@Localizer["component_form_tw_identity_number_placeholder"]' : '@Localizer["component_form_identity_number_placeholder"]'" name="`twIdentity-${idx}`" type="text" class="form-control"
                                            v-model="pax.id_no" oninput="this.value=this.value.replace(/\s/g, '')" required />
                                 </div>
                             </div>

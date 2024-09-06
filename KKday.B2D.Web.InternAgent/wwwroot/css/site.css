@@ -22,5 +22,9 @@ body {
 }
 
 [v-cloak] {
-    display: none;
+    display: none !important;
+}
+
+[v-cloak] > * {
+    display: none !important;
 }
