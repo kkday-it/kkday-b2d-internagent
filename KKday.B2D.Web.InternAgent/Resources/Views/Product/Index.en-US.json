@@ -71,6 +71,9 @@
   "Item_Unit06": "Day",
   "Item_Unit07": "Tent",
   "Item_Unit08": "Box",
-  "Item_Unit09": "Item"
+  "Item_Unit09": "Item",
+  "PackageDetails_Title": "Package Details",
+  "SelectOptions_Title": "Select Options",
+  "InstantConfirm_Label": "Instant Confirmation"
 }
 

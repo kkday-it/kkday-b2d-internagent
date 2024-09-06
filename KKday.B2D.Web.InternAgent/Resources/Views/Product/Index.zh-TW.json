@@ -71,6 +71,9 @@
   "Item_Unit06": "天數",
   "Item_Unit07": "帳數",
   "Item_Unit08": "盒數",
-  "Item_Unit09": "個數"
+  "Item_Unit09": "個數",
+  "PackageDetails_Title": "關於此方案",
+  "SelectOptions_Title": "選擇選項",
+  "InstantConfirm_Label": "立即確認並發送憑證"
 }
 
