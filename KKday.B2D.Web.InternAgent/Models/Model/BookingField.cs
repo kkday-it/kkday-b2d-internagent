@@ -187,9 +187,9 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     public partial class ShoeUnitInfo
     {
         public string unit_code { get; set; }
-        public string unit_name { get; set; }
-        public decimal? size_range_start { get; set; }
-        public decimal? size_range_end { get; set; }
+        public string unit_name { get; set; } 
+        public decimal? size_range_start { get; set; } 
+        public decimal? size_range_end { get; set; } 
         public decimal? interval { get; set; }
     }
 

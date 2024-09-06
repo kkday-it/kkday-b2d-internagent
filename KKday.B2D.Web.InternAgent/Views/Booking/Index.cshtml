@@ -301,15 +301,15 @@
                                 </div>
                             </div>
                             <!-- Taiwan Identity Number -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.id_no', 'cus_01,cus_02')">
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.id_no', 'cus_01,cus_02')" v-show="checkTwResident(pax)">
                                 <div class="form-group">
                                     <label>@Localizer["order_show_cust_data_tw_identity_number"]<span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["component_form_tw_identity_number_placeholder"]" name="`twIdentity-${idx}`" type="text" class="form-control"
                                            v-model="pax.id_no" oninput="this.value=this.value.replace(/\s/g, '')" required />
                                 </div>
                             </div>
-                            <!-- MTP Number -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.mtp_no', 'cus_01,cus_02')">
+                            <!-- MTP Number (Taiwanese Only) -->
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.mtp_no', 'cus_01,cus_02')" v-show="checkTwResident(pax)">
                                 <div class="form-group">
                                     <label>@Localizer["order_show_cust_data_mtp_number"]<span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["component_form_mtp_number_placeholder"]" name="`mtp_no-${idx}`" type="text" v-model="pax.mtp_no"
@@ -1415,7 +1415,10 @@
 
                 // Load Country Code & Tel Country Code
                 fetch(`${_root_path}Common/QueryCountryInfo/@locale`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
+                    })
                     .then(data => {
                         // console.log(`countries => ${JSON.stringify(data)}`);
                         this.country_cities = data.countries;
@@ -1425,6 +1428,9 @@
                         //$('.select2').select2({
                         //    theme: "bootstrap-5",
                         //});
+                    }).catch(error => {
+                        alert(`Error: ${error.message}`)
+                        console.log('Error', error.message);
                     });
 
                 this.isLoading = true;
@@ -1446,11 +1452,11 @@
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: req // JSON.stringify(req)
+                    body: req,
                 })
                     .then(response => {
-                        // console.log(response.status);
-                        return response.json()
+                        if (response.ok) return response.json();
+                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
                     })
                     .then(result => {
                         console.log(`${JSON.stringify(result)}`);
@@ -1460,7 +1466,10 @@
 
                         this.isLoading = false;
                     })
-                    .catch(error => { console.error('Unable to search.', error); this.isLoading = false });
+                    .catch(error => {
+                        alert(`Error: ${error.message}`)
+                        console.log('Error', error.message);
+                    });
 
             },
             getCountryLabel: function (val) {
@@ -1935,7 +1944,15 @@
                     })
                     .catch(error => { console.error('Unable to search.', error); this.isLoading = false });
 
-            }
+            },
+            checkTwResident(pax) {
+                // Ensure the bookingfield has "nationality"
+                const need_na = this.checkBookingField('custom.nationality', 'cus_01,cus_02');
+                if (!need_na) return false;
+
+                // Check the nationality must be Taiwnaese
+                return (pax.nationality === 'TW') ? true : false;
+            },
         },
         watch: {
             booking: {
@@ -1944,7 +1961,10 @@
                     document.getElementById("raw_booking").textContent = JSON.stringify(newVal, undefined, 2);
                 },
                 deep: true
-            }
+            },
+        },
+        computed: {
+           
         }
     });
 

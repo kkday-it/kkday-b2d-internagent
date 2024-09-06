@@ -7,7 +7,10 @@ using KKday.B2D.Web.InternAgent.Models.Model;
 using Microsoft.AspNetCore.Mvc;
 using KKday.B2D.Web.InternAgent.AppCode;
 using KKday.B2D.Web.InternAgent.Proxy;
-using System.Globalization; 
+using System.Globalization;
+using System.Net;
+using Microsoft.Extensions.Options;
+using System.Text.Json.Serialization;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -38,13 +41,17 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 {
                     prod_no = req.prod_no,
                     locale = locale,
-                    state = Website.Instance.Marketing, 
+                    state = Website.Instance.Marketing,
                     pkg_no = req.pkg_no,
                     s_date = req.s_date
                 });
 
                 Console.WriteLine($"BookingField => {bookingfieldJson}");
-                var bookingfield = System.Text.Json.JsonSerializer.Deserialize<BookingField>(bookingfieldJson);
+                var jsonOptions = new JsonSerializerOptions()
+                {
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString
+                };
+                var bookingfield = System.Text.Json.JsonSerializer.Deserialize<BookingField>(bookingfieldJson, jsonOptions);
 
                 /////
                 
@@ -79,6 +86,7 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 // Expand travelers
                 if (has_psg)
                 {
+                    // Unit(01) is Traveler
                     if (req.extra.unit_code == "01")
                     {
                         for (var psg = 0; psg < qty; psg++)
@@ -86,6 +94,7 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                             bookingmodel.custom.Add(new CustomBooking() { cus_type = qty == 1 ? "cus_01" : "cus_02" });
                         }
                     }
+                    // Other Unit
                     else bookingmodel.custom.Add(new CustomBooking() { cus_type = "cus_02" });
                 }
                  
@@ -187,7 +196,7 @@ namespace KKday.B2D.Web.InternAgent.Controllers
             }
             catch (Exception ex)
             {
-                return Json(null);
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
