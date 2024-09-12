@@ -747,6 +747,7 @@
                 else {
                     emitter.emit('clicked-show-detail', pkg.pkg_no);
                     pkg.show = true;
+                    this.$forceUpdate();
                     $('#pkg_' + pkg.pkg_no).find('.option-booking').show();
                 }
             },
@@ -849,7 +850,7 @@
             </thead>
             <tbody>
                 <tr class="row-date" v-for="n in 6">
-                    <td class="cell-date" :class="{'disabled':dt.disabled,'invalid':dt.invalid,'selected':dt.selected,'selected-start':dt.sdate && dt.selected,'selected-end':dt.edate && dt.selected}"
+                    <td class="cell-date" :class="{'disabled':dt.disabled || dt.invalid,'invalid':dt.invalid,'selected':dt.selected,'selected-start':dt.sdate && dt.selected,'selected-end':dt.edate && dt.selected}"
                     v-for="(dt, idx) in dates.slice((n-1)*7,n*7)"
                     @@mouseover="MultipleSelect(dt);"
                     @@click="dateChanged(dt);">
@@ -864,8 +865,25 @@
         </table>
         <div class="selected-date" v-if="multi_select_str">{{multi_select_str}} <span class="clear-input" @@click="ResetMultipleSelect"><i class="fa fa-times-circle fa-lg"></i></span></div>
     </div>`,
+        watch: {
+            sel_sdate: function () {
+                emitter.emit('date-changed', {
+                    pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate }
+                });
+            },
+            sel_edate: function () {
+                emitter.emit('date-changed', {
+                    pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate }
+                });
+            },
+        },
         methods: {
-            Render() {
+            resetCalendar() {
+                this.sel_sdate = this.sel_edate = null;
+                this.dates.forEach(dt => dt.selected = false);
+                this.filter_options = { sku_id: null, timeslot: null }; 
+            },
+            render() {
                 console.log(`Calendar render => sdate:${this.sel_sdate}, edate:${this.sel_edate}, go_date_setting:${JSON.stringify(this.go_date_setting)}`);
 
                 const months = [
@@ -922,15 +940,24 @@
                     let _disabled = false, _invalid = false;
                     let szdate = `${this.year}-${('0' + (this.month + 1)).slice(-2)}-${('0' + i).slice(-2)}`;
 
-                    // Precise price processing
-                    let precise_price = this.getPrecisePrice(szdate);
-                    if (precise_price) _high_price = _low_price = precise_price;
-
                     // If it's invalid date then show empty info
                     if (!this.av_dates.find(d => d === szdate)) {
                         _low_price = _high_price = null;
                         _disabled = _invalid = true;
                     }
+                    else {
+                        // Precise price processing
+                        let precise_price = this.getPrecisePrice(szdate);
+                        if (precise_price) {
+                            _high_price = _low_price = precise_price; 
+                        }
+                        // Matching sku has no price
+                        else if (this.filter_options.sku_id) {
+                            console.log(`cal render has filter => ${this.filter_options.sku_id}`)
+                            _invalid = true;
+                        }
+                    }
+                    // console.log(`cal render => ${szdate}, high_price: ${_high_price}, low_price: ${_low_price}, disabled: ${_disabled}, invalid:${_invalid}`)
 
                     calendar.push({
                         date: `${i}`, full_date: szdate, isToday: _isToday, disabled: _disabled, invalid: _invalid, selected: false,
@@ -971,7 +998,7 @@
                 this.month = new_date.getMonth();
                 this.date = new_date;
 
-                this.Render();
+                this.render();
                 // console.log(`last start_date: ${this.sel_sdate}, end_date:${this.sel_edate}, is_date_range: ${this.is_date_range}`)
 
                 // Render last selected dates
@@ -1037,12 +1064,12 @@
             getPrecisePrice(date) {
                 let price = null;
                 if (this.filter_options.sku_id) {
-                    let match_sku = this.pkg.item[0].skus.find(s => s.sku_id === this.filter_options.sku_id);
-                    if (match_sku) {
-                        let matched_date = match_sku.calendar_detail[date];
-                        if (matched_date?.b2b_price) {
-                            if (this.filter_options.timeslot) price = matched_date.b2b_price[this.filter_options.timeslot];
-                            else if (!this.pkg.item[0].has_event) price = matched_date.b2b_price["fullday"];
+                    let matching_sku = this.pkg.item[0].skus.find(s => s.sku_id === this.filter_options.sku_id);
+                    if (matching_sku) {
+                        let matching_date = matching_sku.calendar_detail[date];
+                        if (matching_date?.b2b_price) {
+                            if (this.filter_options.timeslot) price = matching_date.b2b_price[this.filter_options.timeslot];
+                            else if (!this.pkg.item[0].has_event) price = matching_date.b2b_price["fullday"];
                         }
                         else console.log(`cal => ${date}: no b2b_price`)
                     }
@@ -1058,7 +1085,22 @@
                     if (!d.disabled) {
                         let price = this.getPrecisePrice(d.full_date);
                         console.log(`cal refresh => ${d.full_date}, sku_id=${this.filter_options.sku_id}, precise_price: ${price}`)
-                        if(!price) price = purposed_price;
+                        if (!price) {
+                            // Matching sku has no price
+                            if (this.filter_options.sku_id) {
+                                if (d.selected && !this.av_dates.find(dt => dt != d)) {
+                                    this.sel_sdate = this.sel_edate = null;
+                                    d.selected = false; // Reset selected date
+                                }
+                                d.invalid = true;
+                            }
+                            else {
+                                price = purposed_price; // Default purposed price
+                                d.invalid = false;
+                            }
+                        }
+                        else d.invalid = false;
+
                         d.highest_price = d.lowest_price = price;
 
                     }
@@ -1145,7 +1187,7 @@
                     }
                 }
 
-                emitter.emit('date-changed', { pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate } });
+                // emitter.emit('date-changed', { pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate } });
             },
             getAvDates() {
                 this.av_dates = [...new Set([].concat(...this.pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
@@ -1180,22 +1222,22 @@
                         this.year = this.date.getFullYear();
                         this.month = this.date.getMonth();
                     }
-                    this.Render();
+                    this.resetCalendar();
+
+                    this.render();
                 }
             });
 
             emitter.on('load-package-complete', (data) => {
                 if (data === this.pkg.pkg_no) {
                     this.getAvDates();
-                    this.Render();
+                    this.render(); 
                 }
             });
 
             emitter.on('unselect-package', (data) => {
                 if (data === this.pkg.pkg_no) {
-                    this.sel_sdate = this.sel_edate = null;
-                    this.dates.forEach(dt => dt.selected = false);
-
+                    this.resetCalendar(); 
                     this.$forceUpdate();
                 }
             });
@@ -1228,8 +1270,7 @@
                 ticket_qty: {},
                 price: 0,
                 totalPrice: 0,
-                specAlert: '',
-                isBookable: false,
+                specAlert: '', 
                 manual_setting: {},
                 unit: '',
                 unit_label: '',
@@ -1312,7 +1353,7 @@
     </div>
     <div class="booking-cta">
         <button type="button" class="btn btn-blue"> @Localizer["Add_To_Cart"] </button>
-        <button type="button" class="btn btn-primary" :class="{ 'disabled': !isBookable }" theme="primary" @@click="booking"> @Localizer["Buy_Now"] </button>
+        <button type="button" class="btn btn-primary" :class="{ 'disabled': !isBookable() }" theme="primary" @@click="booking"> @Localizer["Buy_Now"] </button>
     </div>
 </div>`,
         watch: {
@@ -1320,7 +1361,7 @@
                 handler: function () {
                     console.log(`date changed, dates: ${JSON.stringify(this.sel_date)}, pkg_no: ${this.pkg.pkg_no}`);
                     this.checkTimeslot();
-                    this.refrehTotal();
+                    this.refrehTotal(); 
                 }
             },
             sel_spec_items: {
@@ -1335,7 +1376,7 @@
             }
         },
         methods: {
-            Render() {
+            render() {
                 // console.log(`Spec Render, prod_no => ${this.prod_no}, pkg_no => ${this.pkg.pkg_no}`);
                 console.log(`Spec Render, pkg => ${JSON.stringify(this.pkg)}`);
                 this.price = this.pkg.b2b_min_price;
@@ -1563,8 +1604,7 @@
                     if (total_qty > rule.max_quantity || total_qty < rule.min_quantity) grand_total = 0;
                 }
 
-                this.totalPrice = grand_total;
-                this.isBookable = this.totalPrice > 0;
+                this.totalPrice = grand_total; 
             },
             checkQuantity(total_qty, skus) {
                 let unmatch_count = 0;
@@ -1690,6 +1730,29 @@
                     this.$forceUpdate();
                 }, 20);
             },
+            resetSpecs() {
+                this.sel_spec_items = [];
+                if (this.specs.some(s => s.spec_oid === 'spec-single')) {
+                    this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
+                }
+                //
+                this.sel_time_slot = this.sel_date.s_date = this.sel_date.e_date = null;
+                this.time_slots.forEach(s => s.selected = false);
+                this.specs.map(s => s.spec_items).flat().forEach(i => {
+                    i.selected = false;
+                    i.disabled = false;
+                });
+                //
+                if (this.mode === '01') this.single_qty = { ...spec_condition };
+                else {
+                    Object.keys(this.ticket_qty).forEach(spec => {
+                        this.ticket_qty[spec] = { ...spec_condition };
+                    });
+                }
+            },
+            isBookable() {
+                return (this.sel_date.s_date || this.sel_date.e_date) && this.totalPrice > 0;
+            },
             booking() {
                 let req = {
                     guid: this.pkg.guid,
@@ -1777,10 +1840,15 @@
         setup(props) {
             this.pkg = props.pkg;
         },
+        computed: {
+            
+        },
         mounted: function () {
             emitter.on('clicked-show-detail', (data) => {
-                if (data === this.pkg.pkg_no) this.Render();
-
+                if (data === this.pkg.pkg_no) {
+                    this.resetSpecs();
+                    this.render();
+                }
                 // If the product is for opendate, then default the selected first available date from pkg
                 if (app.checkOpenDate()) {
                     const pkg_cal_date = Object.keys(this.pkg.item[0].skus[0].calendar_detail)[0]; 
@@ -1797,24 +1865,7 @@
 
             emitter.on('unselect-package', (data) => {
                 if (data === this.pkg.pkg_no) {
-                    this.sel_spec_items = [];
-                    if (this.specs.some(s => s.spec_oid === 'spec-single')) {
-                        this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
-                    }
-                    //
-                    this.sel_time_slot = this.sel_date.s_date = this.sel_date.e_date = null;
-                    this.time_slots.forEach(s => s.selected = false);
-                    this.specs.map(s => s.spec_items).flat().forEach(i => {
-                        i.selected = false;
-                        i.disabled = false;
-                    });
-                    //
-                    if (this.mode === '01') this.single_qty = { ...spec_condition };
-                    else {
-                        Object.keys(this.ticket_qty).forEach(spec => {
-                            this.ticket_qty[spec] = { ...spec_condition };
-                        });
-                    }
+                    this.resetSpecs();
 
                     this.checkOut();
                     this.$forceUpdate();
