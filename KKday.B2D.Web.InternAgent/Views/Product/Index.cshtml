@@ -881,7 +881,7 @@
             resetCalendar() {
                 this.sel_sdate = this.sel_edate = null;
                 this.dates.forEach(dt => dt.selected = false);
-                this.filter_options = { sku_id: null, timeslot: null }; 
+                this.filter_options = { sku_id: null, timeslot: null };
             },
             render() {
                 console.log(`Calendar render => sdate:${this.sel_sdate}, edate:${this.sel_edate}, go_date_setting:${JSON.stringify(this.go_date_setting)}`);
@@ -949,7 +949,7 @@
                         // Precise price processing
                         let precise_price = this.getPrecisePrice(szdate);
                         if (precise_price) {
-                            _high_price = _low_price = precise_price; 
+                            _high_price = _low_price = precise_price;
                         }
                         // Matching sku has no price
                         else if (this.filter_options.sku_id) {
@@ -1231,13 +1231,13 @@
             emitter.on('load-package-complete', (data) => {
                 if (data === this.pkg.pkg_no) {
                     this.getAvDates();
-                    this.render(); 
+                    this.render();
                 }
             });
 
             emitter.on('unselect-package', (data) => {
                 if (data === this.pkg.pkg_no) {
-                    this.resetCalendar(); 
+                    this.resetCalendar();
                     this.$forceUpdate();
                 }
             });
@@ -1270,7 +1270,7 @@
                 ticket_qty: {},
                 price: 0,
                 totalPrice: 0,
-                specAlert: '', 
+                specAlert: '',
                 manual_setting: {},
                 unit: '',
                 unit_label: '',
@@ -1319,7 +1319,7 @@
             <label>@Localizer["Select_Quantity"]</label>
             <div class="counter-item" v-for="sp_item in spec.spec_items">
                 <div class="counter-row">
-                    <div class="counter-name">{{sp_item.name}}<span class="text-grey-light text-xs" v-show="sp_item.rule?.age_rule?.min || sp_item.rule?.age_rule?.max">{{'@Localizer["Age_Range"]'.replace('%0', sp_item.rule?.age_rule?.min).replace('%1', sp_item.rule?.age_rule?.max)}}</span></div>
+                    <div class="counter-name">{{sp_item.name}}<span class="text-grey-light text-xs" v-html="showSpecRule(sp_item.rule)"></span></div>
                     <div class="counter-price"> {{currency}} {{getSkuPrice(sp_item.spec_item_oid)}}/@Localizer["Item_UnitPer"]{{unit}}</div>
                     <div class="counter">
                         <button class="counter-btn minus" :class="{'disabled' : !ticket_qty[sp_item.spec_item_oid]?.can_minus }" :disabled="!ticket_qty[sp_item.spec_item_oid]?.can_minus"  title="" @@click="minus(sp_item.spec_item_oid)"><i class="icons icon-minus"></i></button>
@@ -1361,7 +1361,7 @@
                 handler: function () {
                     console.log(`date changed, dates: ${JSON.stringify(this.sel_date)}, pkg_no: ${this.pkg.pkg_no}`);
                     this.checkTimeslot();
-                    this.refrehTotal(); 
+                    this.refrehTotal();
                 }
             },
             sel_spec_items: {
@@ -1604,7 +1604,7 @@
                     if (total_qty > rule.max_quantity || total_qty < rule.min_quantity) grand_total = 0;
                 }
 
-                this.totalPrice = grand_total; 
+                this.totalPrice = grand_total;
             },
             checkQuantity(total_qty, skus) {
                 let unmatch_count = 0;
@@ -1829,6 +1829,22 @@
                 // redirect to booking
                 alert('Redirect to booking...')
                 window.location.href = `${_root_path}Booking`;
+            },
+            showSpecRule(rule) {
+                let age_rule = null, height_rule = null;
+                if (Object.keys(rule?.age_rule).length > 0) {
+                    if (rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Range"]'.replace('%0', rule.age_rule?.min).replace('%1', rule.age_rule?.max);
+                    else if (rule.age_rule?.min && !rule.age_rule?.max) age_rule = '@Localizer["Age_Above"]'.replace('%0', rule.age_rule?.min);
+                    else if (!rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Under"]'.replace('%0', rule.age_rule?.max);
+                }
+                if (Object.keys(rule?.height_rule).length > 0) {
+                    if (rule.height_rule?.min && rule.height_rule?.max) height_rule = '@Localizer["Height_Range"]'.replace('%0', rule.height_rule?.min).replace('%1', rule.height_rule?.max);
+                    else if (rule.height_rule?.min && !rule.height_rule?.max) age_rule = '@Localizer["Height_Above"]'.replace('%0', rule.height_rule?.min);
+                    else if (!rule.height_rule?.min && rule.height_rule?.max) age_rule = '@Localizer["Height_Under"]'.replace('%0', rule.height_rule?.max);
+                }
+
+                console.log(`showSpecRule => ${JSON.stringify(rule)}, age: ${age_rule}, height: ${height_rule}`);
+                return age_rule && height_rule ? `${age_rule} / ${height_rule}` : (age_rule && !height_rule ? age_rule : (!age_rule && height_rule ? height_rule : ''));
             }
         },
         created: function () {
@@ -1841,7 +1857,7 @@
             this.pkg = props.pkg;
         },
         computed: {
-            
+
         },
         mounted: function () {
             emitter.on('clicked-show-detail', (data) => {
@@ -1851,7 +1867,7 @@
                 }
                 // If the product is for opendate, then default the selected first available date from pkg
                 if (app.checkOpenDate()) {
-                    const pkg_cal_date = Object.keys(this.pkg.item[0].skus[0].calendar_detail)[0]; 
+                    const pkg_cal_date = Object.keys(this.pkg.item[0].skus[0].calendar_detail)[0];
                     this.sel_date = { s_date: pkg_cal_date, e_date: pkg_cal_date };
                 }
             });
