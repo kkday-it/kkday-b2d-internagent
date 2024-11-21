@@ -208,24 +208,29 @@ namespace KKday.B2D.Web.InternAgent.Controllers
             try
             {
                 B2DBookingModel booking = JsonSerializer.Deserialize<B2DBookingModel>(JsonSerializer.Serialize(req));
-                
+
                 if (booking != null)
                 {
                     //call booking
                     var bookProxy = HttpContext.RequestServices.GetService<BookingProxy>();
                     var result = bookProxy.Booking(booking);
-                    if (string.IsNullOrEmpty(result.order_no))
+                    if (!string.IsNullOrEmpty(result.order_no))
+                    {
+                        rs.Add("order_no", result.order_no);
+                    }
+                    else
                     {
                         throw new Exception(result.result_msg);
                     }
                 }
 
-                rs.Add("result", "OK");
+                rs.Add("status", "OK");
                 return Json(rs);
             }
             catch (Exception ex)
             {
-                rs.Add("result", $"Booking Failure: {ex.Message}");
+                rs.Add("status", "FAIL");
+                rs.Add("msg", $"Booking Failure: {ex.Message}");
                 return Json(rs);
             }
         }

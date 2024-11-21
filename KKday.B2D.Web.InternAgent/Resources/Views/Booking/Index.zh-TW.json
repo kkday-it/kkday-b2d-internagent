@@ -4527,5 +4527,6 @@
   "booking_step1_voucher_info_voucher_counter": "取票櫃檯",
   "booking_step1_buyer_first_name": "訂購人名",
   "booking_step1_buyer_last_name": "訂購人姓",
-  "booking_step1_parner_order_no": "分銷商訂編"
+  "booking_step1_parner_order_no": "分銷商訂編",
+  "Place_Order_Loading": "進行預訂"
 }

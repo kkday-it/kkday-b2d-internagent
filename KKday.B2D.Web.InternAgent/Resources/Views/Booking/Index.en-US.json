@@ -4527,5 +4527,6 @@
   "booking_step1_voucher_info_voucher_counter": "Collection counter",
   "booking_step1_buyer_first_name": "Buyer First Name",
   "booking_step1_buyer_last_name": "Buyer Last Name",
-  "booking_step1_parner_order_no": "Parner Order No."
+  "booking_step1_parner_order_no": "Parner Order No.",
+  "Place_Order_Loading": "Make a booking"
 }

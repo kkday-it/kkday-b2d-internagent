@@ -10,21 +10,21 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     public class BookingField
     {
         public string result { get; set; }
-        public string result_msg { get; set; }
+        public string? result_msg { get; set; }
 
-        public string prod_no { get; set; }
+        public Int64 prod_no { get; set; }
 
         // cus_01 (Leader), cus_02 (Travelers), send (Receiver), contact (During travel)
-        public Custom custom { get; set; }
+        public Custom? custom { get; set; }
 
         // flight, rentcar_01 (A to A), rentcar_02 (A to B), pickup_03 (Pickup/Dropoff),
         // rentcar_03 (Charter) + pickup_04 (Pickup/Dropoff), passenger_qty, voucher
-        public List<Traffic> traffics { get; set; }
+        public List<Traffic>? traffics { get; set; }
 
         // sim & wifi
-        public MobileDevice mobile_device { get; set; }
+        public MobileDevice? mobile_device { get; set; }
 
-        public GuideLang guide_lang { get; set; }
+        public GuideLang? guide_lang { get; set; }
 
         //public EventBackup event_backup { get; set; }
         //public Dictionary<string, RequireType> ref_pkg { get; set; }
