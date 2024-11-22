@@ -991,9 +991,9 @@
                         </div>
                     </div>
                     <!-- Receive Address Info -->
-                    <div class="row" v-show="checkBookingField('custom.country_cities', 'send')">
+                    <div class="row" v-if="checkBookingField('custom.country_cities', 'send') || checkBookingField('custom.zipcode', 'send') || checkBookingField('custom.address', 'send')">
                         <div class="col-12 mb-2">@Localizer["booking_step1_send_data_receive_address"]</div>
-                        <div class="col-md-4 col-sm-6 col-xs-12">
+                        <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.country_cities', 'send')">
                             <!-- Receive Country -->
                             <div class="form-group">
                                 <small>@Localizer["booking_step1_send_data_receive_address_country"]</small><span class="text-danger">*</span>
@@ -1005,7 +1005,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4 col-sm-6 col-xs-12">
+                        <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.country_cities', 'send')">
                             <!-- Receive City -->
                             <div class="form-group">
                                 <small>@Localizer["booking_step1_send_data_receive_address_city"]</small><span class="text-danger">*</span>
@@ -1576,7 +1576,7 @@
 
                 try {
                     if (rendCar != null) {
-                        let refTemp = getValue(rendCar, path + '.list_option');
+                        let refTemp = getValue(rendCar, path + '.location_list'); 
                         return refTemp;
                     }
                     else {

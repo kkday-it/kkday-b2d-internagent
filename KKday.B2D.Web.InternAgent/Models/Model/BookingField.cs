@@ -212,6 +212,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string is_visible { get; set; }
         public string ref_source { get; set; }
         public string type { get; set; }
+        public List<string> use { get; set; }
+        public string? traffic_type_value { get; set; }
     }
 
     public partial class Traffic
@@ -262,37 +264,38 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public partial class TrafficType : TrafficAttribute
     { 
-        public string traffic_type_value { get; set; }
+        public string? traffic_type_value { get; set; }
     }
 
     public partial class ArrivalFlightType : TrafficAttribute
     { 
-        public List<IdName> list_option { get; set; }
+        public List<IdName>? list_option { get; set; }
     }
 
     public partial class ArrivalAirport : TrafficAttribute
     { 
-        public List<AirIdName> list_option { get; set; }
+        public List<AirIdName>? list_option { get; set; }
     }
 
     public partial class DepartureFlightType : TrafficAttribute
     { 
-        public List<IdName> list_option { get; set; }
+        public List<IdName>? list_option { get; set; }
     }
 
     public partial class DepartureAirport : TrafficAttribute
     { 
-        public List<AirIdName> list_option { get; set; }
+        public List<AirIdName>? list_option { get; set; }
     }
 
     public partial class Slocation : TrafficAttribute
     { 
-        public List<SlocaitonInfo> list_option { get; set; } 
+        public List<SlocaitonInfo>? list_option { get; set; }
+        public List<SlocaitonInfo>? location_list { get; set; }
     }
 
     public partial class TrafficTime : TrafficAttribute
     {
-        public List<TimeInfo> list_option { get; set; }
+        public List<TimeInfo>? list_option { get; set; }
     }
 
     public partial class AirIdName

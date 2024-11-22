@@ -199,11 +199,11 @@
                         </div>
                         <div class="row"> 
                             <div class="col-md-6 option-item-calendar">
-                                <calendar-section :pkg="item"></calendar-section>
+                                <calendar-section ref="calendar" :pkg="item"></calendar-section>
                             </div>
                             <div class="col-md-6 option-item-sku">
                                 <div class="h4" v-if="checkOpenDate(prod.go_date_setting.type)">@Localizer["SelectOptions_Title"]</div>
-                                <spec-section :pkg="item"></spec-section>
+                                <spec-section ref="skus" :pkg="item"></spec-section>
                             </div> 
                         </div>
                     </div>
@@ -952,8 +952,8 @@
                             _high_price = _low_price = precise_price;
                         }
                         // Matching sku has no price
-                        else if (this.filter_options.sku_id) {
-                            console.log(`cal render has filter => ${this.filter_options.sku_id}`)
+                        else if (this.filter_options.sku_id && this.filter_options.timeslot) {
+                            console.log(`cal render has filter => ${this.filter_options.sku_id}, no precise_price`)
                             _invalid = true;
                         }
                     }
@@ -1087,8 +1087,8 @@
                         console.log(`cal refresh => ${d.full_date}, sku_id=${this.filter_options.sku_id}, precise_price: ${price}`)
                         if (!price) {
                             // Matching sku has no price
-                            if (this.filter_options.sku_id) {
-                                if (d.selected && !this.av_dates.find(dt => dt != d)) {
+                            if (this.filter_options.sku_id && this.filter_options.timeslot) {
+                                if (d.selected) {
                                     this.sel_sdate = this.sel_edate = null;
                                     d.selected = false; // Reset selected date
                                 }
@@ -1102,7 +1102,9 @@
                         else d.invalid = false;
 
                         d.highest_price = d.lowest_price = price;
-
+                    }
+                    else {
+                        console.log(`date: ${d.full_date} is disabled`);
                     }
                 });
                 this.$forceUpdate();
@@ -1411,7 +1413,7 @@
                 }
 
                 if (this.pkg.item[0].has_event) {
-                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price))))])))];
+                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
                     times.forEach(t => {
                         this.time_slots.push({ time: t, selected: false, disabled: false });
                     });
@@ -1672,7 +1674,7 @@
                     // force to un-select and disable to all time slots
                     this.time_slots.forEach(t => { t.selected = false; t.disabled = true; });
                     // restore disable status to available time slots
-                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price))))])))];
+                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
                     // console.log(`checkTimeslot => times: ${JSON.stringify(times)}`)
                     this.time_slots.filter(t => times.some(tm => tm === t.time)).forEach(t => {
                         t.disabled = false;
@@ -1832,19 +1834,22 @@
             },
             showSpecRule(rule) {
                 let age_rule = null, height_rule = null;
-                if (Object.keys(rule?.age_rule).length > 0) {
-                    if (rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Range"]'.replace('%0', rule.age_rule?.min).replace('%1', rule.age_rule?.max);
-                    else if (rule.age_rule?.min && !rule.age_rule?.max) age_rule = '@Localizer["Age_Above"]'.replace('%0', rule.age_rule?.min);
-                    else if (!rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Under"]'.replace('%0', rule.age_rule?.max);
+                console.log(`spec rule => ${JSON.stringify(rule)}`)
+                if (rule) {
+                    if (Object.keys(rule?.age_rule).length > 0) {
+                        if (rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Range"]'.replace('%0', rule.age_rule?.min).replace('%1', rule.age_rule?.max);
+                        else if (rule.age_rule?.min && !rule.age_rule?.max) age_rule = '@Localizer["Age_Above"]'.replace('%0', rule.age_rule?.min);
+                        else if (!rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Under"]'.replace('%0', rule.age_rule?.max);
+                    }
+                    if (Object.keys(rule?.height_rule).length > 0) {
+                        if (rule.height_rule?.min && rule.height_rule?.max) height_rule = '@Localizer["Height_Range"]'.replace('%0', rule.height_rule?.min).replace('%1', rule.height_rule?.max);
+                        else if (rule.height_rule?.min && !rule.height_rule?.max) age_rule = '@Localizer["Height_Above"]'.replace('%0', rule.height_rule?.min);
+                        else if (!rule.height_rule?.min && rule.height_rule?.max) age_rule = '@Localizer["Height_Under"]'.replace('%0', rule.height_rule?.max);
+                    }
+                    console.log(`showSpecRule => ${JSON.stringify(rule)}, age: ${age_rule}, height: ${height_rule}`);
+                    return age_rule && height_rule ? `${age_rule} / ${height_rule}` : (age_rule && !height_rule ? age_rule : (!age_rule && height_rule ? height_rule : ''));
                 }
-                if (Object.keys(rule?.height_rule).length > 0) {
-                    if (rule.height_rule?.min && rule.height_rule?.max) height_rule = '@Localizer["Height_Range"]'.replace('%0', rule.height_rule?.min).replace('%1', rule.height_rule?.max);
-                    else if (rule.height_rule?.min && !rule.height_rule?.max) age_rule = '@Localizer["Height_Above"]'.replace('%0', rule.height_rule?.min);
-                    else if (!rule.height_rule?.min && rule.height_rule?.max) age_rule = '@Localizer["Height_Under"]'.replace('%0', rule.height_rule?.max);
-                }
-
-                console.log(`showSpecRule => ${JSON.stringify(rule)}, age: ${age_rule}, height: ${height_rule}`);
-                return age_rule && height_rule ? `${age_rule} / ${height_rule}` : (age_rule && !height_rule ? age_rule : (!age_rule && height_rule ? height_rule : ''));
+                else return null;
             }
         },
         created: function () {
