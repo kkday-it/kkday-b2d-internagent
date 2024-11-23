@@ -952,7 +952,8 @@
                             _high_price = _low_price = precise_price;
                         }
                         // Matching sku has no price
-                        else if (this.filter_options.sku_id && this.filter_options.timeslot) {
+                        else if (this.filter_options.sku_id && this.filter_options.timeslot ||
+                            this.filter_options.sku_id && !this.pkg.item[0].has_event) {
                             console.log(`cal render has filter => ${this.filter_options.sku_id}, no precise_price`)
                             _invalid = true;
                         }
@@ -1087,7 +1088,8 @@
                         console.log(`cal refresh => ${d.full_date}, sku_id=${this.filter_options.sku_id}, precise_price: ${price}`)
                         if (!price) {
                             // Matching sku has no price
-                            if (this.filter_options.sku_id && this.filter_options.timeslot) {
+                            if (this.filter_options.sku_id && this.filter_options.timeslot ||
+                                this.filter_options.sku_id && !this.pkg.item[0].has_event) {
                                 if (d.selected) {
                                     this.sel_sdate = this.sel_edate = null;
                                     d.selected = false; // Reset selected date

@@ -191,6 +191,7 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 jsonData.Add("booking", bookingmodel);
                 jsonData.Add("bookingfield", bookingfield);
                 jsonData.Add("allow_change_pax", allow_change_pax);
+                jsonData.Add("prod_info", req.extra);
 
                 return Json(jsonData);
             }
