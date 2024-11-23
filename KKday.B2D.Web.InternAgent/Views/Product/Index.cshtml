@@ -856,9 +856,9 @@
                     @@click="dateChanged(dt);">
                         <div v-if="dt.date===0"></div>
                         <div class="date-num" v-else>{{dt.date}}</div>
-                        <div class="price" v-if="dt.date!==0 && dt.lowest_price && dt.lowest_price===dt.highest_price">{{PriceFormat(dt.lowest_price)}}</div>
-                        <div class="price" v-if="dt.date!==0 && dt.lowest_price && dt.lowest_price!==dt.highest_price">{{PriceFormat(dt.lowest_price)}}{{date_price_str}}</div>
-                        <div class="price" v-if="dt.date!==0 && dt.soldout==='true'">{{sold_out_str}}</div>
+                        <div class="price" v-if="dt.date!=0 && dt.lowest_price >= 0 && dt.lowest_price===dt.highest_price">{{PriceFormat(dt.lowest_price)}}</div>
+                        <div class="price" v-else-if="dt.date!=0 && dt.lowest_price >= 0 && dt.lowest_price!=dt.highest_price">{{PriceFormat(dt.lowest_price)}}{{date_price_str}}</div>
+                        <div class="price" v-else-if="dt.date!=0 && dt.soldout==='true'">{{sold_out_str}}</div>
                     </td>
                 </tr>
             </tbody>
@@ -955,6 +955,7 @@
                         else if (this.filter_options.sku_id && this.filter_options.timeslot ||
                             this.filter_options.sku_id && !this.pkg.item[0].has_event) {
                             console.log(`cal render has filter => ${this.filter_options.sku_id}, no precise_price`)
+                            _high_price = _low_price = purposed_price;
                             _invalid = true;
                         }
                     }
@@ -1061,7 +1062,7 @@
                         }
                     }
                 }
-            },
+            }, 
             getPrecisePrice(date) {
                 let price = null;
                 if (this.filter_options.sku_id) {
@@ -1104,6 +1105,7 @@
                         else d.invalid = false;
 
                         d.highest_price = d.lowest_price = price;
+                        console.log(`cal refresh => date: ${d.full_date}, final price:${price}`);
                     }
                     else {
                         console.log(`date: ${d.full_date} is disabled`);
@@ -1247,9 +1249,11 @@
             });
 
             emitter.on('show_precise_price', (data) => {
-                this.filter_options.sku_id = data.sku_id;
-                this.filter_options.timeslot = data.timeslot;
-                this.RefreshPrice();
+                if (data.pkg_no === this.pkg.pkg_no) {
+                    this.filter_options.sku_id = data.sku_id;
+                    this.filter_options.timeslot = data.timeslot;
+                    this.RefreshPrice();
+                }
             });
 
         }
@@ -1265,7 +1269,6 @@
         data: function () {
             return {
                 mode: '01',
-                pkg: {},
                 specs: [],
                 time_slots: [],
                 currency: '@Website.Instance.Currency',
@@ -1727,7 +1730,7 @@
                 let sel_specs = [...this.sel_spec_items];
                 if (this.mode === '02') sel_specs.push('adult');
                 let sku_id = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => sel_specs.indexOf(r.spec_value_id) != -1)).map(s => s.sku_id).join(",");
-                emitter.emit('show_precise_price', { sku_id: sku_id, timeslot: this.sel_time_slot });
+                emitter.emit('show_precise_price', { pkg_no: this.pkg.pkg_no, sku_id: sku_id, timeslot: this.sel_time_slot });
 
                 setTimeout(() => {
                     this.checkOut();
