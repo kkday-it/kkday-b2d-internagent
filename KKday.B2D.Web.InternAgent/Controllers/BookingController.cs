@@ -89,9 +89,13 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                     // Unit(01) is Traveler
                     if (req.extra.unit_code == "01")
                     {
-                        for (var psg = 0; psg < qty; psg++)
+                        // cus_type value contains:
+                        //   "cus_01" only: requires a traveler as leader..
+                        //   "cus_02": all travelers need to be listed.
+                        var pax_count = bookingfield?.custom?.cus_type?.list_option.Where(x => x == "cus_02").Count() > 0 ? qty : 1;
+                        for (var psg = 0; psg < pax_count; psg++)
                         {
-                            bookingmodel.custom.Add(new CustomBooking() { cus_type = qty == 1 ? "cus_01" : "cus_02" });
+                            bookingmodel.custom.Add(new CustomBooking() { cus_type = pax_count == 1 ? "cus_01" : "cus_02" });
                         }
                     }
                     // Other Unit

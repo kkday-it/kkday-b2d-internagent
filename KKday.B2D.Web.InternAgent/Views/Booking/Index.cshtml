@@ -143,7 +143,12 @@
                 <div class="traveler-con">
                     <div class="d-flex">
                         <h4 class="flex-grow-1">
-                            @Localizer["common_cus"] <span v-html="idx+1"></span>
+                            <span v-if="booking.custom.filter(c=>c.cus_type === 'cus_02').length <= 1">
+                                @Localizer["booking_step1_lead_traveler"]
+                            </span>
+                            <span v-else="">
+                                @Localizer["common_cus"] <span v-html="idx+1"></span>
+                            </span>
                         </h4>
                         <span class="align-self-end" style="font-size: 2.6rem;" onclick="TogglePaxPanel(this)"><i class="fa fa-angle-up ml-auto" aria-hidden="true"></i></span>
                     </div>
