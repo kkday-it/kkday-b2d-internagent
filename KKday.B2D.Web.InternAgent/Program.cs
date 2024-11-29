@@ -50,6 +50,7 @@ builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation().AddViewL
     AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+        options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
     });
 
 

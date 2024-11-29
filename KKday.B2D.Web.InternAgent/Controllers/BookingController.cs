@@ -7,7 +7,10 @@ using KKday.B2D.Web.InternAgent.Models.Model;
 using Microsoft.AspNetCore.Mvc;
 using KKday.B2D.Web.InternAgent.AppCode;
 using KKday.B2D.Web.InternAgent.Proxy;
-using System.Globalization; 
+using System.Globalization;
+using System.Net;
+using Microsoft.Extensions.Options;
+using System.Text.Json.Serialization;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -38,13 +41,17 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 {
                     prod_no = req.prod_no,
                     locale = locale,
-                    state = Website.Instance.Marketing, 
+                    state = Website.Instance.Marketing,
                     pkg_no = req.pkg_no,
                     s_date = req.s_date
                 });
 
                 Console.WriteLine($"BookingField => {bookingfieldJson}");
-                var bookingfield = System.Text.Json.JsonSerializer.Deserialize<BookingField>(bookingfieldJson);
+                var jsonOptions = new JsonSerializerOptions()
+                {
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString
+                };
+                var bookingfield = System.Text.Json.JsonSerializer.Deserialize<BookingField>(bookingfieldJson, jsonOptions);
 
                 /////
                 
@@ -72,16 +79,23 @@ namespace KKday.B2D.Web.InternAgent.Controllers
 
                 // var cus_type = (bookingfield?.custom?.cus_type?.list_option.Where(x => x == "cus_01")?.ToList()?.Count > 0) ? "cus_01" : "cus_02";
                 var has_psg = bookingfield?.custom?.cus_type?.list_option.Where(x => x == "cus_01" || x == "cus_02").Count() > 0 ? true : false;
+                var allow_change_pax = req.extra.unit_code != "01" && has_psg ? true : false;
 
                 bookingmodel.custom = new List<CustomBooking>();
 
                 // Expand travelers
-                if (req.extra.unit_code == "01" && has_psg)
+                if (has_psg)
                 {
-                    for(var psg = 0; psg < qty; psg++)
+                    // Unit(01) is Traveler
+                    if (req.extra.unit_code == "01")
                     {
-                        bookingmodel.custom.Add(new CustomBooking() { cus_type = qty == 1 ? "cus_01" : "cus_02" });
+                        for (var psg = 0; psg < qty; psg++)
+                        {
+                            bookingmodel.custom.Add(new CustomBooking() { cus_type = qty == 1 ? "cus_01" : "cus_02" });
+                        }
                     }
+                    // Other Unit
+                    else bookingmodel.custom.Add(new CustomBooking() { cus_type = "cus_02" });
                 }
                  
                 if (bookingfield?.custom?.cus_type?.list_option.Where(x => x == "contact")?.ToList()?.Count > 0)
@@ -176,12 +190,14 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                   
                 jsonData.Add("booking", bookingmodel);
                 jsonData.Add("bookingfield", bookingfield);
+                jsonData.Add("allow_change_pax", allow_change_pax);
+                jsonData.Add("prod_info", req.extra);
 
                 return Json(jsonData);
             }
             catch (Exception ex)
             {
-                return Json(null);
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
 
@@ -193,20 +209,29 @@ namespace KKday.B2D.Web.InternAgent.Controllers
             try
             {
                 B2DBookingModel booking = JsonSerializer.Deserialize<B2DBookingModel>(JsonSerializer.Serialize(req));
-                
+
                 if (booking != null)
                 {
                     //call booking
                     var bookProxy = HttpContext.RequestServices.GetService<BookingProxy>();
                     var result = bookProxy.Booking(booking);
+                    if (!string.IsNullOrEmpty(result.order_no))
+                    {
+                        rs.Add("order_no", result.order_no);
+                    }
+                    else
+                    {
+                        throw new Exception(result.result_msg);
+                    }
                 }
 
-                rs.Add("result", "OK");
+                rs.Add("status", "OK");
                 return Json(rs);
             }
             catch (Exception ex)
             {
-                rs.Add("result", "Failure");
+                rs.Add("status", "FAIL");
+                rs.Add("msg", $"Booking Failure: {ex.Message}");
                 return Json(rs);
             }
         }

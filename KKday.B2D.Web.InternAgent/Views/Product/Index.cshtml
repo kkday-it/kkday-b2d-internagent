@@ -12,13 +12,7 @@
 @section Styles {
     <link rel="stylesheet" href="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.css" />
     <style type="text/css">
-        [v-cloak] > * {
-            display: none
-        }
-
-        [v-cloak]::before {
-            content: "Loading…"
-        }
+         
     </style>
 }
 @section Scripts {
@@ -28,7 +22,7 @@
 
 }
 
-<div id="App" class="product-detail-wrap">
+<div id="App" class="product-detail-wrap" v-cloak>
     <div class="container">
         <div>
             <div class="text-right text-grey-light pull-right text-xs mt-15">
@@ -70,7 +64,7 @@
                 <div class="col-md-8">
                     <div id="prodInfo">
                         <div class="product-name">
-                            <h1>{{ prod.prod_name }} </h1>
+                            <h1 v-html="prod.prod_name"></h1>
                             <ul class="product-action list-unstyled">
                                 <li><div id="product-action-add-to-wish-list" class="btn-wish"><i class="fa fa-heart-o"></i></div></li>
                             </ul>
@@ -118,7 +112,7 @@
                             <div class="container">
                                 <div class="price-info">
                                     <div class="product-pricing text-left">
-                                        <h2 class="text-heavy" v-html="'@Localizer[Website.Instance.Currency] ' + (prod.b2b_min_price ? prod.b2b_min_price : '-')"></h2> <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span> <!---->
+                                        <h2 class="text-heavy" v-html="'@Localizer[Website.Instance.Currency] ' + (prod.b2b_min_price ? Number(prod.b2b_min_price.toFixed(02)) : '-')"></h2> <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span> <!---->
                                     </div>
 
                                     <div class="product-score" v-if="prod.prod_comment_info && prod.prod_comment_info.avg_scores != '0'">
@@ -158,7 +152,7 @@
     <!-- Packages -->
     <div id="option-sec" class="new-product option-section" v-if="pkg && Object.keys(pkg).length > 0">
         <div class="container">
-            <h3 class="info-title" v-html="'@Localizer["Select_Package"]'"></h3>
+            <h3 class="info-title" v-html="'@Localizer["About_Item"]'"></h3>
             <template v-for="item in pkg">
                 <div class="option-item" :id="'pkg_' + item.pkg_no" :data-pkgno="item.pkg_no">
                     <div class="option-head">
@@ -179,7 +173,7 @@
                             <span v-if="isSoldout(item)">@Localizer["Sold_Out"]</span>
                             <div class="product-pricing" v-if="!isSoldout(item)">
                                 <h4>
-                                    <span class="text-grey" v-html="`@Localizer[Website.Instance.Currency] ${item.b2b_min_price}`"></span>
+                                    <span class="text-grey">@Localizer[Website.Instance.Currency] {{ Number((item.b2b_min_price ?? prod.b2b_min_price).toFixed(02)) }}</span>
                                     <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span>
                                 </h4>
                             </div>
@@ -192,7 +186,7 @@
                         </div>
                     </div>
                     <div class="option-booking">
-                        <h4>
+                        <div class="h4">
                             <div class="pull-right">
                                 <a class="link-secondary a-reload" @@click="optionReload(item.pkg_no)">
                                     <i class="icons icon-reload"></i>
@@ -200,14 +194,16 @@
                                 </a>
                             </div>
                             <!-- Date Picker & Options -->
-                            <div class="choose-date-title">@Localizer["Select_DateAndOptions"]</div>
-                        </h4>
+                            <div class="choose-date-title" v-if="!checkOpenDate(prod.go_date_setting.type)">@Localizer["Select_DateAndOptions"]</div>
+
+                        </div>
                         <div class="row"> 
-                            <div class="col-md-6">
-                                <calendar-section :pkg="item"></calendar-section>
+                            <div class="col-md-6 option-item-calendar">
+                                <calendar-section ref="calendar" :pkg="item"></calendar-section>
                             </div>
-                            <div class="col-md-6">
-                                <spec-section :pkg="item"></spec-section>
+                            <div class="col-md-6 option-item-sku">
+                                <div class="h4" v-if="checkOpenDate(prod.go_date_setting.type)">@Localizer["SelectOptions_Title"]</div>
+                                <spec-section ref="skus" :pkg="item"></spec-section>
                             </div> 
                         </div>
                     </div>
@@ -508,7 +504,9 @@
             this.Query();
         },
         computed: {
-
+            checkOpenDate() {
+                return ['03', '04'].some(el => el === this.prod.go_date_setting.type);
+            }
         },
         methods: {
             Query() {
@@ -601,7 +599,9 @@
                                 pkg.selectable = pkg.item && pkg.item.length > 0;
 
                                 const av_dates = [...new Set([].concat(...pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
-                                this.fetchAllotment(pkg.pkg_no, av_dates[0]);
+                                if (pkg.item[0].inventory_set != 0) {
+                                    this.fetchAllotment(pkg.pkg_no, av_dates[0]);
+                                }
                             }
                             else console.error(`The package(${pkg.pkg_no}) was Loading failed`);
 
@@ -621,6 +621,7 @@
                     pkg_no: pkg_no,
                     s_date: s_date
                 };
+                // console.log(`FetchPackage, req => ${JSON.stringify(req)}`);
 
                 fetch(uri, {
                     method: 'POST',
@@ -632,7 +633,7 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        // console.log(`load more pkg => ${JSON.stringify(data)}`);
+                        // console.log(`FetchPackage, res => ${JSON.stringify(data)}`);
                         let pkg = this.pkg.find(p => p.pkg_no === pkg_no);
                         data.item[0].skus.forEach(s => {
                             let sku = pkg.item[0].skus.find(s2 => s2.sku_id === s.sku_id);
@@ -640,7 +641,10 @@
                                 sku.calendar_detail[dt] = s.calendar_detail[dt];
                             });
 
-                            this.fetchAllotment(pkg_no, s_date);
+                            // Check the pkg needs to check inventory
+                            if (pkg.item[0].inventory_set != 0) {
+                                this.fetchAllotment(pkg_no, s_date);
+                            }
                         });
 
                         emitter.emit('load-package-complete', pkg_no);
@@ -657,7 +661,6 @@
                 };
 
                 // console.log(`fetchAllotment req => ${JSON.stringify(req)}`);
-
                 fetch(`${_root_path}Product/GetAllotment`, {
                     method: 'POST',
                     headers: {
@@ -683,7 +686,7 @@
             },
             journeyTime() {
                 if (!(this.prod.days || this.prod.hours || this.prod.duration)) return '';
-                let duration = `${this.prod.days == 0 ? "" : this.prod.days + ' @Localizer["Day"]'} ${this.prod.hours == 0 ? "" : this.prod.hours + ' @Localizer["Hour"]'} ${this.prod.duration == 0 ? "" : this.prod.duration + ' @Localizer["Minute"]'}`;
+                let duration = `${this.prod.days ? this.prod.days + ' @Localizer["Day"]' : ""} ${this.prod.hours ? this.prod.hours + ' @Localizer["Hour"]' : ""} ${this.prod.duration ? this.prod.duration + ' @Localizer["Minute"]' : ""}`;
                 return `@Localizer["Journey_Time"] ${duration}`;
             },
             startScore() {
@@ -744,12 +747,16 @@
                 else {
                     emitter.emit('clicked-show-detail', pkg.pkg_no);
                     pkg.show = true;
+                    this.$forceUpdate();
                     $('#pkg_' + pkg.pkg_no).find('.option-booking').show();
                 }
             },
             optionReload(pkg_no) {
                 emitter.emit('unselect-package', pkg_no);
-            }
+            },
+            checkOpenDate() {
+                return ['03', '04'].some(el => el === this.prod.go_date_setting.type);
+            },
         },
         mounted: function () {
             emitter.on('load-package', (data) => {
@@ -768,8 +775,6 @@
         props: ['pkg'],
         data: function () {
             return {
-                pkg: null,
-                calendar_type: null,
                 year: new Date().getFullYear(),
                 month: new Date().getMonth(),
                 date: new Date(),
@@ -782,11 +787,42 @@
                 sel_sdate: '',
                 sel_edate: '',
                 go_date_setting: null,
-                is_date_range: false
+                is_date_range: false,
+                filter_options: { sku_id: null, timeslot: null }
             }
         },
         template: `
-    <div v-if="calendar_type==='03' || calendar_type==='04'" class="option_item_info">
+    <div v-if="app.checkOpenDate()" class="option_item_info">
+        <div class="h4 mt-0">@Localizer["PackageDetails_Title"]</div>
+        <ul class="option-list list-unstyled">
+            <li v-if="pkg.confirm_time == 0"><i class="ri-flashlight-fill"></i> <span class="option-list__title">@Localizer["InstantConfirm_Label"]</span></li>
+            <!---->
+            <!---->
+        </ul>
+        <!---->
+        <!---->
+        <div class="option-fee border-top mt-1" v-if="pkg.description_module.PMDL_INC_NINC">
+            <h5 v-html="pkg.description_module.PMDL_INC_NINC.module_title"></h5>
+            <div class="option-inc-ninc d-flex">
+                <ul class="fee-list include list-unstyled">
+                    <template v-for="item in pkg.description_module.PMDL_INC_NINC.content.properties.include_item.list">
+                    <li><i class="ri-check-line"></i> <span class="fee-list__title" v-html="item.desc"></span></li>
+                    </template>
+                </ul>
+                <ul class="fee-list uninclude list-unstyled">
+                    <template v-for="item in pkg.description_module.PMDL_INC_NINC.content.properties.not_include_item.list">
+                    <li><i class="ri-close-line"></i> <span class="fee-list__title" v-html="item.desc"></span></li>
+                    </template>
+                </ul>
+            </div>
+        </div>
+        <!---->
+        <div class="option-use-date border-top mt-1" v-if="pkg.description_module.PMDL_EXCHANGE_VALID">
+            <h5 v-html="pkg.description_module.PMDL_EXCHANGE_VALID.module_title"></h5>
+            <ul class="">
+                <li v-html="pkg.description_module.PMDL_EXCHANGE_VALID.content.properties.exchange.desc"></li>
+            </ul>
+        </div>
     </div>
     <div v-else class="calendar">
         <div class="header">
@@ -814,23 +850,40 @@
             </thead>
             <tbody>
                 <tr class="row-date" v-for="n in 6">
-                    <td class="cell-date" :class="{'disabled':dt.disabled,'invalid':dt.invalid,'selected':dt.selected,'selected-start':dt.sdate && dt.selected,'selected-end':dt.edate && dt.selected}"
+                    <td class="cell-date" :class="{'disabled':dt.disabled || dt.invalid,'invalid':dt.invalid,'selected':dt.selected,'selected-start':dt.sdate && dt.selected,'selected-end':dt.edate && dt.selected}"
                     v-for="(dt, idx) in dates.slice((n-1)*7,n*7)"
                     @@mouseover="MultipleSelect(dt);"
                     @@click="dateChanged(dt);">
                         <div v-if="dt.date===0"></div>
                         <div class="date-num" v-else>{{dt.date}}</div>
-                        <div class="price" v-if="dt.date!==0 && dt.lowest_price && dt.lowest_price===dt.highest_price">{{PriceFormat(dt.lowest_price)}}</div>
-                        <div class="price" v-if="dt.date!==0 && dt.lowest_price && dt.lowest_price!==dt.highest_price">{{PriceFormat(dt.lowest_price)}}{{date_price_str}}</div>
-                        <div class="price" v-if="dt.date!==0 && dt.soldout==='true'">{{sold_out_str}}</div>
+                        <div class="price" v-if="dt.date!=0 && dt.lowest_price >= 0 && dt.lowest_price===dt.highest_price">{{PriceFormat(dt.lowest_price)}}</div>
+                        <div class="price" v-else-if="dt.date!=0 && dt.lowest_price >= 0 && dt.lowest_price!=dt.highest_price">{{PriceFormat(dt.lowest_price)}}{{date_price_str}}</div>
+                        <div class="price" v-else-if="dt.date!=0 && dt.soldout==='true'">{{sold_out_str}}</div>
                     </td>
                 </tr>
             </tbody>
         </table>
         <div class="selected-date" v-if="multi_select_str">{{multi_select_str}} <span class="clear-input" @@click="ResetMultipleSelect"><i class="fa fa-times-circle fa-lg"></i></span></div>
     </div>`,
+        watch: {
+            sel_sdate: function () {
+                emitter.emit('date-changed', {
+                    pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate }
+                });
+            },
+            sel_edate: function () {
+                emitter.emit('date-changed', {
+                    pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate }
+                });
+            },
+        },
         methods: {
-            Render() {
+            resetCalendar() {
+                this.sel_sdate = this.sel_edate = null;
+                this.dates.forEach(dt => dt.selected = false);
+                this.filter_options = { sku_id: null, timeslot: null };
+            },
+            render() {
                 console.log(`Calendar render => sdate:${this.sel_sdate}, edate:${this.sel_edate}, go_date_setting:${JSON.stringify(this.go_date_setting)}`);
 
                 const months = [
@@ -872,6 +925,9 @@
                     });
                 }
 
+                let purposed_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
+                // console.log(`cal render => low: ${pkg_low_price}, height: ${pkg_high_price}`)
+
                 // Loop to add the dates of the current month
                 for (let i = 1; i <= lastdate; i++) {
 
@@ -880,14 +936,30 @@
                         && this.month === new Date().getMonth()
                         && this.year === new Date().getFullYear()) ? true : false;
 
-                    let _low_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
-                    let _high_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
+                    let _low_price = purposed_price, _high_price = purposed_price;
                     let _disabled = false, _invalid = false;
                     let szdate = `${this.year}-${('0' + (this.month + 1)).slice(-2)}-${('0' + i).slice(-2)}`;
+
+                    // If it's invalid date then show empty info
                     if (!this.av_dates.find(d => d === szdate)) {
                         _low_price = _high_price = null;
                         _disabled = _invalid = true;
                     }
+                    else {
+                        // Precise price processing
+                        let precise_price = this.getPrecisePrice(szdate);
+                        if (precise_price) {
+                            _high_price = _low_price = precise_price;
+                        }
+                        // Matching sku has no price
+                        else if (this.filter_options.sku_id && this.filter_options.timeslot ||
+                            this.filter_options.sku_id && !this.pkg.item[0].has_event) {
+                            console.log(`cal render has filter => ${this.filter_options.sku_id}, no precise_price`)
+                            _high_price = _low_price = purposed_price;
+                            _invalid = true;
+                        }
+                    }
+                    // console.log(`cal render => ${szdate}, high_price: ${_high_price}, low_price: ${_low_price}, disabled: ${_disabled}, invalid:${_invalid}`)
 
                     calendar.push({
                         date: `${i}`, full_date: szdate, isToday: _isToday, disabled: _disabled, invalid: _invalid, selected: false,
@@ -928,7 +1000,7 @@
                 this.month = new_date.getMonth();
                 this.date = new_date;
 
-                this.Render();
+                this.render();
                 // console.log(`last start_date: ${this.sel_sdate}, end_date:${this.sel_edate}, is_date_range: ${this.is_date_range}`)
 
                 // Render last selected dates
@@ -990,6 +1062,56 @@
                         }
                     }
                 }
+            }, 
+            getPrecisePrice(date) {
+                let price = null;
+                if (this.filter_options.sku_id) {
+                    let matching_sku = this.pkg.item[0].skus.find(s => s.sku_id === this.filter_options.sku_id);
+                    if (matching_sku) {
+                        let matching_date = matching_sku.calendar_detail[date];
+                        if (matching_date?.b2b_price) {
+                            if (this.filter_options.timeslot) price = matching_date.b2b_price[this.filter_options.timeslot];
+                            else if (!this.pkg.item[0].has_event) price = matching_date.b2b_price["fullday"];
+                        }
+                        else console.log(`cal => ${date}: no b2b_price`)
+                    }
+                    else console.log(`cal => ${date}: no match sku(${this.filter_options.sku_id})`)
+                }
+
+                return price;
+            },
+            RefreshPrice() {
+                console.log(`cal filter_options => ${JSON.stringify(this.filter_options)}`)
+                let purposed_price = Math.min(...this.pkg.item[0].skus.map(s => s.b2b_price));
+                this.dates.forEach(d => {
+                    if (!d.disabled) {
+                        let price = this.getPrecisePrice(d.full_date);
+                        console.log(`cal refresh => ${d.full_date}, sku_id=${this.filter_options.sku_id}, precise_price: ${price}`)
+                        if (!price) {
+                            // Matching sku has no price
+                            if (this.filter_options.sku_id && this.filter_options.timeslot ||
+                                this.filter_options.sku_id && !this.pkg.item[0].has_event) {
+                                if (d.selected) {
+                                    this.sel_sdate = this.sel_edate = null;
+                                    d.selected = false; // Reset selected date
+                                }
+                                d.invalid = true;
+                            }
+                            else {
+                                price = purposed_price; // Default purposed price
+                                d.invalid = false;
+                            }
+                        }
+                        else d.invalid = false;
+
+                        d.highest_price = d.lowest_price = price;
+                        console.log(`cal refresh => date: ${d.full_date}, final price:${price}`);
+                    }
+                    else {
+                        console.log(`date: ${d.full_date} is disabled`);
+                    }
+                });
+                this.$forceUpdate();
             },
             PriceFormat(price) {
                 if (price == null) return '';
@@ -1071,14 +1193,16 @@
                     }
                 }
 
-                emitter.emit('date-changed', { pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate } });
+                // emitter.emit('date-changed', { pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate } });
             },
             getAvDates() {
                 this.av_dates = [...new Set([].concat(...this.pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
             },
             loadMoreData(dt) {
                 let target_date = moment(dt, 'YYYY-MM-DD').subtract(2, 'months');
-                // console.log(`last_date: ${dt}, target_date: ${target_date.format('YYYY-MM-DD')}, sale_e_date: ${this.pkg.sale_e_date}`)
+                if (moment(target_date, 'YYYY-MM-DD') < moment(dt, 'YYYY-MM-DD')) target_date = moment(dt, 'YYYY-MM-DD').add(1, 'months');
+
+                console.log(`last_date: ${dt}, target_date: ${target_date.format('YYYY-MM-DD')}, sale_e_date: ${this.pkg.sale_e_date}`)
 
                 if (this.year === target_date.year() && this.month === target_date.month() - 1) {
                     if (moment(dt, 'YYYY-MM-DD') < moment(this.pkg.sale_e_date, 'YYYY-MM-DD')) {
@@ -1104,24 +1228,34 @@
                         this.year = this.date.getFullYear();
                         this.month = this.date.getMonth();
                     }
-                    this.Render();
+                    this.resetCalendar();
+
+                    this.render();
                 }
             });
 
             emitter.on('load-package-complete', (data) => {
                 if (data === this.pkg.pkg_no) {
                     this.getAvDates();
+                    this.render();
                 }
             });
 
             emitter.on('unselect-package', (data) => {
                 if (data === this.pkg.pkg_no) {
-                    this.sel_sdate = this.sel_edate = null;
-                    this.dates.forEach(dt => dt.selected = false);
-
+                    this.resetCalendar();
                     this.$forceUpdate();
                 }
             });
+
+            emitter.on('show_precise_price', (data) => {
+                if (data.pkg_no === this.pkg.pkg_no) {
+                    this.filter_options.sku_id = data.sku_id;
+                    this.filter_options.timeslot = data.timeslot;
+                    this.RefreshPrice();
+                }
+            });
+
         }
     });
 
@@ -1135,7 +1269,6 @@
         data: function () {
             return {
                 mode: '01',
-                pkg: {},
                 specs: [],
                 time_slots: [],
                 currency: '@Website.Instance.Currency',
@@ -1145,7 +1278,6 @@
                 price: 0,
                 totalPrice: 0,
                 specAlert: '',
-                isBookable: false,
                 manual_setting: {},
                 unit: '',
                 unit_label: '',
@@ -1156,7 +1288,8 @@
                 is_date_range: false
             }
         },
-        template: `<div class="specs">
+        template: `
+<div class="specs">
     <div class="form-group" v-if="time_slots.length > 0">
         <label>@Localizer["Dept_Time_Slots"]</label>
         <div data-toggle="buttons" class="btn-group">
@@ -1193,7 +1326,7 @@
             <label>@Localizer["Select_Quantity"]</label>
             <div class="counter-item" v-for="sp_item in spec.spec_items">
                 <div class="counter-row">
-                    <div class="counter-name">{{sp_item.name}}<span class="text-grey-light text-xs" v-show="sp_item.rule?.age_rule?.min || sp_item.rule?.age_rule?.max">{{'@Localizer["Age_Range"]'.replace('%0', sp_item.rule?.age_rule?.min).replace('%1', sp_item.rule?.age_rule?.max)}}</span></div>
+                    <div class="counter-name">{{sp_item.name}}<span class="text-grey-light text-xs" v-html="showSpecRule(sp_item.rule)"></span></div>
                     <div class="counter-price"> {{currency}} {{getSkuPrice(sp_item.spec_item_oid)}}/@Localizer["Item_UnitPer"]{{unit}}</div>
                     <div class="counter">
                         <button class="counter-btn minus" :class="{'disabled' : !ticket_qty[sp_item.spec_item_oid]?.can_minus }" :disabled="!ticket_qty[sp_item.spec_item_oid]?.can_minus"  title="" @@click="minus(sp_item.spec_item_oid)"><i class="icons icon-minus"></i></button>
@@ -1227,7 +1360,7 @@
     </div>
     <div class="booking-cta">
         <button type="button" class="btn btn-blue"> @Localizer["Add_To_Cart"] </button>
-        <button type="button" class="btn btn-primary" :class="{ 'disabled': !isBookable }" theme="primary" @@click="booking"> @Localizer["Buy_Now"] </button>
+        <button type="button" class="btn btn-primary" :class="{ 'disabled': !isBookable() }" theme="primary" @@click="booking"> @Localizer["Buy_Now"] </button>
     </div>
 </div>`,
         watch: {
@@ -1250,7 +1383,7 @@
             }
         },
         methods: {
-            Render() {
+            render() {
                 // console.log(`Spec Render, prod_no => ${this.prod_no}, pkg_no => ${this.pkg.pkg_no}`);
                 console.log(`Spec Render, pkg => ${JSON.stringify(this.pkg)}`);
                 this.price = this.pkg.b2b_min_price;
@@ -1285,7 +1418,7 @@
                 }
 
                 if (this.pkg.item[0].has_event) {
-                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price))))])))];
+                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
                     times.forEach(t => {
                         this.time_slots.push({ time: t, selected: false, disabled: false });
                     });
@@ -1379,11 +1512,11 @@
                     // console.log(`GetSkuPrice, spec_item_oid => ${JSON.stringify(temp_sel_spec_items)}`)
 
                     let match_skus = this.pkg.item[0].skus.find(s => s.specs_ref.every(r => temp_sel_spec_items.some(i => i === r.spec_value_id)));
-                    // console.log(`GetSkuPrice, match_skus = ${JSON.stringify(match_skus)}`)
+                    console.log(`GetSkuPrice, match_skus = ${JSON.stringify(match_skus)}`)
                     if (match_skus) {
                         let matched_date = match_skus.calendar_detail[this.sel_date.s_date];
-                        console.log(`GetSkuPrice, date=${JSON.stringify(this.sel_date)}, match_skus.calendar = ${JSON.stringify(matched_date)}`)
-                        if (Object.keys(matched_date).length) {
+                        console.log(`GetSkuPrice, spec=${spec_item_oid}, date=${JSON.stringify(this.sel_date)}, match_skus.calendar = ${JSON.stringify(matched_date)}`)
+                        if (matched_date && Object.keys(matched_date).length) {
                             if (this.sel_time_slot) price = matched_date.b2b_price[this.sel_time_slot];
                             else if (!this.pkg.item[0].has_event) price = matched_date.b2b_price["fullday"];
                             // console.log(`GetSkuPrice, date=${JSON.stringify(this.sel_date)}, time_slot=${this.sel_time_slot}, match_skus.calendar=${JSON.stringify(matched_date)} => price:${price}`)
@@ -1479,7 +1612,6 @@
                 }
 
                 this.totalPrice = grand_total;
-                this.isBookable = this.totalPrice > 0;
             },
             checkQuantity(total_qty, skus) {
                 let unmatch_count = 0;
@@ -1547,7 +1679,7 @@
                     // force to un-select and disable to all time slots
                     this.time_slots.forEach(t => { t.selected = false; t.disabled = true; });
                     // restore disable status to available time slots
-                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price))))])))];
+                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
                     // console.log(`checkTimeslot => times: ${JSON.stringify(times)}`)
                     this.time_slots.filter(t => times.some(tm => tm === t.time)).forEach(t => {
                         t.disabled = false;
@@ -1594,10 +1726,39 @@
                 }
             },
             refrehTotal() {
+                // Show precise price on calendar
+                let sel_specs = [...this.sel_spec_items];
+                if (this.mode === '02') sel_specs.push('adult');
+                let sku_id = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => sel_specs.indexOf(r.spec_value_id) != -1)).map(s => s.sku_id).join(",");
+                emitter.emit('show_precise_price', { pkg_no: this.pkg.pkg_no, sku_id: sku_id, timeslot: this.sel_time_slot });
+
                 setTimeout(() => {
                     this.checkOut();
                     this.$forceUpdate();
                 }, 20);
+            },
+            resetSpecs() {
+                this.sel_spec_items = [];
+                if (this.specs.some(s => s.spec_oid === 'spec-single')) {
+                    this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
+                }
+                //
+                this.sel_time_slot = this.sel_date.s_date = this.sel_date.e_date = null;
+                this.time_slots.forEach(s => s.selected = false);
+                this.specs.map(s => s.spec_items).flat().forEach(i => {
+                    i.selected = false;
+                    i.disabled = false;
+                });
+                //
+                if (this.mode === '01') this.single_qty = { ...spec_condition };
+                else {
+                    Object.keys(this.ticket_qty).forEach(spec => {
+                        this.ticket_qty[spec] = { ...spec_condition };
+                    });
+                }
+            },
+            isBookable() {
+                return (this.sel_date.s_date || this.sel_date.e_date) && this.totalPrice > 0;
             },
             booking() {
                 let req = {
@@ -1675,6 +1836,25 @@
                 // redirect to booking
                 alert('Redirect to booking...')
                 window.location.href = `${_root_path}Booking`;
+            },
+            showSpecRule(rule) {
+                let age_rule = null, height_rule = null;
+                console.log(`spec rule => ${JSON.stringify(rule)}`)
+                if (rule) {
+                    if (Object.keys(rule?.age_rule).length > 0) {
+                        if (rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Range"]'.replace('%0', rule.age_rule?.min).replace('%1', rule.age_rule?.max);
+                        else if (rule.age_rule?.min && !rule.age_rule?.max) age_rule = '@Localizer["Age_Above"]'.replace('%0', rule.age_rule?.min);
+                        else if (!rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Under"]'.replace('%0', rule.age_rule?.max);
+                    }
+                    if (Object.keys(rule?.height_rule).length > 0) {
+                        if (rule.height_rule?.min && rule.height_rule?.max) height_rule = '@Localizer["Height_Range"]'.replace('%0', rule.height_rule?.min).replace('%1', rule.height_rule?.max);
+                        else if (rule.height_rule?.min && !rule.height_rule?.max) age_rule = '@Localizer["Height_Above"]'.replace('%0', rule.height_rule?.min);
+                        else if (!rule.height_rule?.min && rule.height_rule?.max) age_rule = '@Localizer["Height_Under"]'.replace('%0', rule.height_rule?.max);
+                    }
+                    console.log(`showSpecRule => ${JSON.stringify(rule)}, age: ${age_rule}, height: ${height_rule}`);
+                    return age_rule && height_rule ? `${age_rule} / ${height_rule}` : (age_rule && !height_rule ? age_rule : (!age_rule && height_rule ? height_rule : ''));
+                }
+                else return null;
             }
         },
         created: function () {
@@ -1686,9 +1866,20 @@
         setup(props) {
             this.pkg = props.pkg;
         },
+        computed: {
+
+        },
         mounted: function () {
             emitter.on('clicked-show-detail', (data) => {
-                if (data === this.pkg.pkg_no) this.Render();
+                if (data === this.pkg.pkg_no) {
+                    this.resetSpecs();
+                    this.render();
+                }
+                // If the product is for opendate, then default the selected first available date from pkg
+                if (app.checkOpenDate()) {
+                    const pkg_cal_date = Object.keys(this.pkg.item[0].skus[0].calendar_detail)[0];
+                    this.sel_date = { s_date: pkg_cal_date, e_date: pkg_cal_date };
+                }
             });
 
             emitter.on('date-changed', (data) => {
@@ -1700,24 +1891,7 @@
 
             emitter.on('unselect-package', (data) => {
                 if (data === this.pkg.pkg_no) {
-                    this.sel_spec_items = [];
-                    if (this.specs.some(s => s.spec_oid === 'spec-single')) {
-                        this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
-                    }
-                    //
-                    this.sel_time_slot = this.sel_date.s_date = this.sel_date.e_date = null;
-                    this.time_slots.forEach(s => s.selected = false);
-                    this.specs.map(s => s.spec_items).flat().forEach(i => {
-                        i.selected = false;
-                        i.disabled = false;
-                    });
-                    //
-                    if (this.mode === '01') this.single_qty = { ...spec_condition };
-                    else {
-                        Object.keys(this.ticket_qty).forEach(spec => {
-                            this.ticket_qty[spec] = { ...spec_condition };
-                        });
-                    }
+                    this.resetSpecs();
 
                     this.checkOut();
                     this.$forceUpdate();

@@ -10,21 +10,21 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     public class BookingField
     {
         public string result { get; set; }
-        public string result_msg { get; set; }
+        public string? result_msg { get; set; }
 
-        public string prod_no { get; set; }
+        public Int64 prod_no { get; set; }
 
         // cus_01 (Leader), cus_02 (Travelers), send (Receiver), contact (During travel)
-        public Custom custom { get; set; }
+        public Custom? custom { get; set; }
 
         // flight, rentcar_01 (A to A), rentcar_02 (A to B), pickup_03 (Pickup/Dropoff),
         // rentcar_03 (Charter) + pickup_04 (Pickup/Dropoff), passenger_qty, voucher
-        public List<Traffic> traffics { get; set; }
+        public List<Traffic>? traffics { get; set; }
 
         // sim & wifi
-        public MobileDevice mobile_device { get; set; }
+        public MobileDevice? mobile_device { get; set; }
 
-        public GuideLang guide_lang { get; set; }
+        public GuideLang? guide_lang { get; set; }
 
         //public EventBackup event_backup { get; set; }
         //public Dictionary<string, RequireType> ref_pkg { get; set; }
@@ -187,9 +187,9 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     public partial class ShoeUnitInfo
     {
         public string unit_code { get; set; }
-        public string unit_name { get; set; }
-        public decimal? size_range_start { get; set; }
-        public decimal? size_range_end { get; set; }
+        public string unit_name { get; set; } 
+        public decimal? size_range_start { get; set; } 
+        public decimal? size_range_end { get; set; } 
         public decimal? interval { get; set; }
     }
 
@@ -212,6 +212,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string is_visible { get; set; }
         public string ref_source { get; set; }
         public string type { get; set; }
+        public List<string> use { get; set; }
+        public string? traffic_type_value { get; set; }
     }
 
     public partial class Traffic
@@ -262,37 +264,38 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public partial class TrafficType : TrafficAttribute
     { 
-        public string traffic_type_value { get; set; }
+        public string? traffic_type_value { get; set; }
     }
 
     public partial class ArrivalFlightType : TrafficAttribute
     { 
-        public List<IdName> list_option { get; set; }
+        public List<IdName>? list_option { get; set; }
     }
 
     public partial class ArrivalAirport : TrafficAttribute
     { 
-        public List<AirIdName> list_option { get; set; }
+        public List<AirIdName>? list_option { get; set; }
     }
 
     public partial class DepartureFlightType : TrafficAttribute
     { 
-        public List<IdName> list_option { get; set; }
+        public List<IdName>? list_option { get; set; }
     }
 
     public partial class DepartureAirport : TrafficAttribute
     { 
-        public List<AirIdName> list_option { get; set; }
+        public List<AirIdName>? list_option { get; set; }
     }
 
     public partial class Slocation : TrafficAttribute
     { 
-        public List<SlocaitonInfo> list_option { get; set; }
+        public List<SlocaitonInfo>? list_option { get; set; }
+        public List<SlocaitonInfo>? location_list { get; set; }
     }
 
     public partial class TrafficTime : TrafficAttribute
     {
-        public List<TimeInfo> list_option { get; set; }
+        public List<TimeInfo>? list_option { get; set; }
     }
 
     public partial class AirIdName
@@ -311,6 +314,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string note { get; set; }
          
         public List<BusinessHours> businessHours { get; set; }
+        public List<LocationTimes> time_list { get; set; }
          
         public long? sort { get; set; }
         public string code { get; set; }
@@ -325,8 +329,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     public partial class TimeInfo
     { 
         public string id { get; set; }
-        public long? hour { get; set; }
-        public long? min { get; set; }
+        public string hour { get; set; }
+        public string min { get; set; }
         public string time_range { get; set; }
     }
 
@@ -335,6 +339,19 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string to { get; set; }
         public string from { get; set; }
         public string weekDays { get; set; }
+    }
+
+    public partial class LocationTimes
+    {
+        public LocationTimeInfo to { get; set; }
+        public LocationTimeInfo from { get; set; }
+        public string weekDays { get; set; }
+    }
+
+    public partial class LocationTimeInfo
+    {
+        public int hour { get; set; }
+        public int minute { get; set; }
     }
 
     #endregion Traffic --- end

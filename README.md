@@ -16,7 +16,7 @@ InternAgent is open source under the MIT license and is free for commercial use.
 
 How to build
 ==============
-1. Install <a href="https://visualstudio.microsoft.com/vs/whatsnew/">Visual Studio 2022</a> with ASP.Net Core 7.0
+1. Install <a href="https://visualstudio.microsoft.com/vs/whatsnew/">Visual Studio 2022</a> or <a href="https://code.visualstudio.com/docs/languages/dotnet">Visual Studio Code<a/> with ASP.Net Core 7.0 (or Above).
 2. Copy "appsettings.json.template" to "appsettings.json".
 3. Setup some properties (eg. 'AuthorToken') in "appsettings.json".
 4. Open project and Run

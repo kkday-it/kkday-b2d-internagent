@@ -745,6 +745,7 @@
   "order_show_cus_passportId": "ID Number (passport\/ID Card or equivalent identification)",
   "order_show_cust_data_passport_exp_date": "ID Expiry Date (passport\/ID Card or equivalent identification)",
   "order_show_cust_data_hk_mo_identity_number": "Hongkong ID number",
+  "order_show_cust_data_identity_number": "Resident ID number",
   "order_show_cust_data_tw_identity_number": "Taiwan ID number",
   "order_show_cust_data_mtp_number": "Please input Hongkong ID number",
   "order_show_cust_data_height": "Height",
@@ -2912,6 +2913,7 @@
   "component_form_contact_first_name_title": "First Name",
   "component_form_hkmo_identity_number_placeholder": "Please input Hong Kong ID number",
   "component_form_hkmo_identity_number_title": "Entry permit for HK and Macau residents",
+  "component_form_identity_number_placeholder": "Please enter Resident ID number",
   "component_form_tw_identity_number_placeholder": "Please enter Taiwan ID number",
   "component_form_tw_identity_number_title": "Taiwan ID number",
   "component_form_mtp_number_placeholder": "Enter Mainland Travel Permit ID number",
@@ -4525,5 +4527,6 @@
   "booking_step1_voucher_info_voucher_counter": "Collection counter",
   "booking_step1_buyer_first_name": "Buyer First Name",
   "booking_step1_buyer_last_name": "Buyer Last Name",
-  "booking_step1_parner_order_no": "Parner Order No."
+  "booking_step1_parner_order_no": "Parner Order No.",
+  "Place_Order_Loading": "Make a booking"
 }

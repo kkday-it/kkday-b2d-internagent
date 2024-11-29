@@ -1,0 +1,120 @@
+﻿/* === b2d.internagent booking css === */
+
+/* revert to default --- start */
+.input-group {
+    position: relative;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-align: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    width: 100%;
+}
+
+    .input-group > .custom-file, .input-group > .custom-select, .input-group > .form-control {
+        position: relative;
+        -webkit-box-flex: 1;
+        -ms-flex: 1 1 auto;
+        flex: 1 1 auto;
+        width: 1%;
+        margin-bottom: 0;
+    }
+
+.input-group-append, .input-group-prepend {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+/* revert to default --- end */
+
+.list-item-content-line {
+    position: relative;
+    height: 1px;
+    margin: 5px 0;
+    background-color: #3e3f40;
+}
+
+.list-item-content {
+    background-color: #fbfbef;
+}
+
+.list-item-content-line:after {
+    position: absolute;
+    right: 0;
+    content: '';
+    top: -4px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 4px 0 4.4px 8px;
+    border-color: transparent transparent transparent #3e3f40;
+}
+
+.board-title[data-toggle=collapse] {
+    padding-right: 30px;
+}
+
+.traveler-con .sub-title {
+    font-size: 16px;
+    font-weight: 700;
+    padding-top: 10px;
+    margin-bottom: 20px;
+}
+
+.country .vs__dropdown-toggle {
+    font-size: 1.4rem;
+    height: 45px;
+}
+
+div:not(.datepicker) .dropdown-menu {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.tel-country .vs__dropdown-toggle {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    width: 150px;
+    height: 45px;
+}
+
+.vs__dropdown-toggle .vs__search {
+    font-size: 1.4rem;
+}
+
+.w-40 {
+    width: 40%;
+}
+
+.cus-route-item {
+    border: 1px solid #d5d6db;
+    border-radius: 8px;
+    padding: 6px 12px;
+    margin-right: 5px;
+}
+
+.tkt-qty {
+    flex-basis: 90px;
+    text-align: end;
+}
+
+.popup-msg {
+    display: block;
+    position: fixed;
+    padding: 10px;
+    width: 320px;
+    left: 50%;
+    margin-left: -150px;
+    height: 160px;
+    top: 50%;
+    margin-top: -100px;
+    background: #ebf5fb;
+    z-index: 20;
+    border: 1px solid #f2f2f2;
+    font-size: 15px;
+    border: 1px solid #21618c;
+}

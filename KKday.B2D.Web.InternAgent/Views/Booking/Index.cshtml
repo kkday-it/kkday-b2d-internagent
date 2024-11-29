@@ -11,107 +11,8 @@
 @section Styles {
     <link rel="stylesheet" href="https://unpkg.com/vue-select@latest/dist/vue-select.css">
     <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.css">
-
+    <link rel="stylesheet" href="~/css/booking.css" asp-append-version="true">
     <style type="text/css">
-        /* revert to default --- start */
-        .input-group {
-            position: relative;
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -ms-flex-wrap: wrap;
-            flex-wrap: wrap;
-            -webkit-box-align: stretch;
-            -ms-flex-align: stretch;
-            align-items: stretch;
-            width: 100%;
-        }
-
-            .input-group > .custom-file, .input-group > .custom-select, .input-group > .form-control {
-                position: relative;
-                -webkit-box-flex: 1;
-                -ms-flex: 1 1 auto;
-                flex: 1 1 auto;
-                width: 1%;
-                margin-bottom: 0;
-            }
-
-        .input-group-append, .input-group-prepend {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-        }
-
-        /* revert to default --- end */
-
-        .list-item-content-line {
-            position: relative;
-            height: 1px;
-            margin: 5px 0;
-            background-color: #3e3f40;
-        }
-
-        .list-item-content {
-            background-color: #fbfbef;
-        }
-
-        .list-item-content-line:after {
-            position: absolute;
-            right: 0;
-            content: '';
-            top: -4px;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 4px 0 4.4px 8px;
-            border-color: transparent transparent transparent #3e3f40;
-        }
-
-        .board-title[data-toggle=collapse] {
-            padding-right: 30px;
-        }
-
-        .traveler-con .sub-title {
-            font-size: 16px;
-            font-weight: 700;
-            padding-top: 10px;
-            margin-bottom: 20px;
-        }
- 
-        .country .vs__dropdown-toggle {
-            font-size: 1.4rem;
-            height: 45px;
-        }
-
-        div:not(.datepicker) .dropdown-menu {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .tel-country .vs__dropdown-toggle {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-            width: 150px;
-            height: 45px;
-        }
-        .vs__dropdown-toggle .vs__search {
-            font-size: 1.4rem;
-        }
-        .w-40 {
-            width: 40%;
-        }
-
-        .cus-route-item {
-            border: 1px solid #d5d6db;
-            border-radius: 8px;
-            padding: 6px 12px;
-            margin-right: 5px;
-        }
-
-        .tkt-qty {
-            flex-basis: 90px;
-            text-align: end;
-        }
     </style>
 }
 @section Scripts {
@@ -122,7 +23,8 @@
 
 <h3>@Localizer["boooking_title"]</h3>
 <div id="App" class="booking-wrap mb-5" data-pid="@prodOid">
-    <div class="container">
+    <div class="container"> 
+
         <div class="con">
 
             <div class="row">
@@ -154,7 +56,7 @@
                 <div class="col-md-4 col-sm-6 col-xs-12">
                     <div class="form-group must">
                         <label>@Localizer["common_nationality"]<span class="text-danger">*</span></label>
-                        <v-select :options="country_areas" :reduce="country => country.country_code" label="country_code" class="country"
+                        <v-select :options="country_areas" :clearable="false" :reduce="country => country.country_code" label="country_code" class="country"
                                   :get-option-label="getCountryLabel" v-model="booking.buyer_country" placeholder="@Localizer["common_select_set"]">
                             <template #option="option">
                                 <span>{{ option.country_name }} {{ option.country_code }}</span>
@@ -173,7 +75,7 @@
                     <div class="form-group must">
                         <label>@Localizer["member_basic_phoneNumber"]<span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <v-select :options="country_areas" class="tel-country" :reduce="country => country.tel_area" label="tel_area"
+                            <v-select :options="country_areas" :clearable="false" class="tel-country" :reduce="country => country.tel_area" label="tel_area"
                                       :get-option-label="getTelAreaLabel" v-model="booking.buyer_tel_country_code" placeholder="@Localizer["common_select_set"]">
                                 <template #option="option">
                                     <span>+{{option.tel_area}} {{ option.country_name }} </span>
@@ -202,6 +104,40 @@
         </div>
 
         <div class="con">
+            <div class="row" v-if="prod_info != null">
+                <div class="col-12">
+                    <div class="board">
+                        <h4>{{ prod_info.prod_name }}</h4>
+                        <div class="product-option">{{ prod_info.pkg_name }}</div>
+
+                        <div class="d-flex flex-row">
+                            <div class="d-flex me-5">
+                                <i class="ri-calendar-line"></i>
+                                <div class="ms-2">{{ booking.s_date }}</div>
+                            </div>
+                            <!---->
+                            <div class="d-flex">
+                                <i class="ri-user-line travler" v-if="prod_info.unit_code=='01'"></i>
+                                <i class="ri-ticket-line ticket" v-if="prod_info.unit_code=='02'"></i>
+                                <i class="ri-car-line car" v-if="prod_info.unit_code=='03'"></i>
+                                <i class="ri-file-copy-line set" v-if="prod_info.unit_code=='04'"></i>
+                                <i class="ri-hotel-bed-line room" v-if="prod_info.unit_code=='05'"></i>
+                                <i class="ri-calendar-line day" v-if="prod_info.unit_code=='06'"></i>
+                                <i class="ri-tent-line tent" v-if="prod_info.unit_code=='07'"></i>
+                                <i class="ri-box-1-line box" v-if="prod_info.unit_code=='08'"></i>
+                                <i class="ri-grid-fill item" v-if="prod_info.unit_code=='09'"></i>
+                                <span class="ms-2">{{ prod_info.unit }} x {{ booking.skus.reduce((qty, s) => qty + s.qty, 0) }}</span>
+                            </div>
+                        </div>
+                        <div class="product-spec">
+                            <div class="product-option sku-option">
+                                {{ prod_info.specs[0].spec_title}} : {{  prod_info.specs[0].spec_items.map(item => item.name).join('/') }}
+                            </div>
+                        </div> <!----> <!---->
+                    </div>
+                </div>
+            </div>
+
             <!--Traveler -->
             <template v-for="(pax, idx) in booking.custom.filter(c=>c.cus_type === 'cus_01' || c.cus_type === 'cus_02')">
                 <div class="traveler-con">
@@ -211,24 +147,24 @@
                         </h4>
                         <span class="align-self-end" style="font-size: 2.6rem;" onclick="TogglePaxPanel(this)"><i class="fa fa-angle-up ml-auto" aria-hidden="true"></i></span>
                     </div>
-                    <div class="board active pax-item"> 
+                    <div class="board active pax-item">
                         <div class="row">
                             <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.nationality', 'cus_01,cus_02')">
                                 <!-- Nationality -->
                                 <div class="form-group">
                                     <label>@Localizer["common_nationality"]<span class="text-danger">*</span></label>
-                                    <v-select :options="country_areas" :reduce="country => country.country_code" label="country_code" class="country"
+                                    <v-select :options="country_areas" :clearable="false" :reduce="country => country.country_code" label="country_code" class="country"
                                               :get-option-label="getCountryLabel" v-model="pax.nationality" placeholder="@Localizer["common_select_set"]">
                                         <template #option="option">
                                             <span>{{ option.country_name }} {{ option.country_code }}</span>
                                         </template>
                                     </v-select>
                                     @*<select class="form-control country" id="psg-country" v-model="pax.nationality">
-                                        <option value="">--select--</option>
-                                        <template v-for="option in getBookingFieldReference('custom.nationality')">
-                                            <option :value="option.code" v-html="`${option.name}`"></option>
-                                        </template>
-                                    </select>*@
+                                    <option value="">--select--</option>
+                                    <template v-for="option in getBookingFieldReference('custom.nationality')">
+                                        <option :value="option.code" v-html="`${option.name}`"></option>
+                                    </template>
+                                </select>*@
                                 </div>
                             </div>
                         </div>
@@ -272,7 +208,7 @@
                                     <div class="input-group mb-3">
                                         <datepicker v-model="pax.birth" placeholder="@Localizer["component_form_title_placeholder"]"></datepicker>
                                         @*<input type="text" name="`pax-birth-${idx}`" class="form-control"
-                                               placeholder="@Localizer["component_form_title_placeholder"]" v-model="pax.birth" required />*@
+                                    placeholder="@Localizer["component_form_title_placeholder"]" v-model="pax.birth" required />*@
                                         <div class="input-group-append">
                                             <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                         </div>
@@ -300,16 +236,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Taiwan Identity Number -->
+                            <!-- Identity Number -->
                             <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.id_no', 'cus_01,cus_02')">
                                 <div class="form-group">
-                                    <label>@Localizer["order_show_cust_data_tw_identity_number"]<span class="text-danger">*</span></label>
-                                    <input placeholder="@Localizer["component_form_tw_identity_number_placeholder"]" name="`twIdentity-${idx}`" type="text" class="form-control"
+                                    <label><span v-html="checkTwResident(pax) ? '@Localizer["order_show_cust_data_tw_identity_number"]' : '@Localizer["order_show_cust_data_identity_number"]' "></span> <span class="text-danger">*</span></label>
+                                    <input :placeholder="checkTwResident(pax) ? '@Localizer["component_form_tw_identity_number_placeholder"]' : '@Localizer["component_form_identity_number_placeholder"]'" name="`twIdentity-${idx}`" type="text" class="form-control"
                                            v-model="pax.id_no" oninput="this.value=this.value.replace(/\s/g, '')" required />
                                 </div>
                             </div>
-                            <!-- MTP Number -->
-                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.mtp_no', 'cus_01,cus_02')">
+                            <!-- MTP Number (Taiwanese Only) -->
+                            <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.mtp_no', 'cus_01,cus_02')" v-show="checkTwResident(pax)">
                                 <div class="form-group">
                                     <label>@Localizer["order_show_cust_data_mtp_number"]<span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["component_form_mtp_number_placeholder"]" name="`mtp_no-${idx}`" type="text" v-model="pax.mtp_no"
@@ -432,7 +368,7 @@
             </template>
 
             <!-- Guide Language -->
-            <template v-if="bookingField?.guide_lang && bookingField?.guide_lang?.is_require === true">
+            <template v-if="bookingField?.guide_lang && bookingField?.guide_lang?.is_require === 'True'">
                 <div class="traveler-con">
                     <div class="sub-title">@Localizer["common_guide_lang"]</div>
                     <div class="row">
@@ -520,7 +456,7 @@
                                 <label>@Localizer["booking_step1_flight_info_departure_date"]<span class="text-danger">*</span></label>
                                 <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_date" placeholder="@Localizer["booking_step1_flight_info_departure_date_placeholder"]"></datepicker>
                                 @*<input placeholder="@Localizer["booking_step1_flight_info_arrival_time_placeholder"]" autocomplete="on" type="text" id="booking-flight-departure-flight-number" name="departureFlightNo0" class="form-control"
-                    v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_date" required />*@
+                            v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_date" required />*@
                             </div>
                         </div>
                         <div class="col-sm-6 col-sm-6 col-xs-12 form-group" v-if="checkBookingFieldforFlight('departure_time')">
@@ -599,7 +535,7 @@
                                 <label>@Localizer["booking_step1_flight_info_arrival_date"]<span class="text-danger">*</span></label>
                                 <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').arrival_date" placeholder="@Localizer["booking_step1_flight_info_arrival_date_placeholder"]"></datepicker>
                                 @*<input placeholder="@Localizer["booking_step1_flight_info_arrival_time_placeholder"]" autocomplete="on" type="text" id="booking-flight-departure-flight-number" name="departureFlightNo0" class="form-control"
-                                    v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').arrival_date" required />*@
+                            v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').arrival_date" required />*@
                             </div>
                         </div>
                         <div class="col-sm-6 col-sm-6 col-xs-12 form-group" v-show="checkBookingFieldforFlight('arrival_time')">
@@ -659,7 +595,7 @@
                             <div class="input-group">
                                 <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_date" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]"></datepicker>
                                 @*<input id="rentPickUpDate0" name="pickUpDate0" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]" type="text"
-                                       v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_date" class="form-control has-datepicker" required>*@
+                            v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_date" class="form-control has-datepicker" required>*@
                                 <div class="input-group-append">
                                     <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                 </div>
@@ -698,7 +634,7 @@
                             <div class="input-group" name="rentDropOffDate0">
                                 <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).e_date" placeholder="@Localizer["booking_step1_rent_car_drop_off_date_placeholder"]"></datepicker>
                                 @*<input name="dropOffDate0" v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).e_date"
-                                       placeholder="@Localizer["booking_step1_rent_car_drop_off_date_placeholder"]" type="text" class="form-control has-datepicker" required>*@
+                            placeholder="@Localizer["booking_step1_rent_car_drop_off_date_placeholder"]" type="text" class="form-control has-datepicker" required>*@
                                 <div class="input-group-append">
                                     <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                 </div>
@@ -751,7 +687,7 @@
                             <div class="input-group">
                                 <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup_03')).s_date" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]"></datepicker>
                                 @*<input id="rentPickUpDate0" name="pickUpDate0" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]" type="text"
-                                       v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup_03')).s_date" class="form-control has-datepicker" required>*@
+                            v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup_03')).s_date" class="form-control has-datepicker" required>*@
                                 <div class="input-group-append">
                                     <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                 </div>
@@ -784,11 +720,11 @@
                             <div class="input-group" v-show="checkBookingFieldforRentCar('s_date','pickup_04')">
                                 <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup_04')).s_date" placeholder="@Localizer["booking_step1_shuttle_data_shuttle_date_placeholder"]"></datepicker>
                                 @*<input id="pickupDate0" name="pickUpDate0" class="form-control has-datepicker" placeholder="@Localizer["booking_step1_shuttle_data_shuttle_date_placeholder"]" type="text"
-                                    v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup_04')).s_date" required>*@
+                            v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('pickup_04')).s_date" required>*@
                                 <div class="input-group-append">
                                     <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                 </div>
-                            </div> 
+                            </div>
                         </div>
 
                         <div class="col-md-8 col-sm-6 col-xs-12 form-group" v-show="checkBookingFieldforRentCar('s_time','pickup_04')">
@@ -798,24 +734,24 @@
                                 <div class="col-sm-6 col-xs-12 form-group">
                                     <select id="booking-shuttle-time" class="form-control" name="shuttlePickUpTime0" @@change="changeShuttleTime($event.target.value)" required>
                                         <option value="">@Localizer["booking_step1_shuttle_data_pick_up_time_placeholder"]</option>
-                                        <template v-for="pk in getBookingFieldReferenceforRentCar('s_time','pickup_04')">
-                                            <option :value="pk.id" v-html="`${pk.hour}:${pk.min}`" v-if="pk.hour !=0"></option>
+                                        <template v-for="pk in getPickupTime()">
+                                            <option :value="pk.id" v-if="pk.hour !=0">{{ ('00' + pk.hour).slice(-2) }}:{{ ('00' + pk.min).slice(-2) }}</option>
                                         </template>
                                         <!-- Custom Pickup Time -->
-                                        <template v-for="pk in bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ? bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => t.time_range) : []">
+                                        <template v-for="pk in getPickupCustomTime()">
                                             <option value="customize" :data-range="pk.time_range">@Localizer["booking_step1_shuttle_data_customized_shuttle_time"]</option>
                                         </template>
                                     </select>
                                 </div>
                                 <!-- Custom Pickup Time Selecting -->
-                                <div class="col-sm-6 col-xs-12 form-group" v-show="show_cus_shuttle">  
+                                <div class="col-sm-6 col-xs-12 form-group" v-show="show_cus_shuttle">
                                     <div class="time-select">
                                         <div class="form-group">
                                             <select class="form-control" id="selShuttleCusHour" name="selShuttleCusHour" @@change="changeShuttleHour()">
                                                 <option value="">--</option>
                                             </select>
                                         </div>
-                                        <span class="time-gap">@Localizer["common_hr"]</span> 
+                                        <span class="time-gap">@Localizer["common_hr"]</span>
                                         <div class="form-group">
                                             <select class="form-control" id="selShuttleCusMinute" name="selShuttleCusMinute" @@change="changeShuttleMinute()">
                                                 <option value="">--</option>
@@ -885,7 +821,7 @@
                             <div class="col-sm-4 col-xs-12">
                                 <!-- Adult Qty -->
                                 <div>
-                                    <small>@Localizer["common_adult"] @Localizer["common_years_old"]</small>
+                                    <small>@Localizer["common_adult"]</small>
                                     <div class="form-group">
                                         <select id="booking-passenger-quantity-adult-0" name="booking-passenger-quantity-adult-0" class="form-control" v-model="booking.traffic.find(t=>t.traffic_type.startsWith('psg_qty')).carpsg_adult" required>
                                             <option value="" disabled="disabled"> -- </option>
@@ -900,7 +836,7 @@
                             <div class="col-sm-4 col-xs-12">
                                 <!-- Child Qty -->
                                 <div>
-                                    <small>@Localizer["common_child"] @Localizer["common_years_old"]</small>
+                                    <small>@Localizer["common_child"]</small>
                                     <div class="form-group">
                                         <select id="booking-passenger-quantity-child-0" name="booking-passenger-quantity-child-0" class="form-control" v-model="booking.traffic.find(t=>t.traffic_type.startsWith('psg_qty')).carpsg_child" required>
                                             <option value="" disabled="disabled"> -- </option>
@@ -915,7 +851,7 @@
                             <div class="col-sm-4 col-xs-12">
                                 <!-- Infant Qty -->
                                 <div>
-                                    <small>@Localizer["common_infant"] @Localizer["common_years_old"]</small>
+                                    <small>@Localizer["common_infant"]</small>
                                     <div class="form-group">
                                         <select id="booking-passenger-quantity-infant-0" name="booking-passenger-quantity-infant-0" class="form-control" v-model="booking.traffic.find(t=>t.traffic_type.startsWith('psg_qty')).carpsg_infant" required>
                                             <option value="" disabled="disabled"> -- </option>
@@ -1072,27 +1008,27 @@
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_send_data_receiver_tel"]<span class="text-danger">*</span></label>
                                 <div class="input-group buyer-tel-country">
-                                    <v-select :options="country_areas" class="tel-country" :reduce="country => country.tel_area" label="tel_area"
+                                    <v-select :options="country_areas" :clearable="false" class="tel-country" :reduce="country => country.tel_area" label="tel_area"
                                               :get-option-label="getTelAreaLabel" v-model="booking.custom.find(t=>t.cus_type === 'send').tel_country_code" placeholder="@Localizer["booking_step1_send_data_receiver_tel_placeholder"]">
                                         <template #option="option">
                                             <span>+{{option.tel_area}} {{ option.country_name }} </span>
                                         </template>
                                     </v-select>
                                     @*<select name="send_tel_number" class="form-control" v-model="booking.custom.find(t=>t.cus_type === 'send').tel_country_code" required>
-                                        <option value="">@Localizer["booking_step1_send_data_receiver_tel_placeholder"]</option>
-                                        <template v-for="tel in getBookingFieldReference('custom.telCountryCode')">
-                                            <option :value="tel.code" v-html="`${tel.info} ${tel.code}`"></option>
-                                        </template>
-                                    </select>*@
+                                    <option value="">@Localizer["booking_step1_send_data_receiver_tel_placeholder"]</option>
+                                    <template v-for="tel in getBookingFieldReference('custom.telCountryCode')">
+                                        <option :value="tel.code" v-html="`${tel.info} ${tel.code}`"></option>
+                                    </template>
+                                </select>*@
                                     <input placeholder="@Localizer["component_form_contact_tel_placeholder"]" type="tel" class="form-control form-phone" name="tel_number" v-model="booking.custom.find(t=>t.cus_type === 'send').tel_number" autocomplete="off" required>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <!-- Receive Address Info -->
-                    <div class="row" v-show="checkBookingField('custom.country_cities', 'send')">
+                    <div class="row" v-if="checkBookingField('custom.country_cities', 'send') || checkBookingField('custom.zipcode', 'send') || checkBookingField('custom.address', 'send')">
                         <div class="col-12 mb-2">@Localizer["booking_step1_send_data_receive_address"]</div>
-                        <div class="col-md-4 col-sm-6 col-xs-12">
+                        <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.country_cities', 'send')">
                             <!-- Receive Country -->
                             <div class="form-group">
                                 <small>@Localizer["booking_step1_send_data_receive_address_country"]</small><span class="text-danger">*</span>
@@ -1104,7 +1040,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4 col-sm-6 col-xs-12">
+                        <div class="col-md-4 col-sm-6 col-xs-12" v-show="checkBookingField('custom.country_cities', 'send')">
                             <!-- Receive City -->
                             <div class="form-group">
                                 <small>@Localizer["booking_step1_send_data_receive_address_city"]</small><span class="text-danger">*</span>
@@ -1228,13 +1164,18 @@
                         <div class="col-md-6 col-sm-6 col-xs-12 form-group" v-show="checkBookingFieldforRentCar('s_location','voucher')">
                             <!-- Voucher Exchange Counter -->
                             <label>@Localizer["booking_step1_voucher_info_voucher_counter"]<span class="text-danger">*</span></label>
-                            <select class="form-control"
+                            <select ref="voucher_ddl" class="form-control"
                                     v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('voucher')).s_location" required>
                                 <option value="">@Localizer["booking_step1_rent_car_pick_up_office_placeholder"]</option>
                                 <template v-for="temp in getBookingFieldReferenceforVoucher('s_location')">
                                     <option :value="temp.id" v-html="temp.name"></option>
                                 </template>
                             </select>
+
+                            <div class="mt-1">{{ getBookingFieldReferenceforVoucher('s_location').find(v => v.id === $refs?.voucher_ddl?.value)?.address }}</div>
+                            <template v-for="tm_info in getBookingFieldReferenceforVoucher('s_location').find(v => v.id === $refs?.voucher_ddl?.value)?.time_list">
+                                <div>{{ tm_info.from.hour }}:{{ tm_info.from?.minute ?? 0 }}~{{ tm_info.to.hour }}:{{ tm_info.to?.minute ?? 0 }} {{ getLocationWeekday(tm_info.weekDays) }}</div>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -1286,18 +1227,18 @@
                         <div class="form-group">
                             <label>@Localizer["component_form_contact_tel_title"]<span class="text-danger">*</span></label>
                             <div class="input-group buyer-tel-country">
-                                <v-select :options="country_areas" class="tel-country" :reduce="country => country.tel_area" label="tel_area"
-                                            :get-option-label="getTelAreaLabel" v-model="booking.custom.find(c=>c.cus_type === 'contact').tel_country_code" placeholder="@Localizer["booking_step1_contact_country_placeholder"]">
+                                <v-select :options="country_areas" :clearable="false" class="tel-country" :reduce="country => country.tel_area" label="tel_area"
+                                          :get-option-label="getTelAreaLabel" v-model="booking.custom.find(c=>c.cus_type === 'contact').tel_country_code" placeholder="@Localizer["booking_step1_contact_country_placeholder"]">
                                     <template #option="option">
                                         <span>+{{option.tel_area}} {{ option.country_name }} </span>
                                     </template>
                                 </v-select>
                                 @*<select name="contact_tel_country_code" class="form-control" v-model="booking.custom.find(c=>c.cus_type === 'contact').tel_country_code" required>
-                                    <option value="">@Localizer["booking_step1_contact_country_placeholder"]</option>
-                                    <template v-for="tel in getBookingFieldReference('custom.tel_country_code')">
-                                        <option :value="tel.code" v-html="`${tel.info} ${tel.code}`"></option>
-                                    </template>
-                                </select>*@
+                                <option value="">@Localizer["booking_step1_contact_country_placeholder"]</option>
+                                <template v-for="tel in getBookingFieldReference('custom.tel_country_code')">
+                                    <option :value="tel.code" v-html="`${tel.info} ${tel.code}`"></option>
+                                </template>
+                            </select>*@
                                 <input placeholder="@Localizer["component_form_contact_tel_placeholder"]" type="tel" class="form-control form-phone" name="contact_tel_number" v-model="booking.custom.find(c=>c.cus_type === 'contact').tel_number" autocomplete="off" required>
                             </div>
                         </div>
@@ -1340,7 +1281,7 @@
             </template>
 
             <!-- Order Note -->
-            <div class="traveler-con" style="margin-top: 50px;">
+            <div class="traveler-con" style="margin-top: 20px;">
                 <div class="sub-title">@Localizer["booking_step1_order_note"] </div>
                 <div class="row mt-10">
                     <div class="col-md-8 col-sm-12">
@@ -1364,6 +1305,16 @@
             </div>
         </div>
     </div>
+
+    <!-- Booking Popup -->
+    <div class="popup-msg" id="popup1" v-show="isBooking">
+        <div class="row align-items-center h-100">
+            <div class="col-8 mx-auto">
+                <img id="loading" src="@Url.Content("~/images/loading-spin.gif")" style="width: 32px; margin-right:8px;" />
+                @Localizer["Place_Order_Loading"]
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -1384,6 +1335,7 @@
         data() {
             return {
                 isLoading: false,
+                isBooking: false,
                 prod_no: null,
                 pkg_no: null,
                 country_cities: [],
@@ -1394,7 +1346,8 @@
                 show_travel_contact_phone: false,
                 show_cus_route: false,
                 show_cus_shuttle: false,
-                booking_custom_routes: []
+                booking_custom_routes: [],
+                prod_info: null
             }
         },
         created: function () {
@@ -1410,7 +1363,10 @@
 
                 // Load Country Code & Tel Country Code
                 fetch(`${_root_path}Common/QueryCountryInfo/@locale`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
+                    })
                     .then(data => {
                         // console.log(`countries => ${JSON.stringify(data)}`);
                         this.country_cities = data.countries;
@@ -1420,6 +1376,9 @@
                         //$('.select2').select2({
                         //    theme: "bootstrap-5",
                         //});
+                    }).catch(error => {
+                        alert(`Error: ${error.message}`)
+                        console.log('Error', error.message);
                     });
 
                 this.isLoading = true;
@@ -1441,21 +1400,25 @@
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: req // JSON.stringify(req)
+                    body: req,
                 })
                     .then(response => {
-                        // console.log(response.status);
-                        return response.json()
+                        if (response.ok) return response.json();
+                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
                     })
                     .then(result => {
                         console.log(`${JSON.stringify(result)}`);
 
                         this.booking = result.booking;
                         this.bookingField = result.bookingfield;
+                        this.prod_info = result.prod_info;
 
                         this.isLoading = false;
                     })
-                    .catch(error => { console.error('Unable to search.', error); this.isLoading = false });
+                    .catch(error => {
+                        alert(`Error: ${error.message}`)
+                        console.log('Error', error.message);
+                    });
 
             },
             getCountryLabel: function (val) {
@@ -1480,13 +1443,13 @@
             },
             checkBookingField(path, keys, mandatory) {
                 try {
-                    let key_array = keys.split(',');
-                    let using = getValue(this.bookingField, path + '.use'); 
+                    let key_array = keys.split(',').map(s => s.trim());
+                    let using = getValue(this.bookingField, path + '.use');
 
                     let is_required = using ? using.filter(v => key_array.includes(v)).length : getValue(this.bookingField, path + '.is_require');
                     let result = is_required ? true : false;
 
-                    // console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)}/matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
+                    console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)} / matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
                     return result;
                 } catch (e) {
                     // console.log(`checkBookingField, path: ${path} => error : ${e}`);
@@ -1514,7 +1477,7 @@
 
                     let result = false;
                     if (rentcar) {
-                        let is_required = getValue(rentcar, path + '.is_require'); 
+                        let is_required = getValue(rentcar, path + '.is_require');
                         result = (is_required == "True") ? true : false;
                         if (path.indexOf('provide') == -1) {
                             result = (is_required == "True") ? true : false;
@@ -1565,12 +1528,12 @@
                 else {
                     let refTemp = [];
                     let option = getValue(this.bookingField, path + '.list_option');
-                    if (option) { 
-                        let range = option[0].range.split('~'); 
+                    if (option) {
+                        let range = option[0].range.split('~');
                         let start = parseFloat(range[0]);
                         let end = parseFloat(range[1]);
-                        let interval = parseFloat(option[0].interval); 
-                        while (start < end) { 
+                        let interval = parseFloat(option[0].interval);
+                        while (start < end) {
                             refTemp.push({
                                 code: start,
                                 value: start
@@ -1598,10 +1561,10 @@
             getBookingFieldReferenceforRentCar(path, trafficTypeValue) {
                 try {
                     let rentCar = (trafficTypeValue) ?
-                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue) : 
+                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue) :
                         this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value != 'flight');
                         // this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'rentcar_01' || t.traffic_type?.traffic_type_value == 'rentcar_02' || t.traffic_type?.traffic_type_value == 'rentcar_03' || t.traffic_type?.traffic_type_value == 'pickup_03' || t.traffic_type?.traffic_type_value == 'pickup_04' || t.traffic_type?.traffic_type_value == 'voucher');
-                    
+
                     if (rentCar) {
                         let _type = rentCar.traffic_type.traffic_type_value;
                         let refTemp = getValue(rentCar, path + '.list_option');
@@ -1625,7 +1588,7 @@
             getBookingFieldReferenceTimeforRentCar(path) {
                 try {
                     let rentCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value === 'rentcar_01' || t.traffic_type?.traffic_type_value === 'rentcar_02');
-                   
+
                     if (rentCar) {
                         let ref_path = (path === 'e_time') ? 'e_location' : 's_location';
 
@@ -1633,9 +1596,9 @@
                         let s_time = moment.utc(refData.s_time, 'HH:mm');
                         let interval = refData.interval;
                         let time_list = [];
-     
+
                         while (s_time <= moment.utc(refData.e_time, 'HH:mm')) {
-                            time_list.push({ id: s_time.format('HH:mm'), name: s_time.format('HH:mm') }); 
+                            time_list.push({ id: s_time.format('HH:mm'), name: s_time.format('HH:mm') });
                             s_time = s_time.add(refData.interval, 'minute');
                         }
                         return time_list;
@@ -1646,11 +1609,11 @@
                 return [];
             },
             getBookingFieldReferenceforVoucher(path) {
-                let rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'voucher'); 
+                let rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'voucher');
 
                 try {
                     if (rendCar != null) {
-                        let refTemp = getValue(rendCar, path + '.list_option');
+                        let refTemp = getValue(rendCar, path + '.location_list'); 
                         return refTemp;
                     }
                     else {
@@ -1659,7 +1622,28 @@
                 }
                 catch (e) { return []; }
             },
-            changeShuttleTime(val) { 
+            getPickupTime() {
+                return this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ?
+                            this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => !t.time_range) : []
+            },
+            getPickupCustomTime() {
+                return this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ?
+                            this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => t.time_range && t.time_range != '~') : []
+            },
+            getLocationWeekday(week) {
+                const weekday = [];
+                weekday[0] = "Mon"; // Monday
+                weekday[1] = "Tue"; // Tuesday
+                weekday[2] = "Wed"; // Wednesday
+                weekday[3] = "Thu"; // Thursday
+                weekday[4] = "Fri"; // Friday
+                weekday[5] = "Sat"; // Saturday
+                weekday[6] = "Sun"; // Sunday
+
+                let idx = week.replace(/,/g, '').indexOf('Y');
+                return idx != -1 ? weekday[idx] : '';
+            },
+            changeShuttleTime(val) {
                 this.show_cus_shuttle = val === 'customize';
 
                 if (this.show_cus_shuttle) {
@@ -1694,7 +1678,7 @@
                 if (begin_time.format("HH") == end_time.format("HH")) {
                     max_minute = end_time.diff(begin_time, 'minutes');
                 }
-                
+
                 $('#selShuttleCusMinute :not(:first-child)').remove();
                 for (let tm = 0; tm <= max_minute; tm++) {
                     $('#selShuttleCusMinute').append($('<option>', {
@@ -1703,7 +1687,7 @@
                     }));
                 }
             },
-            changeShuttleMinute() { 
+            changeShuttleMinute() {
                 // this.booking.traffic.find(t => t.traffic_type == 'pickup_04').s_time = `${$('#selShuttleCusHour').val()}:${$('#selShuttleCusMinute').val()}`;
                 this.$set(this.booking.traffic.find(t => t.traffic_type == 'pickup_04'), "s_time", `${$('#selShuttleCusHour').val()}:${$('#selShuttleCusMinute').val()}`);
             },
@@ -1866,11 +1850,11 @@
                 this.show_travel_contact_app = flag;
                 let cus = this.booking.custom.find(c => c.cus_type === 'contact');
                 cus.has_app = flag;
-                if (!flag) { 
+                if (!flag) {
                     cus.contact_app = "";
                     cus.contact_app_account = "";
                 }
-                console.log(`Contact => ${JSON.stringify(cus)}`) 
+                console.log(`Contact => ${JSON.stringify(cus)}`)
             },
             doBooking() {
                 var receiverCountry = $("#receiverCountry").val();
@@ -1890,6 +1874,7 @@
                 }
 
                 console.log(`${JSON.stringify(this.booking)}`);
+                this.isBooking = true;
                 let uri = `${_root_path}Booking/Booking`;
                 fetch(uri, {
                     method: 'POST',
@@ -1905,11 +1890,23 @@
                     })
                     .then(result => {
                         console.log(`${JSON.stringify(result)}`);
-                        alert(result.result);
+                        this.isBooking = false;
+                        if (result.status === "OK") alert(result.order_no);
+                        else alert(result.msg);
                     })
-                    .catch(error => { console.error('Unable to search.', error); this.isLoading = false });
+                    .catch(error => {
+                        console.error('Unable to search.', error);
+                        this.isBooking = false;
+                    });
+            },
+            checkTwResident(pax) {
+                // Ensure the bookingfield has "nationality"
+                const need_na = this.checkBookingField('custom.nationality', 'cus_01,cus_02');
+                if (!need_na) return false;
 
-            }
+                // Check the nationality must be Taiwnaese
+                return (pax.nationality === 'TW') ? true : false;
+            },
         },
         watch: {
             booking: {
@@ -1918,7 +1915,10 @@
                     document.getElementById("raw_booking").textContent = JSON.stringify(newVal, undefined, 2);
                 },
                 deep: true
-            }
+            },
+        },
+        computed: {
+
         }
     });
 

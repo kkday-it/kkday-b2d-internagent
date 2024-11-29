@@ -47,7 +47,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public SpecRef[] specs_ref { get; set; } 
         public decimal? official_price { get; set; } 
         public decimal? b2c_price { get; set; } 
-        public decimal b2b_price { get; set; } 
+        public decimal? b2b_price { get; set; } 
         public string ticket_rule_spec_item { get; set; } 
         public Dictionary<string, Dictionary<string, Dictionary<string, object>>> calendar_detail { get; set; } 
         public SpecRule spec_rule { get; set; } 

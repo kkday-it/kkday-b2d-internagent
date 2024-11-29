@@ -15,7 +15,7 @@ namespace KKday.B2D.Web.InternAgent.Proxy
         }
 
         //public string Booking(BookingDataModel req)
-        public string Booking(B2DBookingModel req)
+        public BookingRespModel Booking(B2DBookingModel req)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace KKday.B2D.Web.InternAgent.Proxy
                     }
                 }
 
-                return jsonResult;
+                return JsonConvert.DeserializeObject<BookingRespModel>(jsonResult);
             }
             catch (Exception ex)
             {

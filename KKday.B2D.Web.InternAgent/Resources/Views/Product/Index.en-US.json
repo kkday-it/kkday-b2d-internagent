@@ -43,7 +43,12 @@
   "Fri": "Fri",
   "Sat": "Sat",
   "Sun": "Sun",
+  "Age_Under": "age under %0",
   "Age_Range": "age %0-%1",
+  "Age_Above": "age %0 and above",
+  "Height_Under": "height of under %0cm",
+  "Height_Range": "height of %0cm-%1cm",
+  "Height_Above": "height of %0cm and abvoe",
   "Time_Slots": "Time Slots",
   "Dept_Time_Slots": "Departure Times",
   "Add_To_Cart": "Add to cart",
@@ -71,6 +76,9 @@
   "Item_Unit06": "Day",
   "Item_Unit07": "Tent",
   "Item_Unit08": "Box",
-  "Item_Unit09": "Item"
+  "Item_Unit09": "Item",
+  "PackageDetails_Title": "Package Details",
+  "SelectOptions_Title": "Select Options",
+  "InstantConfirm_Label": "Instant Confirmation"
 }
 

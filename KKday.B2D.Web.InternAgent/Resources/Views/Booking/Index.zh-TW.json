@@ -809,6 +809,7 @@
   "order_show_cus_passportId": "證件號碼（護照\/身分證）",
   "order_show_cust_data_passport_exp_date": "證件效期（護照\/身分證）",
   "order_show_cust_data_hk_mo_identity_number": "請輸入回鄉證號",
+  "order_show_cust_data_identity_number": "居民證號",
   "order_show_cust_data_tw_identity_number": "台灣身分證字號",
   "order_show_cust_data_mtp_number": "台胞證字號",
   "order_show_cust_data_height": "旅客身高",
@@ -2914,6 +2915,7 @@
   "component_form_contact_first_name_title": "聯絡人名",
   "component_form_hkmo_identity_number_placeholder": "請輸入回鄉證號",
   "component_form_hkmo_identity_number_title": "回鄉證號",
+  "component_form_identity_number_placeholder": "請輸入居民證號",
   "component_form_tw_identity_number_placeholder": "請輸入台灣身分證字號",
   "component_form_tw_identity_number_title": "台灣身分證字號",
   "component_form_mtp_number_placeholder": "請輸入台胞證字號",
@@ -4525,5 +4527,6 @@
   "booking_step1_voucher_info_voucher_counter": "取票櫃檯",
   "booking_step1_buyer_first_name": "訂購人名",
   "booking_step1_buyer_last_name": "訂購人姓",
-  "booking_step1_parner_order_no": "分銷商訂編"
+  "booking_step1_parner_order_no": "分銷商訂編",
+  "Place_Order_Loading": "進行預訂"
 }
