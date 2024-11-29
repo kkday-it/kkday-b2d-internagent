@@ -1841,12 +1841,12 @@
                 let age_rule = null, height_rule = null;
                 console.log(`spec rule => ${JSON.stringify(rule)}`)
                 if (rule) {
-                    if (Object.keys(rule?.age_rule).length > 0) {
+                    if (rule?.age_rule && Object.keys(rule?.age_rule).length > 0) {
                         if (rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Range"]'.replace('%0', rule.age_rule?.min).replace('%1', rule.age_rule?.max);
                         else if (rule.age_rule?.min && !rule.age_rule?.max) age_rule = '@Localizer["Age_Above"]'.replace('%0', rule.age_rule?.min);
                         else if (!rule.age_rule?.min && rule.age_rule?.max) age_rule = '@Localizer["Age_Under"]'.replace('%0', rule.age_rule?.max);
                     }
-                    if (Object.keys(rule?.height_rule).length > 0) {
+                    if (rule?.height_rule && Object.keys(rule?.height_rule).length > 0) {
                         if (rule.height_rule?.min && rule.height_rule?.max) height_rule = '@Localizer["Height_Range"]'.replace('%0', rule.height_rule?.min).replace('%1', rule.height_rule?.max);
                         else if (rule.height_rule?.min && !rule.height_rule?.max) age_rule = '@Localizer["Height_Above"]'.replace('%0', rule.height_rule?.min);
                         else if (!rule.height_rule?.min && rule.height_rule?.max) age_rule = '@Localizer["Height_Under"]'.replace('%0', rule.height_rule?.max);
