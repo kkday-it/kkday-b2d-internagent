@@ -1738,7 +1738,8 @@
                 }, 20);
             },
             resetSpecs() {
-                this.sel_spec_items = [];
+                this.time_slots = [] = this.sel_spec_items = [];
+
                 if (this.specs.some(s => s.spec_oid === 'spec-single')) {
                     this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
                 }
@@ -1879,13 +1880,16 @@
                 if (app.checkOpenDate()) {
                     const pkg_cal_date = Object.keys(this.pkg.item[0].skus[0].calendar_detail)[0];
                     this.sel_date = { s_date: pkg_cal_date, e_date: pkg_cal_date };
+                    console.log(`opendate.default: ${JSON.stringify(this.sel_date)}`)
                 }
             });
 
             emitter.on('date-changed', (data) => {
                 if (data.pkg_no === this.pkg.pkg_no) {
-                    // console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
-                    this.sel_date = data.sel_date;
+                    if (!app.checkOpenDate()) {
+                        console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
+                        this.sel_date = data.sel_date;
+                    }
                 }
             });
 
