@@ -259,13 +259,18 @@
             <!-- product-list -->
             <div class="col-md-9 product-list">
                 <div class="board product-result mb-0 result-board">
-                    <h4>
-                        <span class="text-primary">
-                            {{ totalRows }}
-                        </span>
-                        @Localizer["ExperienceFound"]
-                    </h4>
-                    <tags-section></tags-section>
+                    <div class="d-flex flex-row">
+                        <h4>
+                            <span class="text-primary">
+                                {{ totalRows }}
+                            </span>
+                            @Localizer["ExperienceFound"]
+                        </h4>
+                        <tags-section></tags-section>
+                        <div class="ms-auto">
+                            <b-form-select v-model="sorting" :options="sort_options" @@change="sortChanged" class="form-control"></b-form-select>
+                        </div>
+                    </div>
                 </div>
                 <template v-for="pd in prods">
                     <div class="product-listview search-info">
@@ -371,7 +376,15 @@
                     { time: "24,48", checked: false }, { time: "72,*", checked: false }
                 ],
                 search_key: '',
-                sel_sub_tags: []
+                sel_sub_tags: [],
+                sorting: null,
+                sort_options: [
+                    { value: null, text: "KKday Recommended" },
+                    { value: "PDESC", text: "Price - High to Low" },
+                    { value: "PASC", text: "Price - Low to High" },
+                    { value: "HDESC", text: "Popularity - High to Low" },
+                    { value: "SDESC", text: "Average Rating Star - High to Low)" }
+                ]
             }
         },
         watch: {
@@ -406,7 +419,8 @@
                     key: this.search_key, page: this.currentPage, size: this.perPage,
                     durations: this.durations.filter(d => d.checked).map(d => d.time)
                 };
-                  
+
+                if (this.sorting) req.sort = this.sorting;
                 if (this.sel_sub_tags.length) req.cat_keys = this.sel_sub_tags.map(st => st.id);
 
                 if (!this.load_once) {
@@ -417,7 +431,7 @@
                     }
                 }
 
-                console.log(`Fetch => ${JSON.stringify(req)}`);
+                console.log(`Fetch Req => ${JSON.stringify(req)}`);
                 let uri = `${_root_path}Search/Query`;
                 fetch(uri, {
                         method: 'POST',
@@ -526,6 +540,10 @@
                 let sub_tags = this.facets.tag.map(t => t.sub_tags.filter(st => st.checked).map(st => st)).flat();
                 sub_tags.forEach(st => st.checked = false);
                 this.sel_sub_tags = [];
+            },
+            sortChanged() {
+                this.currentPage = 1;
+                this.Query();
             }
         },
         mounted: function () {
