@@ -1417,7 +1417,7 @@
                     else this.single_qty = { ...spec_condition };
                 }
 
-                if (this.pkg.item[0].has_event) {
+                if (this.pkg.item[0].has_event && this.time_slots.length < 1) {
                     let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
                     times.forEach(t => {
                         this.time_slots.push({ time: t, selected: false, disabled: false });
@@ -1738,7 +1738,7 @@
                 }, 20);
             },
             resetSpecs() {
-                this.time_slots = [] = this.sel_spec_items = [];
+                this.sel_spec_items = [];
 
                 if (this.specs.some(s => s.spec_oid === 'spec-single')) {
                     this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
