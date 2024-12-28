@@ -604,12 +604,14 @@
                                 }
                             }
                             else console.error(`The package(${pkg.pkg_no}) was Loading failed`);
-
-                            $('#pkg_' + pkg.pkg_no).find('#loading').hide();
                         })
                         .catch(error => {
                             console.error(`Unable to load pkg(${pkg.pkg_no}) => `, error);
+                        })
+                        .finally(() => {
+                            $('#pkg_' + pkg.pkg_no).find('#loading').hide();
                         });
+
                 });
 
             },
