@@ -182,7 +182,7 @@
                                 <span v-if="item.show">@Localizer["Cancel"]</span>
                             </a>
                             <img id="loading" src="@Url.Content("~/images/loading.gif")" style="width: 32px; height: 32px; position: absolute; right: 60px; top: 32px;" />
-                            <img id="reload_again" src="@Url.Content("~/images/refresh.png")" @@click="loadPackage(item)" style="width: 32px; height: 32px; position: absolute; right: 60px; top: 20px; display: none;" />
+                            <img id="reload_again" src="@Url.Content("~/images/refresh.png")" @@click="loadPackage(item)" style="width: 32px; height: 30px; position: absolute; right: 60px; top: 20px; display: none;" />
                             
                             <div v-if="moment(pkg.sale_s_date).isBefore(new Date())" class="tip text-blue" v-html="`@Localizer["Earliest_Bookable_Date"]: ${item.sale_s_date}`"></div>
                         </div>
@@ -560,72 +560,76 @@
                             this.pkg.forEach(pkg => {
                                 this.loadPackage(pkg)
                             });
-                        });  
+                        });
                     })
                     .catch(error => console.error('Unable to get items.', error));
             },
             loadPackage(pkg) {
                 const uri = `${_root_path}Product/GetPackage`;
+                const getPackage = async () => {
+                    let req = {
+                        prod_no: this.prod.prod_no,
+                        pkg_no: pkg.pkg_no,
+                        s_date: moment().format('YYYY-MM-DD')
+                    };
+                    // console.log(`load pkg req => ${JSON.stringify(req)}`);
 
-                let req = {
-                    prod_no: this.prod.prod_no,
-                    pkg_no: pkg.pkg_no
-                };
-                // console.log(`load pkg req => ${JSON.stringify(req)}`);
+                    $('#pkg_' + pkg.pkg_no).find('#loading').show();
+                    $('#pkg_' + pkg.pkg_no).find('#reload_again').hide();
 
-                $('#pkg_' + pkg.pkg_no).find('#loading').show();
-                $('#pkg_' + pkg.pkg_no).find('#reload_again').hide();
-
-                fetch(uri, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json;charset=utf-8',
-                        'Content-Type': 'application/json;charset=UTF-8'
-                    },
-                    body: JSON.stringify(req)
-                })
-                    .then(response => {
-                        if (response.ok) return response.json();
-                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
+                    await fetch(uri, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json;charset=utf-8',
+                            'Content-Type': 'application/json;charset=UTF-8'
+                        },
+                        body: JSON.stringify(req)
                     })
-                    .then(data => {
-                        console.log(`pkg[${pkg.pkg_no}] => ${JSON.stringify(data)}`);
-                        if (data.result === "00") {
-                            pkg.guid = data.guid;
-                            pkg.exchange_type = data.exchange_type;
-                            pkg.confirm_time = data.confirm_time;
-                            pkg.confirm_time_unit = data.confirm_time_unit;
-                            pkg.policy_type = data.policy_type;
-                            pkg.refund_type = data.refund_type;
-                            pkg.partial_refund = data.partial_refund;
-                            pkg.lead_day_timezone = data.lead_day_timezone;
-                            pkg.b2c_min_price = data.b2c_min_price;
-                            pkg.b2b_min_price = data.b2b_min_price;
-                            pkg.item_no = data.item_no;
-                            pkg.sale_s_date = data.sale_s_date;
-                            pkg.sale_e_date = data.sale_e_date;
-                            pkg.description_module = data.description_module;
-                            pkg.item = data.item;
+                        .then(response => {
+                            if (response.ok) return response.json();
+                            return response.text().then((text) => { throw Error(JSON.parse(text)) });
+                        })
+                        .then(data => {
+                            console.log(`pkg[${pkg.pkg_no}] => ${JSON.stringify(data)}`);
+                            if (data.result === "00") {
+                                pkg.guid = data.guid;
+                                pkg.exchange_type = data.exchange_type;
+                                pkg.confirm_time = data.confirm_time;
+                                pkg.confirm_time_unit = data.confirm_time_unit;
+                                pkg.policy_type = data.policy_type;
+                                pkg.refund_type = data.refund_type;
+                                pkg.partial_refund = data.partial_refund;
+                                pkg.lead_day_timezone = data.lead_day_timezone;
+                                pkg.b2c_min_price = data.b2c_min_price;
+                                pkg.b2b_min_price = data.b2b_min_price;
+                                pkg.item_no = data.item_no;
+                                pkg.sale_s_date = data.sale_s_date;
+                                pkg.sale_e_date = data.sale_e_date;
+                                pkg.description_module = data.description_module;
+                                pkg.item = data.item;
 
-                            pkg.loaded = true;
-                            pkg.selectable = pkg.item && pkg.item.length > 0;
+                                pkg.loaded = true;
+                                pkg.selectable = pkg.item && pkg.item.length > 0;
 
-                            const av_dates = [...new Set([].concat(...pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
-                            if (pkg.item[0].inventory_set != 0) {
-                                this.fetchAllotment(pkg.pkg_no, av_dates[0]);
+                                const av_dates = [...new Set([].concat(...pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+                                if (pkg.item[0].inventory_set != 0) {
+                                    this.fetchAllotment(pkg.pkg_no, av_dates[0]);
+                                }
                             }
-                        }
-                        else throw Error(`The package(${pkg.pkg_no}) was Loading failed`);
+                            else throw Error(`The package(${pkg.pkg_no}) was Loading failed`);
 
-                    })
-                    .catch(error => {
-                        console.error(`Unable to load pkg(${pkg.pkg_no}) => `, error);
-                        $('#pkg_' + pkg.pkg_no).find('#reload_again').show();
-                    })
-                    .finally(() => {
-                        console.log(`finally pkg(${pkg.pkg_no})`)
-                        $('#pkg_' + pkg.pkg_no).find('#loading').hide();
-                    });
+                        })
+                        .catch(error => {
+                            console.error(`Unable to load pkg(${pkg.pkg_no}) => `, error);
+                            $('#pkg_' + pkg.pkg_no).find('#reload_again').show();
+                        })
+                        .finally(() => {
+                            console.log(`finally pkg(${pkg.pkg_no})`)
+                            $('#pkg_' + pkg.pkg_no).find('#loading').hide();
+                        });
+                };
+
+                getPackage();
             },
             fetchPackage(pkg_no, s_date) {
                 const uri = `${_root_path}Product/GetPackage`;
