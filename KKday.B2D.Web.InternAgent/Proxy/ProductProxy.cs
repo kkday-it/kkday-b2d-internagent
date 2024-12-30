@@ -59,7 +59,8 @@ namespace KKday.B2D.Web.InternAgent.Proxy
 
                             if (response.StatusCode != System.Net.HttpStatusCode.OK)
                             {
-                               throw new Exception($"{response.StatusCode} => {JsonSerializer.Serialize(jsonResult)} ");
+                                Console.WriteLine($"QueryProduct: {response.StatusCode} => {JsonSerializer.Serialize(jsonResult)} ");
+                                throw new Exception($"QueryProduct: {response.StatusCode} => {JsonSerializer.Serialize(jsonResult)} ");
                             }
                         }
                     }
@@ -121,7 +122,8 @@ namespace KKday.B2D.Web.InternAgent.Proxy
 
                             if (response.StatusCode != System.Net.HttpStatusCode.OK)
                             {
-                                throw new Exception($"{response.StatusCode} => {JsonSerializer.Serialize(jsonResult)} ");
+                                Console.WriteLine($"QueryPackage: {response.StatusCode} => {JsonSerializer.Serialize(jsonResult)} ");
+                                throw new Exception($"QueryPackage: {response.StatusCode} => {JsonSerializer.Serialize(jsonResult)} ");
                             }
                         }
                     }

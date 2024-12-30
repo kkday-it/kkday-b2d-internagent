@@ -556,12 +556,12 @@
                         });
 
                         // load all packages
-                        setTimeout(() => {
-                            //this.pkg.forEach((pkg, idx) => {
-                            //    this.loadPackage(pkg);
-                            //});
-                            this.loadPackage(this.pkg[0], 0);
-                        });
+                        //this.pkg.forEach((pkg, idx) => {
+                        //    setTimeout(() => {
+                        //        this.loadPackage(pkg);
+                        //    }, 1000 * idx);
+                        //});
+                        setTimeout(() => this.loadPackage(this.pkg[0], 0));
                     })
                     .catch(error => console.error('Unable to get items.', error));
             },
@@ -630,9 +630,7 @@
 
                         if (idx != undefined) {
                             if (idx < (this.pkg.length-1)) {
-                                setTimeout(() => {
-                                    this.loadPackage(this.pkg[idx + 1], idx + 1);
-                                });
+                                setTimeout(() => this.loadPackage(this.pkg[idx + 1], idx + 1));
                             };
                         }
                     });
