@@ -233,8 +233,8 @@
                                 <div class="form-group">
                                     <label>@Localizer["component_form_passport_expire_date_title"]<span class="text-danger">*</span></label>
                                     <div class="input-group mb-3">
-                                        <input type="text" name="`passport_expdate_${idx}`" placeholder=""
-                                               readonly="readonly" class="form-control" v-model="pax.passport_expdate" required />
+                                        @*<input type="text" name="`passport_expdate_${idx}`" placeholder="" readonly="readonly" class="form-control" v-model="pax.passport_expdate" required />*@
+                                        <datepicker v-model="pax.passport_expdate" placeholder="@Localizer["component_form_expiration_date_placeholder"]"></datepicker>
                                         <div class="input-group-append">
                                             <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                         </div>
