@@ -290,12 +290,22 @@ namespace KKday.B2D.Web.InternAgent.Proxy
                                 "application/json"
                             );
 
-                            var response = client.SendAsync(request).Result;
-                            jsonResult = response.Content.ReadAsStringAsync().Result;
-
-                            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                            for (var retry = 0; retry < 5; retry++)
                             {
-                                throw new Exception($"{response.StatusCode} => {Newtonsoft.Json.JsonConvert.SerializeObject(jsonResult)} ");
+                                var response = client.SendAsync(request).Result;
+                                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    jsonResult = response.Content.ReadAsStringAsync().Result;
+                                    break;
+                                }
+                                else if(response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                                {
+                                    Thread.Sleep(1000); continue;
+                                }
+                                else
+                                {
+                                    throw new Exception($"{response.StatusCode} => {Newtonsoft.Json.JsonConvert.SerializeObject(jsonResult)} ");
+                                }
                             }
                         }
                     }
