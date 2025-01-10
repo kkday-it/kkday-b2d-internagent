@@ -703,6 +703,7 @@
                         }
                     })
                     .catch(error => {
+                        $('#pkg_' + pkg.pkg_no).find('#reload_again').show(); 
                         console.error(`Unable to fetch allotment(pkg:${pkg_no}) `, error);
                     });
             },
