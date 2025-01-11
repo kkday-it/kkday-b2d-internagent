@@ -534,11 +534,14 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                 <b-table id="voucher-table" striped hover
+                                <b-table id="voucher-table" striped hover show-empty
                                          :fields="voucher_fields"
                                          :items="vouchers">
                                     <template v-slot:cell(action)="row">
                                         <b-button size="sm" class="btn btn-primary mr-1" @@click="Download(row.item.order_file_id)">@Localizer["VoucherDownload"] </b-button>
+                                    </template>
+                                    <template #empty="scope">
+                                        No vouchers found!
                                     </template>
                                 </b-table> 
                             </div>

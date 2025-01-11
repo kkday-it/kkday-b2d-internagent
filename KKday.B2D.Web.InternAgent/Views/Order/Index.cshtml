@@ -29,13 +29,15 @@
                                  :fields="fields"
                                  :items="items"
                                  :per-page="0"
-                                 :current-page="currentPage">
+                                 :current-page="currentPage" show-empty>
                             <template v-slot:cell(order_no)="row">
                                 <b-button size="sm" class="btn btn-primary mr-1" @@click="viewOrder(row)">{{ row.item.order_no }}</b-button>
                             </template>
                             <template v-slot:cell(action)="row">
-                                
                                 <!-- <b-button size="sm" @@click="deleteRecord(item)"> Delete </b-button> -->
+                            </template>
+                            <template #empty="scope">
+                               No orders found!
                             </template>
                         </b-table>
                     </div>
