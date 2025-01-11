@@ -34,7 +34,7 @@
     <div class="container-fluid" id="divLayout2">
         <div class="row">
             <div class="col-md-12">
-             
+
                 <div class="container">
                     <div class="breadcrumb m-3">
                         <a href="javascript:history.back()"><i class="fa fa-angle-left fa-lg"></i> @Localizer["Back_Order_List"]</a>
@@ -147,8 +147,9 @@
 
                                     <!-- Right Top and Actions -->
                                     <div class="col-md-5 col-lg-4">
-                                        <a href="#" class="btn btn-primary btn-block" data-toggle="modal" data-target="#voucher-modal">@Localizer["Your_Voucher"]</a>
-                                        <a href="#" class="btn btn-danger btn-block" data-toggle="modal" data-target="#cancel-modal">@Localizer["Cancel_Order"]</a> <div class="mt-10 text-right">
+                                        <a href="#" class="btn btn-primary btn-block" @@click="ShowVoucherModal">@Localizer["Your_Voucher"]</a>
+                                        <a href="#" class="btn btn-danger btn-block" @@click="ShowCancelModal" :disabled="['CX_ING','CX'].includes(order.status)">@Localizer["Cancel_Order"]</a>
+                                        <div class="mt-10 text-right">
                                             <a href="#" data-toggle="modal" data-target="#cancel-info-modal">@Localizer["Cancellation_Policy"]</a>
                                         </div>
                                     </div>
@@ -383,7 +384,7 @@
                                             <div class="traveler-con">
                                                 <template v-for="(cus, seq) in order.custom.filter(c => c.cus_type === 'send')">
                                                     <h4 class="sub-title">
-                                                        @Localizer["Send_Title"] 
+                                                        @Localizer["Send_Title"]
                                                     </h4>
                                                     <div class="row">
                                                         <div class="col-md-4 col-sm-6 col-xs-12" v-if="cus.nationality">
@@ -524,42 +525,61 @@
                     </div>
                 </div>
 
-                <!-- Voucher Modal Start-->
-                <div class="modal fade order-detail-wrap" id="voucher-modal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog modal-md">
+                <!-- Voucher Modal -->
+                <div class="modal fade order-detail-wrap" ref="voucherModal" id="voucher_modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fa fa-remove" aria-hidden="true"></span></button>
-                                <h2 class="modal-title">憑證或檔案下載</h2>
+                                <h3 class="modal-title" id="exampleModalLabel">@Localizer["VoucherModalTitle"]</h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body overflow-x">
-                                <table class="table table-bordered table-sripted">
-                                    <colgroup>
-                                        <col class="w-30">
-                                        <col class="w-150">
-                                        <col>
-                                        <col>
-                                    </colgroup>
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>檔案名稱</th>
-                                            <th>檔案說明</th>
-                                            <th>下載</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="text-sm">
-                                    </tbody>
-                                </table>
+                            <div class="modal-body">
+                                 <b-table id="voucher-table" striped hover
+                                         :fields="voucher_fields"
+                                         :items="vouchers">
+                                    <template v-slot:cell(action)="row">
+                                        <b-button size="sm" class="btn btn-primary mr-1" @@click="Download(row.item.order_file_id)">@Localizer["VoucherDownload"] </b-button>
+                                    </template>
+                                </b-table> 
                             </div>
 
                         </div>
                     </div>
-                </div> 
-             
+                </div>
+
+                <!-- Cancel Modal --> 
+                <div class="modal fade" ref="cancelModal" id="cancel_modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title">@Localizer["CancelModalTitle"]</h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-12 mb-2">
+                                            <label>@Localizer["CancelType"]</label>
+                                            <b-form-select class="form-control" v-model="cancel_req.cancel_type" :options="cancel_types"></b-form-select>
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <label>@Localizer["CancelDesc"]</label>
+                                            <input class="form-control" v-model="cancel_req.cancel_desc" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["CancelModalClose"]</button>
+                                <button type="button" class="btn btn-primary" @@click="CancelOrder">@Localizer["CancelModalApply"]</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+     
 </div>
 
 <script>
@@ -575,8 +595,31 @@
                 isLoading: false,
                 order_load_fail: false,
                 order_no: null,
-                order: {}
+                order: {},
+                cancel_req: { order_no: null, cancel_type: 'MC001', cancel_desc: null },
+                cancel_types: [
+                    { value: 'MC001', text: 'MC001: Trip changes or cancellations' },
+                    { value: 'MC002', text: 'MC002:Duplicate orders' },
+                    { value: 'MC003', text: 'MC003:Price-related factors' },
+                    { value: 'MC004', text: 'MC004:Personal reasons' },
+                    { value: 'MC005', text: 'MC005:Transportation-related factors' },
+                    { value: 'MC006', text: 'MC006:Unable to contact the vendor/shop' },
+                    { value: 'MC999', text: 'MC999:Other reasons' }
+                ],
+                voucher_fields: [
+                    { key: 'file_name', label: '@Localizer["VoucherFileName"]', thClass: 'th-cell', tdClass: 'nowrap' },
+                    { key: 'file_intro', label: '@Localizer["VocuherFileDesc"]', thClass: 'th-cell', tdClass: 'nowrap' },
+                    { key: 'action', label: '', thStyle: { backgroundColor: '#fff' }, tdClass: 'nowrap' },
+                ],
+                vouchers: [],
+                bsVoucherModal: null,
+                bsCancelModal: null,
             };
+        },
+        watch: {
+            order_no(newValue, oldValue) {
+                this.cancel_req.order_no = newValue;
+            },
         },
         created: function () {
             this.Query();
@@ -610,8 +653,78 @@
                         this.order_load_fail = true;
                         console.error('Unable to get order detail. ', error);
                     });
-            }
-        }
+            },
+            ShowVoucherModal() {
+                this.bsVoucherModal.show();
 
+                fetch(`${_root_path}Order/QueryVoucher/${this.order_no}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(`QueryVoucher resp => ${JSON.stringify(data)}`);
+                        if (data.result == "00") this.vouchers = data.file;
+                        else this.vouchers = [];
+                    })
+                    .catch(error => {
+                        console.error('Unable to get vouchers. ', error);
+                    });
+            },
+            Download(order_file_id) {
+                $.getJSON(`${_root_path}Order/Download/${this.order_no}?fid=${order_file_id}`, function (result) {
+                    if (result.status) {
+                        if (reuslt.is_swipe) {
+                            alert(`Token URL : ${result.token_url}\nPincode : ${result.pincode}`);
+                        }
+                        else {
+                            var _filename = result.filename;
+                            var _buffer = base64ToArrayBuffer(result.content);
+                            var _blob = new Blob([_buffer], { type: result.mimetype });
+                            const $a = document.createElement("a");
+                            const url = URL.createObjectURL(_blob);
+                            $a.download = result.filename;
+                            $a.href = url;
+                            $a.click();
+                            setTimeout(() => URL.revokeObjectURL(url), 5000);
+                        }
+                    }
+                    else alert(`@Localizer["VoucherDownloadFailed"]: ${result.msg}}`);
+                });
+            },
+            ShowCancelModal() {
+                this.bsCancelModal.show();
+            },
+            CancelOrder() {
+                if (!confirm('@Localizer["CancelConfirm"]')) return;
+
+                fetch(`${_root_path}Order/Cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(this.cancel_req)
+                })
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
+                    })
+                    .then(data => {
+                        if (data.status) {
+                            alert('@Localizer["CancelSuccessful"]');
+                            this.cancel_req.cancel_type = 'MC001';
+                            this.cancel_req.cancel_desc = null;
+
+                            this.bsCancelModal.hide();
+                        }
+                    })
+                    .catch(error => {
+                        alert(`@Localizer["CancelFailed"], ${error}`)
+                        console.log('Error', error.message);
+                    });
+            },
+        },
+        mounted: function () {
+            this.bsVoucherModal = new bootstrap.Modal(this.$refs.voucherModal);
+            this.bsCancelModal = new bootstrap.Modal(this.$refs.cancelModal);
+        },
     });
 </script>

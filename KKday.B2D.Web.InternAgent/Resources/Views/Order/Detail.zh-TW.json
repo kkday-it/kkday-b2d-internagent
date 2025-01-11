@@ -37,6 +37,19 @@
   "Traveler_Leader": "旅客代表人",
   "Travelers": "旅客",
   "Send_Title": "寄送資料",
-  "Contact_Title": "旅行期間聯絡人"
+  "Contact_Title": "旅行期間聯絡人",
+  "VoucherModalTitle": "訂單憑證",
+  "VoucherFileName": "檔案名稱",
+  "VocuherFileDesc": "檔案說明",
+  "VoucherDownload": "下載",
+  "VoucherDownloadFailed": "憑證下載失敗",
+  "CancelModalTitle": "取消申請",
+  "CancelModalClose": "關閉",
+  "CancelModalApply": "申請",
+  "CancelType": "取消類型",
+  "CancelDesc": "取消內容描述",
+  "CancelConfirm": "您想要申請取消訂單嗎?",
+  "CancelSuccessful": "取消申請成功!",
+  "CancelFailed": "取消申請失敗"
 }
 

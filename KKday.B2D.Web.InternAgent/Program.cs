@@ -62,6 +62,7 @@ builder.Services.AddSingleton<CommonRepository>();
 builder.Services.AddSingleton<BookingProxy>();
 builder.Services.AddSingleton<OrderProxy>();
 builder.Services.AddSingleton<CommonProxy>();
+builder.Services.AddSingleton<VoucherProxy>();
 
 #endregion Dependent Injection --- end
 
