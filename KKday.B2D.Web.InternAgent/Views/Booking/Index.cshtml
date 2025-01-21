@@ -404,7 +404,7 @@
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_flight_type"]<span class="text-danger">*</span></label>
                                 <select id="booking-flight-departure-type" name="departureFlightType0" class="form-control"
-                                        v-model="booking?.traffics?.find(t=> t.traffic_type=='flight').departure_flightType" required>
+                                        v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_flightType" required>
                                     <option disabled="disabled" value="">@Localizer["booking_step1_flight_info_flight_type_placeholder"]</option>
                                     <template v-for="temp in getBookingFieldReferenceforFlight('departure_flightType')">
                                         <option :value="temp.id" v-html="temp.name"></option>

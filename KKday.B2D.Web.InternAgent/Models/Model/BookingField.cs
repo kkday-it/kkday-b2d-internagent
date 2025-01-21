@@ -225,7 +225,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public ArrivalAirport arrival_airport { get; set; }
         public TrafficAttribute arrival_airlineName { get; set; }
         public TrafficAttribute arrival_flightNo { get; set; }
-        public TrafficAttribute arrival_terminal_no { get; set; }
+        public TrafficAttribute arrival_terminalNo { get; set; }
         public TrafficAttribute arrival_visa { get; set; }
         public TrafficAttribute arrival_date { get; set; }
         public TrafficAttribute arrival_time { get; set; }
