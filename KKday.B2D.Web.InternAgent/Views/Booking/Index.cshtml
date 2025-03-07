@@ -1038,7 +1038,7 @@
                             <div class="form-group">
                                 <small>@Localizer["booking_step1_send_data_receive_address_country"]</small><span class="text-danger">*</span>
                                 <select name="receiverCountry" id="receiverCountry" class="form-control" @@change="setCountry($refs.receiver_city, $event.target.value)" required>
-                                    <option value="">@Localizer["common_select_set"]</option>
+                                    <option value="" selected>@Localizer["common_select_set"]</option>
                                     <template v-for="na in getBookingFieldReference('custom.country_cities')">
                                         <option :value="na.id" v-html="na.name"></option>
                                     </template>
@@ -1049,8 +1049,11 @@
                             <!-- Receive City -->
                             <div class="form-group">
                                 <small>@Localizer["booking_step1_send_data_receive_address_city"]</small><span class="text-danger">*</span>
-                                <select ref="receiver_city" class="form-control" id="receiverCity" name="receiverCity" required>
+                                <select ref="receiver_city" class="form-control" id="receiverCity" name="receiverCity" v-model="booking.custom.find(t=>t.cus_type === 'send').country_cities" required>
                                     <option value="">@Localizer["common_select_set"]</option>
+                                     <template v-for="city in receive_cities">
+                                        <option :value="city.city_code" v-html="city.name"></option>
+                                    </template>
                                 </select>
                             </div>
                         </div>
@@ -1352,7 +1355,8 @@
                 show_cus_route: false,
                 show_cus_shuttle: false,
                 booking_custom_routes: [],
-                prod_info: null
+                prod_info: null,
+                receive_cities: []
             }
         },
         created: function () {
@@ -1752,22 +1756,18 @@
             },
             setCountry(target, val) {
                 //@* console.log(` target = ${target}, val => ${val}`); *@
-                let cities = [];
+                this.receive_cities = [];
                 if (this.bookingField.custom.country_cities.list_option) {
                     let country = this.bookingField.custom.country_cities.list_option.find(n => n.id == val);
-                    cities = country ? country.cities : [];
+                    this.receive_cities = country ? country.cities : [];
+                    this.receive_cities.forEach(ct => {
+                        ct.city_code = `${country.id}_${ct.city_code}`;
+                    });
                 }
                 //@* console.log(`cities => ${JSON.stringify(cities)}`); *@
                 $(target).find('option:not(:first)').remove();
-                cities.forEach(c => {
-                    $(target).append($('<option>', {
-                        value: c.cityCode,
-                        text: c.name
-                    }));
-                });
-
             },
-             changeRentLocation(val, type) {
+            changeRentLocation(val, type) {
                  if (type === 'pick') {
                      $('#booking_pickup_time').find(`option:not(:first)`).remove();
                      $('#booking_dropoff_time').find(`option:not(:first)`).remove();
