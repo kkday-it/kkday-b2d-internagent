@@ -12,11 +12,10 @@
 @section Styles {
     <link rel="stylesheet" href="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.css" />
     <style type="text/css">
-         
     </style>
 }
 @section Scripts {
-    <script src="https://unpkg.com/mitt/dist/mitt.umd.js"></script>
+    <script src="~/js/mitt.umd.min.js"></script>
     <script src="~/js/moment-with-locales.js"></script>
     <script src="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.js"></script>
 
@@ -183,7 +182,7 @@
                             </a>
                             <img id="loading" src="@Url.Content("~/images/loading.gif")" style="width: 32px; height: 32px; position: absolute; right: 60px; top: 32px;" />
                             <img id="reload_again" src="@Url.Content("~/images/refresh.png")" @@click="loadPackage(item)" style="width: 32px; height: 30px; position: absolute; right: 60px; top: 20px; display: none;" />
-                            
+
                             <div v-if="moment(pkg.sale_s_date).isBefore(new Date())" class="tip text-blue" v-html="`@Localizer["Earliest_Bookable_Date"]: ${item.sale_s_date}`"></div>
                         </div>
                     </div>
@@ -199,14 +198,14 @@
                             <div class="choose-date-title" v-if="!checkOpenDate(prod.go_date_setting.type)">@Localizer["Select_DateAndOptions"]</div>
 
                         </div>
-                        <div class="row"> 
+                        <div class="row">
                             <div class="col-md-6 option-item-calendar">
                                 <calendar-section ref="calendar" :pkg="item"></calendar-section>
                             </div>
                             <div class="col-md-6 option-item-sku">
                                 <div class="h4" v-if="checkOpenDate(prod.go_date_setting.type)">@Localizer["SelectOptions_Title"]</div>
                                 <spec-section ref="skus" :pkg="item"></spec-section>
-                            </div> 
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -464,7 +463,7 @@
     </div>
 
 </div>
- 
+
 <script type="text/javascript">
     const scrollToElement = ($element, {
         scrollOffset = 0,
@@ -565,7 +564,7 @@
                     })
                     .catch(error => console.error('Unable to get items.', error));
             },
-            loadPackage(pkg, idx) { 
+            loadPackage(pkg, idx) {
                 $('#pkg_' + pkg.pkg_no).find('#loading').show();
                 $('#pkg_' + pkg.pkg_no).find('#reload_again').hide();
 
@@ -703,7 +702,7 @@
                         }
                     })
                     .catch(error => {
-                        $('#pkg_' + pkg.pkg_no).find('#reload_again').show(); 
+                        $('#pkg_' + pkg.pkg_no).find('#reload_again').show();
                         console.error(`Unable to fetch allotment(pkg:${pkg_no}) `, error);
                     });
             },
@@ -1085,7 +1084,7 @@
                         }
                     }
                 }
-            }, 
+            },
             getPrecisePrice(date) {
                 let price = null;
                 if (this.filter_options.sku_id) {
@@ -1884,7 +1883,7 @@
         created: function () {
             this.prod_no = this.$parent.prod.prod_no;
             this.is_date_range = date_range_types.some(t => this.$parent.prod.go_date_setting.type == t);
-            this.prod_name = this.$parent.prod.prod_name; 
+            this.prod_name = this.$parent.prod.prod_name;
         },
         setup(props) {
             this.pkg = props.pkg;

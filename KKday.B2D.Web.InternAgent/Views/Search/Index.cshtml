@@ -106,7 +106,11 @@
         .calendar-table {
             padding-bottom: 30px;
         }
-        .pagination { display:flex !important; } 
+
+        .pagination {
+            display: flex !important;
+        }
+
         .popup-msg {
             display: block;
             position: fixed;
@@ -127,7 +131,7 @@
     <script src="~/lib/ion-rangeSlider/js/ion.rangeSlider.min.js"></script>
     <script src="~/js/moment-with-locales.js"></script>
     <script src="~/lib/jquery-daterangepicker/daterangepicker.js"></script>
-    <script src="https://unpkg.com/mitt/dist/mitt.umd.js"></script>
+    <script src="~/js/mitt.umd.min.js"></script>
 }
 
 
@@ -342,7 +346,7 @@
 <script type="text/javascript">
     const emitter = mitt();
 
-    $(function () { 
+    $(function () {
         $('#js-range-slider').ionRangeSlider({
             type: "double",
             grid: false,
@@ -361,7 +365,7 @@
                 totalRows: 0,
                 perPage: 25,
                 limit: 8,
-                isLoading: false, 
+                isLoading: false,
                 locale: '@locale',
                 price_range: { min: null, max: null },
                 currency: '@Localizer[Website.Instance.Currency]',
@@ -413,7 +417,7 @@
                     this.Fetch();
                 }, 200)
             },
-            Fetch() { 
+            Fetch() {
                 let vm = this;
                 let req = {
                     key: this.search_key, page: this.currentPage, size: this.perPage,
@@ -460,13 +464,13 @@
                                 });
                                 this.facets = result.data.facets;
                                 this.stats = result.data.stats;
-                                 
+
                                 let range = $("#js-range-slider").data("ionRangeSlider");
                                 if (range) {
                                     range.update({
                                         min: this.stats.price.min, max: this.stats.price.max,
                                         from: this.stats.price.min, to: this.stats.price.max
-                                    }); 
+                                    });
                                 }
 
                                 $("#js-range-slider").on('change', function () {
