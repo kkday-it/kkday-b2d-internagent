@@ -1633,7 +1633,8 @@
                     if (total_qty > rule.max_quantity || total_qty < rule.min_quantity) grand_total = 0;
                 }
 
-                this.totalPrice = grand_total;
+                // floating precision
+                this.totalPrice = /^-?\d*\.\d+$/.test(grand_total) ? (grand_total).toFixed(2) : grand_total;
             },
             checkQuantity(total_qty, skus) {
                 let unmatch_count = 0;
