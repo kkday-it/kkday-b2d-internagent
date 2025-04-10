@@ -1444,7 +1444,7 @@
                     times.forEach(t => {
                         this.time_slots.push({ time: t, selected: false, disabled: false });
                     });
-                    // console.log(`Render, time_slots => ${JSON.stringify(this.time_slots)}`);
+                    console.log(`Render, time_slots => ${JSON.stringify(this.time_slots)}`);
                 }
             },
             minus(spec_item_oid) {
@@ -1702,7 +1702,20 @@
                     // force to un-select and disable to all time slots
                     this.time_slots.forEach(t => { t.selected = false; t.disabled = true; });
                     // restore disable status to available time slots
-                    let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
+                    let times = [];
+                    if (this.sel_date.s_date) {
+                        times = [...new Set([].concat(...this.pkg.item[0].skus.map(s =>
+                            // Check if this specific date exists in the calendar_detail
+                            s.calendar_detail[this.sel_date.s_date] ?
+                                // If it exists, get the b2c_price keys
+                                Object.keys(s.calendar_detail[this.sel_date.s_date].b2c_price ?? {}) :
+                                // If it doesn't exist, return an empty array
+                                []
+                        )))];
+                    }
+                    else {
+                       times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
+                    }
                     // console.log(`checkTimeslot => times: ${JSON.stringify(times)}`)
                     this.time_slots.filter(t => times.some(tm => tm === t.time)).forEach(t => {
                         t.disabled = false;
@@ -1911,6 +1924,7 @@
                     if (!app.checkOpenDate()) {
                         console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
                         this.sel_date = data.sel_date;
+                        this.checkTimeslot();
                     }
                 }
             });
