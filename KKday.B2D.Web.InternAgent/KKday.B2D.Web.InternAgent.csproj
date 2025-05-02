@@ -21,6 +21,8 @@
     <None Remove="Resources\Views\Shared\" />
     <None Remove="Views\Booking\" />
     <None Remove="Resources\Views\Order\" />
+    <None Include="appsettings.json">
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Search\" />
