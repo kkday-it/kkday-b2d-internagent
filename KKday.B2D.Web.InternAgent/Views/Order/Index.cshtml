@@ -29,13 +29,17 @@
                                  :fields="fields"
                                  :items="items"
                                  :per-page="0"
-                                 :current-page="currentPage"
-                                 small>
-                            <template v-slot:cell(action)="data">
-                                <b-button size="sm" class="btn btn-primary mr-1" @@click="viewOrder(data)">@Localizer["More"] </b-button>
-                                <!-- <b-button size="sm" @@click="deleteRecord(data)"> Delete </b-button> -->
+                                 :current-page="currentPage" show-empty>
+                            <template v-slot:cell(order_no)="row">
+                                <b-button size="sm" class="btn btn-primary mr-1" @@click="viewOrder(row)">{{ row.item.order_no }}</b-button>
                             </template>
-                        </b-table> 
+                            <template v-slot:cell(action)="row">
+                                <!-- <b-button size="sm" @@click="deleteRecord(item)"> Delete </b-button> -->
+                            </template>
+                            <template #empty="scope">
+                               No orders found!
+                            </template>
+                        </b-table>
                     </div>
                     <div v-if="items.length">
                         <b-pagination v-model="currentPage" @@page-click="PageClick"
@@ -57,7 +61,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -79,8 +82,7 @@
                     { key: 'total_price', label: '@Localizer["Total_Amount"]', thClass: 'th-cell', tdClass: 'nowrap' },
                     { key: 'action', label: '', thStyle: { backgroundColor: '#f2f2f2' }, tdClass: 'nowrap' },
                 ],
-                items: [
-                ]
+                items: [],
             };
         },
         created: function () {
@@ -136,8 +138,13 @@
             viewOrder(data) {
                 // console.log(`View Order => ${JSON.stringify(data)}`)
                 location.href = `${_root_path}Order/Detail/${data.item.order_no}`;
+            },
+            GetVoucherList() {
+                this.bsVoucherModal.show();
             }
+        },
+        mounted: function () {
+          
         }
-
     });
 </script>

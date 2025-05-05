@@ -37,6 +37,19 @@
   "Traveler_Leader": "Traveler Leader",
   "Travelers": "Traveler",
   "Send_Title": "Send Data",
-  "Contact_Title": "Contact during Travel"
+  "Contact_Title": "Contact during Travel",
+  "VoucherModalTitle": "Order Vouchers",
+  "VoucherFileName": "File Name",
+  "VocuherFileDesc": "File Description",
+  "VoucherDownload": "Download",
+  "VoucherDownloadFailed": "Voucher download was failed",
+  "CancelModalTitle": "Cancellation Application",
+  "CancelModalClose": "Close",
+  "CancelModalApply": "Apply",
+  "CancelType": "Cancel Type",
+  "CancelDesc": "Cancel Desc",
+  "CancelConfirm": "Do you want to cancel the order?",
+  "CancelSuccessful": "Cancellation application was successful!",
+  "CancelFailed": "Cancellation application was failed"
 }
 

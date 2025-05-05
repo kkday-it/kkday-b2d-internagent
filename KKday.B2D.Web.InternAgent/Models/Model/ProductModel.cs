@@ -10,17 +10,17 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     {
         public bool is_tour { get; set; }
         public bool is_cancel_free { get; set; }
-        public Int64 prod_no { get; set; }
-        public Int64 prod_url_no { get; set; }
+        public Int64? prod_no { get; set; }
+        public Int64? prod_url_no { get; set; }
         public string prod_name { get; set; }
         public string prod_type { get; set; }
         public List<string> tag { get; set; }
-        public double b2c_min_price { get; set; }
-        public double b2b_min_price { get; set; }
+        public double? b2c_min_price { get; set; }
+        public double? b2b_min_price { get; set; }
         public string prod_currency { get; set; }
-        public Int16 days { get; set; }
-        public Int16 hours { get; set; }
-        public Int16 duration { get; set; }
+        public Int16? days { get; set; }
+        public Int16? hours { get; set; }
+        public Int16? duration { get; set; }
         public string introduction { get; set; }
         public string timezone { get; set; }
         public List<string> guide_lang_list { get; set; }
@@ -56,8 +56,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public class ProductGoDateSettingDays
     {
-        public int max { get; set; }
-        public int min { get; set; }
+        public int? max { get; set; }
+        public int? min { get; set; }
     }
   
 }

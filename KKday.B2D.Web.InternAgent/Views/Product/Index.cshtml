@@ -10,14 +10,13 @@
 }
 
 @section Styles {
+ 
     <link rel="stylesheet" href="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.css"/>
-    <style type="text/css">
-
-    </style>
+    <style type="text/css"> 
 }
 
 @section Scripts {
-    <script src="https://unpkg.com/mitt/dist/mitt.umd.js"></script>
+    <script src="~/js/mitt.umd.min.js"></script>
     <script src="~/js/moment-with-locales.js"></script>
     <script src="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.js"></script>
 
@@ -209,10 +208,12 @@
                                 <span v-if="!item.show">@Localizer["Select"]</span>
                                 <span v-if="item.show">@Localizer["Cancel"]</span>
                             </a>
+ 
                             <img id="loading" src="@Url.Content("~/images/loading.gif")"
                                  style="width: 32px; position: absolute; right: 60px; top: 32px;"/>
                             <div v-if="moment(pkg.sale_s_date).isBefore(new Date())" class="tip text-blue"
                                  v-html="`@Localizer["Earliest_Bookable_Date"]: ${item.sale_s_date}`"></div>
+ 
                         </div>
                     </div>
                     <div class="option-booking">
@@ -668,27 +669,41 @@
                             // other options
                         });
 
-                        this.loadPackages();
+                        // load all packages
+                        //this.pkg.forEach((pkg, idx) => {
+                        //    setTimeout(() => {
+                        //        this.loadPackage(pkg);
+                        //    }, 1000 * idx);
+                        //});
+                        setTimeout(() => this.loadPackage(this.pkg[0], 0));
                     })
                     .catch(error => console.error('Unable to get items.', error));
             },
-            loadPackages() {
+            loadPackage(pkg, idx) {
+                $('#pkg_' + pkg.pkg_no).find('#loading').show();
+                $('#pkg_' + pkg.pkg_no).find('#reload_again').hide();
+
+                console.log(`load pkg => pkg_no: ${pkg.pkg_no}`);
                 const uri = `${_root_path}Product/GetPackage`;
 
-                this.pkg.forEach(pkg => {
-                    let req = {
-                        prod_no: this.prod.prod_no,
-                        pkg_no: pkg.pkg_no
-                    };
-                    // console.log(`load pkg req => ${JSON.stringify(req)}`);
+                let req = {
+                    prod_no: this.prod.prod_no,
+                    pkg_no: pkg.pkg_no,
+                    s_date: moment().format('YYYY-MM-DD')
+                };
+                // console.log(`load pkg req => ${JSON.stringify(req)}`);
 
-                    fetch(uri, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json;charset=utf-8',
-                            'Content-Type': 'application/json;charset=UTF-8'
-                        },
-                        body: JSON.stringify(req)
+                 fetch(uri, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json;charset=utf-8',
+                        'Content-Type': 'application/json;charset=UTF-8'
+                    },
+                    body: JSON.stringify(req)
+                })
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
                     })
                         .then(response => response.json())
                         .then(data => {
@@ -727,7 +742,7 @@
                 });
 
             },
-            FetchPackage(pkg_no, s_date) {
+            fetchPackage(pkg_no, s_date) {
                 const uri = `${_root_path}Product/GetPackage`;
 
                 let req = {
@@ -735,7 +750,7 @@
                     pkg_no: pkg_no,
                     s_date: s_date
                 };
-                // console.log(`FetchPackage, req => ${JSON.stringify(req)}`);
+                // console.log(`fetchPackage, req => ${JSON.stringify(req)}`);
 
                 fetch(uri, {
                     method: 'POST',
@@ -747,7 +762,7 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        // console.log(`FetchPackage, res => ${JSON.stringify(data)}`);
+                        // console.log(`fetchPackage, res => ${JSON.stringify(data)}`);
                         let pkg = this.pkg.find(p => p.pkg_no === pkg_no);
                         data.item[0].skus.forEach(s => {
                             let sku = pkg.item[0].skus.find(s2 => s2.sku_id === s.sku_id);
@@ -797,6 +812,7 @@
                         }
                     })
                     .catch(error => {
+                        $('#pkg_' + pkg.pkg_no).find('#reload_again').show();
                         console.error(`Unable to fetch allotment(pkg:${pkg_no}) `, error);
                     });
             },
@@ -878,7 +894,7 @@
         mounted: function () {
             emitter.on('load-package', (data) => {
                 console.log(`app.load-package => pkg_no: ${data.pkg_no}, sdate: ${data.sdate}`)
-                this.FetchPackage(data.pkg_no, data.sdate);
+                this.fetchPackage(data.pkg_no, data.sdate);
             });
         }
     });
@@ -1482,7 +1498,7 @@
 
     </template>
     <div class="form-group" v-if="specs.filter(s => s.spec_oid=='spec-single' || s.spec_oid=='spec-ticket').length < 1">
-        <label>非單規無票種-@Localizer["Select_Quantity"]</label>
+        <label>@Localizer["Select_Quantity"]</label>
         <div class="counter-item">
             <div class="counter-row">
                 <div class="counter-name">{{unit_label}}</div>
@@ -1564,12 +1580,13 @@
                     } else this.single_qty = {...spec_condition};
                 }
 
-                if (this.pkg.item[0].has_event) {
+                if (this.pkg.item[0].has_event && this.time_slots.length < 1) {
                     let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
                     this.time_slots = []
                     times.forEach(t => {
                         this.time_slots.push({time: t, selected: false, disabled: false});
                     });
+                    // console.log(`Render, time_slots => ${JSON.stringify(this.time_slots)}`);
                 }
             },
             minus(spec_item_oid) {
@@ -1756,7 +1773,8 @@
                     if (total_qty > rule.max_quantity || total_qty < rule.min_quantity) grand_total = 0;
                 }
 
-                this.totalPrice = grand_total;
+                // floating precision
+                this.totalPrice = /^-?\d*\.\d+$/.test(grand_total) ? (grand_total).toFixed(2) : grand_total;
             },
             checkQuantity(total_qty, skus) {
                 let unmatch_count = 0;
@@ -1826,12 +1844,13 @@
                         t.disabled = true;
                     });
                     // restore disable status to available time slots
+ 
                     let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
 
                     const saleStartDate = moment(this.pkg.item[0].sale_s_date, 'YYYY-MM-DD');
                     const saleStartDateEvent = moment(this.pkg.item[0].sale_s_date_event, 'HH:mm');
                     const selectedStartDate = this.sel_date.s_date ? moment(this.sel_date.s_date, 'YYYY-MM-DD') : null;
-
+                  
                     this.time_slots.filter(t => times.some(tm => tm === t.time)).forEach(t => {
                         t.disabled = false;
                         if (t.time === this.sel_time_slot) t.selected = true;
@@ -1901,6 +1920,7 @@
             },
             resetSpecs() {
                 this.sel_spec_items = [];
+
                 if (this.specs.some(s => s.spec_oid === 'spec-single')) {
                     this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
                 }
@@ -2022,7 +2042,6 @@
             this.prod_no = this.$parent.prod.prod_no;
             this.is_date_range = date_range_types.some(t => this.$parent.prod.go_date_setting.type == t);
             this.prod_name = this.$parent.prod.prod_name;
-            console.log(`Spec created, prod_no: ${this.prod_no}, prod_name: ${this.prod_name}`);
         },
         setup(props) {
             this.pkg = props.pkg;
@@ -2038,13 +2057,18 @@
                 if (app.checkOpenDate()) {
                     const pkg_cal_date = Object.keys(this.pkg.item[0].skus[0].calendar_detail)[0];
                     this.sel_date = {s_date: pkg_cal_date, e_date: pkg_cal_date};
+                    // console.log(`opendate.default: ${JSON.stringify(this.sel_date)}`)
+
                 }
             });
 
             emitter.on('date-changed', (data) => {
                 if (data.pkg_no === this.pkg.pkg_no) {
-                    // console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
-                    this.sel_date = data.sel_date;
+                    if (!app.checkOpenDate()) {
+                        console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
+                        this.sel_date = data.sel_date;
+                        this.checkTimeslot();
+                    }
                 }
             });
 

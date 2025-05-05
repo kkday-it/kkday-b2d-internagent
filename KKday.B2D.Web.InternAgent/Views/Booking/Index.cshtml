@@ -233,8 +233,8 @@
                                 <div class="form-group">
                                     <label>@Localizer["component_form_passport_expire_date_title"]<span class="text-danger">*</span></label>
                                     <div class="input-group mb-3">
-                                        <input type="text" name="`passport_expdate_${idx}`" placeholder=""
-                                               readonly="readonly" class="form-control" v-model="pax.passport_expdate" required />
+                                        @*<input type="text" name="`passport_expdate_${idx}`" placeholder="" readonly="readonly" class="form-control" v-model="pax.passport_expdate" required />*@
+                                        <datepicker v-model="pax.passport_expdate" placeholder="@Localizer["component_form_expiration_date_placeholder"]"></datepicker>
                                         <div class="input-group-append">
                                             <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                         </div>
@@ -404,7 +404,7 @@
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_flight_type"]<span class="text-danger">*</span></label>
                                 <select id="booking-flight-departure-type" name="departureFlightType0" class="form-control"
-                                        v-model="booking?.traffics?.find(t=> t.traffic_type=='flight').departure_flightType" required>
+                                        v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_flightType" required>
                                     <option disabled="disabled" value="">@Localizer["booking_step1_flight_info_flight_type_placeholder"]</option>
                                     <template v-for="temp in getBookingFieldReferenceforFlight('departure_flightType')">
                                         <option :value="temp.id" v-html="temp.name"></option>
@@ -468,8 +468,25 @@
                             <!-- Departure Time -->
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_departure_time"]<span class="text-danger">*</span></label>
-                                <input placeholder="@Localizer["booking_step1_flight_info_departure_time_placeholder"]" autocomplete="on" type="text" id="booking-flight-departure-flight-number" name="departureFlightNo0" class="form-control"
-                                       v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_time" required />
+                                @*<input placeholder="@Localizer["booking_step1_flight_info_departure_time_placeholder"]" autocomplete="on" type="text" id="booking-flight-departure-flight-number" name="departureFlightNo0" class="form-control"
+                                    v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').departure_time" required />*@
+                                <div class="time-select">
+                                    <div class="form-group">
+                                        <select class="form-control" ref="dept_time_hour" @@change="changeDepartureTime()">
+                                            <option v-for="hour in 24" :key="hour-1" :value="formatTimePadding(hour-1)">
+                                                {{ formatTimePadding(hour-1) }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <span class="time-gap"> : </span>
+                                    <div class="form-group">
+                                        <select class="form-control" ref="dept_time_min" @@change="changeDepartureTime()">
+                                            <option v-for="minute in 60" :key="minute-1" :value="formatTimePadding(minute-1)">
+                                                {{ formatTimePadding(minute-1) }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -547,8 +564,25 @@
                             <!-- Arrival Time -->
                             <div class="form-group">
                                 <label>@Localizer["booking_step1_flight_info_arrival_time"]<span class="text-danger">*</span></label>
-                                <input placeholder="@Localizer["booking_step1_flight_info_departure_time_placeholder"]" autocomplete="on" type="text" id="booking-flight-departure-flight-number" name="departureFlightNo0" class="form-control"
-                                       v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').arrival_time" required />
+                                @*<input placeholder="@Localizer["booking_step1_flight_info_arrival_time_placeholder"]" autocomplete="on" type="text" id="booking-flight-departure-flight-number" name="departureFlightNo0" class="form-control"
+                                       v-model="booking?.traffic?.find(t=> t.traffic_type=='flight').arrival_time" required />*@
+                                 <div class="time-select">
+                                    <div class="form-group">
+                                        <select class="form-control" ref="arrv_time_hour" @@change="changeArrivalTime()">
+                                            <option v-for="hour in 24" :key="hour-1" :value="formatTimePadding(hour-1)">
+                                                {{ formatTimePadding(hour-1) }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <span class="time-gap"> : </span>
+                                    <div class="form-group">
+                                        <select class="form-control" ref="arrv_time_min" @@change="changeArrivalTime()">
+                                            <option v-for="minute in 60" :key="minute-1" :value="formatTimePadding(minute-1)">
+                                                {{ formatTimePadding(minute-1) }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -600,7 +634,7 @@
                             <div class="input-group">
                                 <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_date" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]"></datepicker>
                                 @*<input id="rentPickUpDate0" name="pickUpDate0" placeholder="@Localizer["booking_step1_rent_car_pick_up_date"]" type="text"
-                            v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_date" class="form-control has-datepicker" required>*@
+                                    v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).s_date" class="form-control has-datepicker" required>*@
                                 <div class="input-group-append">
                                     <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                 </div>
@@ -639,7 +673,7 @@
                             <div class="input-group" name="rentDropOffDate0">
                                 <datepicker v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).e_date" placeholder="@Localizer["booking_step1_rent_car_drop_off_date_placeholder"]"></datepicker>
                                 @*<input name="dropOffDate0" v-model="booking?.traffic?.find(t=> t.traffic_type.startsWith('rentcar')).e_date"
-                            placeholder="@Localizer["booking_step1_rent_car_drop_off_date_placeholder"]" type="text" class="form-control has-datepicker" required>*@
+                                    placeholder="@Localizer["booking_step1_rent_car_drop_off_date_placeholder"]" type="text" class="form-control has-datepicker" required>*@
                                 <div class="input-group-append">
                                     <span class="input-group-text bg-white"><i class="icon-calendar icons"></i></span>
                                 </div>
@@ -1038,7 +1072,7 @@
                             <div class="form-group">
                                 <small>@Localizer["booking_step1_send_data_receive_address_country"]</small><span class="text-danger">*</span>
                                 <select name="receiverCountry" id="receiverCountry" class="form-control" @@change="setCountry($refs.receiver_city, $event.target.value)" required>
-                                    <option value="">@Localizer["common_select_set"]</option>
+                                    <option value="" selected>@Localizer["common_select_set"]</option>
                                     <template v-for="na in getBookingFieldReference('custom.country_cities')">
                                         <option :value="na.id" v-html="na.name"></option>
                                     </template>
@@ -1049,8 +1083,11 @@
                             <!-- Receive City -->
                             <div class="form-group">
                                 <small>@Localizer["booking_step1_send_data_receive_address_city"]</small><span class="text-danger">*</span>
-                                <select ref="receiver_city" class="form-control" id="receiverCity" name="receiverCity" required>
+                                <select ref="receiver_city" class="form-control" id="receiverCity" name="receiverCity" v-model="booking.custom.find(t=>t.cus_type === 'send').country_cities" required>
                                     <option value="">@Localizer["common_select_set"]</option>
+                                     <template v-for="city in receive_cities">
+                                        <option :value="city.city_code" v-html="city.name"></option>
+                                    </template>
                                 </select>
                             </div>
                         </div>
@@ -1352,11 +1389,13 @@
                 show_cus_route: false,
                 show_cus_shuttle: false,
                 booking_custom_routes: [],
-                prod_info: null
+                prod_info: null,
+                receive_cities: []
             }
         },
         created: function () {
             this.Query();
+            // Hide the contact info
             this.show_travel_contact_app = this.checkBookingField('custom.contact_app', 'contact');
             this.show_travel_contact_phone = this.checkBookingField('custom.tel_number', 'contact');
         },
@@ -1419,6 +1458,14 @@
                         this.prod_info = result.prod_info;
 
                         this.isLoading = false;
+
+                        // Default value for 'departure_time' or 'arrival_time'
+                        if (this.checkBookingFieldforFlight('departure_time')) {
+                            this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "departure_time", "00:00");
+                        }
+                        if (this.checkBookingFieldforFlight('arrival_time')) {
+                            this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "arrival_time", "00:00");
+                        }
                     })
                     .catch(error => {
                         alert(`Error: ${error.message}`)
@@ -1752,22 +1799,18 @@
             },
             setCountry(target, val) {
                 //@* console.log(` target = ${target}, val => ${val}`); *@
-                let cities = [];
+                this.receive_cities = [];
                 if (this.bookingField.custom.country_cities.list_option) {
                     let country = this.bookingField.custom.country_cities.list_option.find(n => n.id == val);
-                    cities = country ? country.cities : [];
+                    this.receive_cities = country ? country.cities : [];
+                    this.receive_cities.forEach(ct => {
+                        ct.city_code = `${country.id}_${ct.city_code}`;
+                    });
                 }
                 //@* console.log(`cities => ${JSON.stringify(cities)}`); *@
                 $(target).find('option:not(:first)').remove();
-                cities.forEach(c => {
-                    $(target).append($('<option>', {
-                        value: c.cityCode,
-                        text: c.name
-                    }));
-                });
-
             },
-             changeRentLocation(val, type) {
+            changeRentLocation(val, type) {
                  if (type === 'pick') {
                      $('#booking_pickup_time').find(`option:not(:first)`).remove();
                      $('#booking_dropoff_time').find(`option:not(:first)`).remove();
@@ -1911,6 +1954,15 @@
 
                 // Check the nationality must be Taiwnaese
                 return (pax.nationality === 'TW') ? true : false;
+            },
+            formatTimePadding(num) {
+                return num.toString().padStart(2, '0');
+            },
+            changeDepartureTime() {
+                this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "departure_time", this.$refs.dept_time_hour.value + ':' + this.$refs.dept_time_min.value);
+            },
+            changeArrivalTime() {
+                this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "arrival_time", this.$refs.arrv_time_hour.value + ':' + this.$refs.arrv_time_min.value);
             },
         },
         watch: {

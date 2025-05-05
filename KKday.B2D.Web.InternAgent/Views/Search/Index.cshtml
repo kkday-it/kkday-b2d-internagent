@@ -106,7 +106,11 @@
         .calendar-table {
             padding-bottom: 30px;
         }
-        .pagination { display:flex !important; } 
+
+        .pagination {
+            display: flex !important;
+        }
+
         .popup-msg {
             display: block;
             position: fixed;
@@ -127,7 +131,7 @@
     <script src="~/lib/ion-rangeSlider/js/ion.rangeSlider.min.js"></script>
     <script src="~/js/moment-with-locales.js"></script>
     <script src="~/lib/jquery-daterangepicker/daterangepicker.js"></script>
-    <script src="https://unpkg.com/mitt/dist/mitt.umd.js"></script>
+    <script src="~/js/mitt.umd.min.js"></script>
 }
 
 
@@ -259,13 +263,18 @@
             <!-- product-list -->
             <div class="col-md-9 product-list">
                 <div class="board product-result mb-0 result-board">
-                    <h4>
-                        <span class="text-primary">
-                            {{ totalRows }}
-                        </span>
-                        @Localizer["ExperienceFound"]
-                    </h4>
-                    <tags-section></tags-section>
+                    <div class="d-flex flex-row">
+                        <h4>
+                            <span class="text-primary">
+                                {{ totalRows }}
+                            </span>
+                            @Localizer["ExperienceFound"]
+                        </h4>
+                        <tags-section></tags-section>
+                        <div class="ms-auto">
+                            <b-form-select v-model="sorting" :options="sort_options" @@change="sortChanged" class="form-control"></b-form-select>
+                        </div>
+                    </div>
                 </div>
                 <template v-for="pd in prods">
                     <div class="product-listview search-info">
@@ -337,7 +346,7 @@
 <script type="text/javascript">
     const emitter = mitt();
 
-    $(function () { 
+    $(function () {
         $('#js-range-slider').ionRangeSlider({
             type: "double",
             grid: false,
@@ -356,7 +365,7 @@
                 totalRows: 0,
                 perPage: 25,
                 limit: 8,
-                isLoading: false, 
+                isLoading: false,
                 locale: '@locale',
                 price_range: { min: null, max: null },
                 currency: '@Localizer[Website.Instance.Currency]',
@@ -371,7 +380,15 @@
                     { time: "24,48", checked: false }, { time: "72,*", checked: false }
                 ],
                 search_key: '',
-                sel_sub_tags: []
+                sel_sub_tags: [],
+                sorting: null,
+                sort_options: [
+                    { value: null, text: "KKday Recommended" },
+                    { value: "PDESC", text: "Price - High to Low" },
+                    { value: "PASC", text: "Price - Low to High" },
+                    { value: "HDESC", text: "Popularity - High to Low" },
+                    { value: "SDESC", text: "Average Rating Star - High to Low)" }
+                ]
             }
         },
         watch: {
@@ -400,13 +417,14 @@
                     this.Fetch();
                 }, 200)
             },
-            Fetch() { 
+            Fetch() {
                 let vm = this;
                 let req = {
                     key: this.search_key, page: this.currentPage, size: this.perPage,
                     durations: this.durations.filter(d => d.checked).map(d => d.time)
                 };
-                  
+
+                if (this.sorting) req.sort = this.sorting;
                 if (this.sel_sub_tags.length) req.cat_keys = this.sel_sub_tags.map(st => st.id);
 
                 if (!this.load_once) {
@@ -417,7 +435,7 @@
                     }
                 }
 
-                console.log(`Fetch => ${JSON.stringify(req)}`);
+                console.log(`Fetch Req => ${JSON.stringify(req)}`);
                 let uri = `${_root_path}Search/Query`;
                 fetch(uri, {
                         method: 'POST',
@@ -446,13 +464,13 @@
                                 });
                                 this.facets = result.data.facets;
                                 this.stats = result.data.stats;
-                                 
+
                                 let range = $("#js-range-slider").data("ionRangeSlider");
                                 if (range) {
                                     range.update({
                                         min: this.stats.price.min, max: this.stats.price.max,
                                         from: this.stats.price.min, to: this.stats.price.max
-                                    }); 
+                                    });
                                 }
 
                                 $("#js-range-slider").on('change', function () {
@@ -526,6 +544,10 @@
                 let sub_tags = this.facets.tag.map(t => t.sub_tags.filter(st => st.checked).map(st => st)).flat();
                 sub_tags.forEach(st => st.checked = false);
                 this.sel_sub_tags = [];
+            },
+            sortChanged() {
+                this.currentPage = 1;
+                this.Query();
             }
         },
         mounted: function () {
