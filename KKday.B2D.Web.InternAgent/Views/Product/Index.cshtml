@@ -1,7 +1,6 @@
 ﻿@using System.Globalization
-@using Microsoft.AspNetCore.Mvc.Localization
 @using KKday.B2D.Web.InternAgent.AppCode
-
+@using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
     Layout = "_KKdayLayout";
@@ -9,12 +8,14 @@
 
     var locale = CultureInfo.CurrentCulture;
 }
+
 @section Styles {
-    <link rel="stylesheet" href="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.css" />
+    <link rel="stylesheet" href="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.css"/>
     <style type="text/css">
-         
+
     </style>
 }
+
 @section Scripts {
     <script src="https://unpkg.com/mitt/dist/mitt.umd.js"></script>
     <script src="~/js/moment-with-locales.js"></script>
@@ -31,10 +32,12 @@
             <div class="cut-bread">
                 <ol class="breadcrumb">
                     <li>
-                        <span v-if="prod.cities" v-html="country_cities.find(c=> c.country_code === prod.cities[0].country_code)?.country_name"></span>
+                        <span v-if="prod.cities"
+                              v-html="country_cities.find(c=> c.country_code === prod.cities[0].country_code)?.country_name"></span>
                     </li>
                     <li>
-                        <span v-if="prod.cities" v-html="country_cities.map(c => c.cities.map(ct => ct.city_code === prod.cities[0].city_code ? ct.city_name : null).filter(ct => ct != null)).filter(c => c != '').join(',')"></span>
+                        <span v-if="prod.cities"
+                              v-html="country_cities.map(c => c.cities.map(ct => ct.city_code === prod.cities[0].city_code ? ct.city_name : null).filter(ct => ct != null)).filter(c => c != '').join(',')"></span>
                     </li>
                     <li class="active">
                         {{prod.prod_name}}
@@ -42,9 +45,11 @@
                 </ol>
             </div>
         </div>
-        <div id="product-banner" v-if="prod.img_list" class="product-banner" :style="{ backgroundImage: 'url(' + prod.img_list[0] + ')' }">
+        <div id="product-banner" v-if="prod.img_list" class="product-banner"
+             :style="{ backgroundImage: 'url(' + prod.img_list[0] + ')' }">
             <div class="container more-photo">
-                <button class="btn btn-white btn-sm" @@click="galleryPopup(event)"><i class="fa fa-image"></i> @Localizer["View_Image"] </button>
+                <button class="btn btn-white btn-sm" @@click="galleryPopup(event)"><i
+                        class="fa fa-image"></i> @Localizer["View_Image"] </button>
             </div>
             <div class="gallery">
                 <template v-for="video in prod.video_list">
@@ -66,14 +71,19 @@
                         <div class="product-name">
                             <h1 v-html="prod.prod_name"></h1>
                             <ul class="product-action list-unstyled">
-                                <li><div id="product-action-add-to-wish-list" class="btn-wish"><i class="fa fa-heart-o"></i></div></li>
+                                <li>
+                                    <div id="product-action-add-to-wish-list" class="btn-wish"><i
+                                            class="fa fa-heart-o"></i></div>
+                                </li>
                             </ul>
                         </div>
 
                         <div class="critical-info">
                             <i class="icons icon-location-pin"></i>
-                            <a href="javascript:;" v-if="prod.cities"><span v-html="prod.cities.map(c=> c.name.replace(',', '-')).join(', ')"></span></a>
-                        </div> <hr>
+                            <a href="javascript:" v-if="prod.cities"><span
+                                    v-html="prod.cities.map(c=> c.name.replace(',', '-')).join(', ')"></span></a>
+                        </div>
+                        <hr>
                         <div class="product-benefit">
                             <div class="critical-info" v-if="prod.days != 0 || prod.hours != 0 || prod.duration != 0">
                                 <i class="icons icon-clock"></i>
@@ -81,13 +91,16 @@
                             </div>
 
                             <div class="critical-info" v-if="prod.guide_lang_list && prod.guide_lang_list.length > 0">
-                                <i class="icons icon-globe"></i> <span v-html="`${prod.guide_lang_list.join('/')} @Localizer["Guide"]`"></span>
+                                <i class="icons icon-globe"></i> <span
+                                    v-html="`${prod.guide_lang_list.join('/')} @Localizer["Guide"]`"></span>
                             </div>
 
                             <div class="critical-info">
-                                <div v-if="prod.is_cancel_free || prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">
-                                    <img src="https://cdn.kkday.com/pc-web/assets/img/ic_cancellation.svg" />
-                                    <span v-if="prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">@Localizer["Cancel_By_Condtion"]</span>
+                                <div
+                                    v-if="prod.is_cancel_free || prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">
+                                    <img src="https://cdn.kkday.com/pc-web/assets/img/ic_cancellation.svg"/>
+                                    <span
+                                        v-if="prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">@Localizer["Cancel_By_Condtion"]</span>
                                     <!-- Free Cancel -->
                                     <span v-if="prod.is_cancel_free">@Localizer["Cancel_Free"]</span>
                                 </div>
@@ -97,9 +110,12 @@
                                 </div>
                             </div>
 
-                            <div class="critical-info"><i class="icons icon-screen-smartphone"></i><span>@Localizer["Present_eVocuher"]</span></div>
+                            <div class="critical-info"><i
+                                    class="icons icon-screen-smartphone"></i><span>@Localizer["Present_eVocuher"]</span>
+                            </div>
                         </div>
-                        <hr> <p class="pre-line">
+                        <hr>
+                        <p class="pre-line">
 
                         </p>
                     </div>
@@ -112,24 +128,33 @@
                             <div class="container">
                                 <div class="price-info">
                                     <div class="product-pricing text-left">
-                                        <h2 class="text-heavy" v-html="'@Localizer[Website.Instance.Currency] ' + (prod.b2b_min_price ? Number(prod.b2b_min_price.toFixed(02)) : '-')"></h2> <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span> <!---->
+                                        <h2 class="text-heavy"
+                                            v-html="'@Localizer[Website.Instance.Currency] ' + (prod.b2b_min_price ? Number(prod.b2b_min_price.toFixed(02)) : '-')"></h2>
+                                        <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span> <!---->
                                     </div>
 
-                                    <div class="product-score" v-if="prod.prod_comment_info && prod.prod_comment_info.avg_scores != '0'">
+                                    <div class="product-score"
+                                         v-if="prod.prod_comment_info && prod.prod_comment_info.avg_scores != '0'">
                                         <div class="product-star text-sm">
                                             <b class="text-primary" v-html="prod.prod_comment_info.avg_scores"></b>
                                             <template v-for="item in startScore()">
-                                                <svg :class="'kk-icon star star-'+ item"><use xlink:href="#ic_star"></use></svg>
+                                                <svg :class="'kk-icon star star-'+ item">
+                                                    <use xlink:href="#ic_star"></use>
+                                                </svg>
                                             </template>
-                                            <span class="text-grey-light" v-html="`(${prod.prod_comment_info.comment_record})`"></span>
+                                            <span class="text-grey-light"
+                                                  v-html="`(${prod.prod_comment_info.comment_record})`"></span>
                                         </div>
                                         @*<span class="gap">|</span>*@
                                     </div>
                                 </div>
 
-                                <a class="btn btn-primary btn-block" :class="{ disabled: prod.is_all_sold_out || (prod.prod_marketing && eval(`prod.prod_marketing.${'@Website.Instance.Marketing'}.purchase_type`)) }"
+                                <a class="btn btn-primary btn-block"
+                                   :class="{ disabled: prod.is_all_sold_out || (prod.prod_marketing && eval(`prod.prod_marketing.${'@Website.Instance.Marketing'}.purchase_type`)) }"
                                    onclick="scrollToElement('#option-sec', { scrollOffset: 0 /*$('header').outerHeight()*/ } );">
-                                    <span v-if="prod.prod_marketing && eval(`prod.prod_marketing.${'@Website.Instance.Marketing'}.purchase_type`)" v-html="'@Localizer["Comming_Soon"]'"></span> @*_actionName*@
+                                    <span
+                                        v-if="prod.prod_marketing && eval(`prod.prod_marketing.${'@Website.Instance.Marketing'}.purchase_type`)"
+                                        v-html="'@Localizer["Comming_Soon"]'"></span> @*_actionName*@
                                     <span v-else-if="prod.is_all_sold_out" v-html="'@Localizer["Sold_Out"]'"></span>
                                     <span v-else v-html="'@Localizer["Select_Package"]'"></span>
                                 </a>
@@ -137,7 +162,8 @@
                         </div>
                         <div class="status-info"><!----></div>
                         <div class="critical-info" v-if="prod.confirm_order_time">
-                            <i class="fa fa-flash text-primary fa-lg"></i><span v-html="'@Localizer["Confirm_Immediately"]'"></span>
+                            <i class="fa fa-flash text-primary fa-lg"></i><span
+                                v-html="'@Localizer["Confirm_Immediately"]'"></span>
                         </div>
 
                         @*<div class="booking-hint">
@@ -160,7 +186,8 @@
                             <h3>
                                 <span class="pkg-name" v-html="item.pkg_name"></span>
                                 <span class="label label-danger" v-html="``"></span>
-                                <span v-if="item.policy_type == '1'" class="label label-danger" v-html="'@Localizer["Free_Cancel_Title"]'"></span>
+                                <span v-if="item.policy_type == '1'" class="label label-danger"
+                                      v-html="'@Localizer["Free_Cancel_Title"]'"></span>
 
                             </h3>
                             <ul v-if="item.description_module?.PMDL_PACKAGE_DESC?.content?.list">
@@ -177,12 +204,15 @@
                                     <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span>
                                 </h4>
                             </div>
-                            <a class="btn btn-success select-option" :class="{ disabled: !item.loaded }" @@click="selectPackage(item.pkg_no)" v-if="!isSoldout(item)">
+                            <a class="btn btn-success select-option" :class="{ disabled: !item.loaded }"
+                               @@click="selectPackage(item.pkg_no)" v-if="!isSoldout(item)">
                                 <span v-if="!item.show">@Localizer["Select"]</span>
                                 <span v-if="item.show">@Localizer["Cancel"]</span>
                             </a>
-                            <img id="loading" src="@Url.Content("~/images/loading.gif")" style="width: 32px; position: absolute; right: 60px; top: 32px;" />
-                            <div v-if="moment(pkg.sale_s_date).isBefore(new Date())" class="tip text-blue" v-html="`@Localizer["Earliest_Bookable_Date"]: ${item.sale_s_date}`"></div>
+                            <img id="loading" src="@Url.Content("~/images/loading.gif")"
+                                 style="width: 32px; position: absolute; right: 60px; top: 32px;"/>
+                            <div v-if="moment(pkg.sale_s_date).isBefore(new Date())" class="tip text-blue"
+                                 v-html="`@Localizer["Earliest_Bookable_Date"]: ${item.sale_s_date}`"></div>
                         </div>
                     </div>
                     <div class="option-booking">
@@ -194,17 +224,19 @@
                                 </a>
                             </div>
                             <!-- Date Picker & Options -->
-                            <div class="choose-date-title" v-if="!checkOpenDate(prod.go_date_setting.type)">@Localizer["Select_DateAndOptions"]</div>
+                            <div class="choose-date-title"
+                                 v-if="!checkOpenDate(prod.go_date_setting.type)">@Localizer["Select_DateAndOptions"]</div>
 
                         </div>
-                        <div class="row"> 
+                        <div class="row">
                             <div class="col-md-6 option-item-calendar">
                                 <calendar-section ref="calendar" :pkg="item"></calendar-section>
                             </div>
                             <div class="col-md-6 option-item-sku">
-                                <div class="h4" v-if="checkOpenDate(prod.go_date_setting.type)">@Localizer["SelectOptions_Title"]</div>
+                                <div class="h4"
+                                     v-if="checkOpenDate(prod.go_date_setting.type)">@Localizer["SelectOptions_Title"]</div>
                                 <spec-section ref="skus" :pkg="item"></spec-section>
-                            </div> 
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -221,8 +253,10 @@
                 <div class="col-md-8">
                     <div>
                         <!-- Introduction -->
-                        <div id="product-info-sec" class="info-section" v-if="prod.description_module.PMDL_INTRODUCE_SUMMARY">
-                            <h3 class="info-title" v-html="prod.description_module.PMDL_INTRODUCE_SUMMARY.module_title">H3</h3>
+                        <div id="product-info-sec" class="info-section"
+                             v-if="prod.description_module.PMDL_INTRODUCE_SUMMARY">
+                            <h3 class="info-title" v-html="prod.description_module.PMDL_INTRODUCE_SUMMARY.module_title">
+                                H3</h3>
                             <div v-if="prod.description_module.PMDL_INTRODUCE_SUMMARY.content">
                                 <div class="info-sec-collapsable expand">
                                     <div v-html="prod.description_module.PMDL_INTRODUCE_SUMMARY.content.desc"></div>
@@ -231,12 +265,15 @@
                                             <template v-for="pmdl in prod.description_module.PMDL_GRAPHIC.content.list">
                                                 <p v-html="pmdl.Desc"></p>
                                                 <template v-for="media in pmdl.Media">
-                                                    <div class="pd-info-img"><img alt="" :src="media.SourceContent" lazy="loaded"></div>
+                                                    <div class="pd-info-img"><img alt="" :src="media.SourceContent"
+                                                                                  lazy="loaded"></div>
                                                 </template>
                                             </template>
                                         </div>
                                     </div>
-                                    <div class="overlap"><a href="javascript:;" class="link-secondary text-md">@Localizer["Collapse_Product_Desc"] <i class="fa fa-angle-up"></i></a></div>
+                                    <div class="overlap"><a href="javascript:"
+                                                            class="link-secondary text-md">@Localizer["Collapse_Product_Desc"] <i
+                                                class="fa fa-angle-up"></i></a></div>
                                 </div>
                             </div>
                         </div>
@@ -247,19 +284,30 @@
                             <div class="info-sec-collapsable expand">
                                 <div class="critical-info">
                                     <i class="icons icon-clock"></i>
-                                    <span v-html="`${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.title} : ${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.desc}`"></span>
+                                    <span
+                                        v-html="`${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.title} : ${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.desc}`"></span>
                                 </div>
-                                <template v-for="sch_item in prod.description_module.PMDL_SCHEDULE.content.properties.schedule_list.list">
+                                <template
+                                    v-for="sch_item in prod.description_module.PMDL_SCHEDULE.content.properties.schedule_list.list">
                                     <div>
                                         <h4 class="info-subtitle" v-html="sch_item.daily_title.Desc"></h4>
-                                        <div class="critical-info mb-20" v-if="sch_item.meals && sch_item.meals.list.length > 0"><i class="fa fa-cutlery"></i> <span v-html="`@Localizer["Meals_Of_Today"]： ${sch_item.meals.list.join(',')}`"></span></div>
+                                        <div class="critical-info mb-20"
+                                             v-if="sch_item.meals && sch_item.meals.list.length > 0"><i
+                                                class="fa fa-cutlery"></i> <span
+                                                v-html="`@Localizer["Meals_Of_Today"]： ${sch_item.meals.list.join(',')}`"></span>
+                                        </div>
                                         <ul class="time-info">
                                             <template v-for="tm in sch_item.daily_schedule_list.List">
                                                 <li class="time-info-spot">
-                                                    <div class="time-info-title"> <div class="txt" v-html="`${tm.time.Desc} ${tm.Content.Desc}`"></div></div>
+                                                    <div class="time-info-title">
+                                                        <div class="txt"
+                                                             v-html="`${tm.time.Desc} ${tm.Content.Desc}`"></div>
+                                                    </div>
                                                     <div class="pd-info-img" v-if="tm.media">
                                                         <template v-for="_mdeia in tm.media.media">
-                                                            <img data-target="#sche-modal-0-0-0" alt="" data-toggle="modal" :data-src="_mdeia.source_content" :src="_mdeia.source_content" lazy="loaded" />
+                                                            <img data-target="#sche-modal-0-0-0" alt=""
+                                                                 data-toggle="modal" :data-src="_mdeia.source_content"
+                                                                 :src="_mdeia.source_content" lazy="loaded"/>
                                                         </template>
                                                     </div>
                                                 </li>
@@ -270,32 +318,44 @@
                                 </template>
 
                                 <div class="overlap">
-                                    <a href="javascript:;" class="link-secondary text-md">@Localizer["Collapse_Itinerary"] <i class="fa fa-angle-up"></i></a>
+                                    <a href="javascript:"
+                                       class="link-secondary text-md">@Localizer["Collapse_Itinerary"] <i
+                                            class="fa fa-angle-up"></i></a>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Purchase Summary & Include/Exclude -->
                         <div id="notice-sec" class="info-section">
-                            <h3 class="info-title" v-if="prod.description_module.PMDL_PURCHASE_SUMMARY || prod.description_module.PMDL_INC_NINC || prod.description_module.PMDL_EXTRA_FEE || prod.description_module.PMDL_NOTICE"
+                            <h3 class="info-title"
+                                v-if="prod.description_module.PMDL_PURCHASE_SUMMARY || prod.description_module.PMDL_INC_NINC || prod.description_module.PMDL_EXTRA_FEE || prod.description_module.PMDL_NOTICE"
                                 v-html="'@Localizer["Purchase_Notes"]'"></h3>
                             <div>
-                                <div v-if="prod.description_module.PMDL_PURCHASE_SUMMARY" v-html="prod.description_module.PMDL_PURCHASE_SUMMARY.content.desc"></div>
+                                <div v-if="prod.description_module.PMDL_PURCHASE_SUMMARY"
+                                     v-html="prod.description_module.PMDL_PURCHASE_SUMMARY.content.desc"></div>
 
                                 <div v-if="prod.description_module.PMDL_INC_NINC">
-                                    <h4 class="info-subtitle" v-html="prod.description_module.PMDL_INC_NINC.module_title"></h4>
+                                    <h4 class="info-subtitle"
+                                        v-html="prod.description_module.PMDL_INC_NINC.module_title"></h4>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <ul class="price-include">
-                                                <template v-for="item in prod.description_module.PMDL_INC_NINC.content.properties.include_item?.list">
-                                                    <li><img src="https://cdn.kkday.com/pc-web/assets/img/ic_include.svg">{{item.desc}}</li>
+                                                <template
+                                                    v-for="item in prod.description_module.PMDL_INC_NINC.content.properties.include_item?.list">
+                                                    <li><img
+                                                            src="https://cdn.kkday.com/pc-web/assets/img/ic_include.svg">{{item.desc}}
+                                                    </li>
                                                 </template>
                                             </ul>
                                         </div>
                                         <div class="col-md-6">
                                             <ul class="price-not">
-                                                <template v-for="item in prod.description_module.PMDL_INC_NINC.content.properties.not_include_item?.list">
-                                                    <li><img src="https://cdn.kkday.com/pc-web/assets/img/ic_notinclude.svg">{{ item.desc }}</li>
+                                                <template
+                                                    v-for="item in prod.description_module.PMDL_INC_NINC.content.properties.not_include_item?.list">
+                                                    <li><img
+                                                            src="https://cdn.kkday.com/pc-web/assets/img/ic_notinclude.svg">{{
+                                                        item.desc }}
+                                                    </li>
                                                 </template>
                                             </ul>
                                         </div>
@@ -303,12 +363,15 @@
                                 </div>
 
                                 <div v-if="prod.description_module.PMDL_EXTRA_FEE">
-                                    <h4 class="info-subtitle" v-html="prod.description_module.PMDL_EXTRA_FEE.module_title"></h4>
+                                    <h4 class="info-subtitle"
+                                        v-html="prod.description_module.PMDL_EXTRA_FEE.module_title"></h4>
                                     <div>
                                         <div>
-                                            <h5 class="break-word" v-html="prod.description_module.PMDL_EXTRA_FEE.content.title"></h5>
+                                            <h5 class="break-word"
+                                                v-html="prod.description_module.PMDL_EXTRA_FEE.content.title"></h5>
                                             <p class="pre-line">
-                                                <template v-for="item in prod.description_module.PMDL_EXTRA_FEE.content.list">
+                                                <template
+                                                    v-for="item in prod.description_module.PMDL_EXTRA_FEE.content.list">
                                                     {{ item.desc }}
                                                 </template>
                                             </p>
@@ -317,27 +380,34 @@
                                 </div>
 
                                 <div class="board bg-highlihgt mt-20" v-if="prod.description_module.PMDL_NOTICE">
-                                    <h4 class="info-subtitle mt-0" v-html="prod.description_module.PMDL_NOTICE.module_title"></h4>
-                                    <div class="mt-10" v-if="prod.description_module.PMDL_NOTICE.content.properties.reminds">
+                                    <h4 class="info-subtitle mt-0"
+                                        v-html="prod.description_module.PMDL_NOTICE.module_title"></h4>
+                                    <div class="mt-10"
+                                         v-if="prod.description_module.PMDL_NOTICE.content.properties.reminds">
                                         <ul>
-                                            <template v-for="item in prod.description_module.PMDL_NOTICE.content.properties.reminds.list">
+                                            <template
+                                                v-for="item in prod.description_module.PMDL_NOTICE.content.properties.reminds.list">
                                                 <li><p v-html="item.desc"></p></li>
                                             </template>
                                         </ul>
                                     </div>
 
-                                    <div class="mt-10" v-if="prod.description_module.PMDL_NOTICE.content.properties.cust_reminds">
+                                    <div class="mt-10"
+                                         v-if="prod.description_module.PMDL_NOTICE.content.properties.cust_reminds">
                                         <ul>
-                                            <template v-for="item in prod.description_module.PMDL_NOTICE.content.properties.cust_reminds.list">
+                                            <template
+                                                v-for="item in prod.description_module.PMDL_NOTICE.content.properties.cust_reminds.list">
                                                 <li><p v-html="item.desc"></p></li>
                                             </template>
                                         </ul>
                                     </div>
 
 
-                                    <div class="mt-10" v-if="prod.description_module.PMDL_NOTICE.content.properties.cust_reminds_after">
+                                    <div class="mt-10"
+                                         v-if="prod.description_module.PMDL_NOTICE.content.properties.cust_reminds_after">
                                         <ul>
-                                            <template v-for="item in prod.description_module.PMDL_NOTICE.content.properties.cust_reminds_after.list">
+                                            <template
+                                                v-for="item in prod.description_module.PMDL_NOTICE.content.properties.cust_reminds_after.list">
                                                 <li><p v-html="item.desc"></p></li>
                                             </template>
                                         </ul>
@@ -348,48 +418,72 @@
                         </div>
 
                         <!-- How To Use -->
-                        <div id="usage-sec" class="info-section" v-if="prod.description_module.PMDL_EXCHANGE || prod.description_module.PMDL_USE_VALID">
+                        <div id="usage-sec" class="info-section"
+                             v-if="prod.description_module.PMDL_EXCHANGE || prod.description_module.PMDL_USE_VALID">
                             <h3 class="info-title" v-html="'@Localizer["How_To_Use"]'"></h3>
                             <div>
                                 <div v-if="prod.description_module.PMDL_EXCHANGE">
-                                    <h4 class="info-subtitle" v-html="prod.description_module.PMDL_EXCHANGE.module_title"></h4>
-                                    <ul><li v-html="prod.description_module.PMDL_EXCHANGE.content.properties.exchange_type.desc"></li></ul>
+                                    <h4 class="info-subtitle"
+                                        v-html="prod.description_module.PMDL_EXCHANGE.module_title"></h4>
+                                    <ul>
+                                        <li v-html="prod.description_module.PMDL_EXCHANGE.content.properties.exchange_type.desc"></li>
+                                    </ul>
                                 </div>
 
                                 <div v-if="prod.description_module.PMDL_USE_VALID">
-                                    <h4 class="info-subtitle" v-html="prod.description_module.PMDL_USE_VALID.module_title"></h4>
-                                    <ul><li v-html="prod.description_module.PMDL_USE_VALID.content.properties.exchange.desc"></li></ul>
+                                    <h4 class="info-subtitle"
+                                        v-html="prod.description_module.PMDL_USE_VALID.module_title"></h4>
+                                    <ul>
+                                        <li v-html="prod.description_module.PMDL_USE_VALID.content.properties.exchange.desc"></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Venue Location -->
                         <div id="meeting-sec" class="info-section" v-if="prod.description_module.PMDL_VENUE_LOCATION">
-                            <h3 class="info-title" v-html="prod.description_module.PMDL_VENUE_LOCATION.module_title"></h3>
+                            <h3 class="info-title"
+                                v-html="prod.description_module.PMDL_VENUE_LOCATION.module_title"></h3>
                             <div>
                                 <template v-for="item in prod.description_module.PMDL_VENUE_LOCATION.content.list">
                                     <div class="board map-board">
                                         <div class="board-title">
-                                            <h4 class="break-word" v-html="`${prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.location_name} : ${item.location_name?.desc}`"></h4>
-                                            <div class="text-grey break-word" v-html="`${prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.latlng} : ${item.latlng?.desc}`"></div>
+                                            <h4 class="break-word"
+                                                v-html="`${prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.location_name} : ${item.location_name?.desc}`"></h4>
+                                            <div class="text-grey break-word"
+                                                 v-html="`${prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.latlng} : ${item.latlng?.desc}`"></div>
                                         </div>
                                         <hr>
                                         <div class="con">
                                             <div class="row" v-if="item.gather">
-                                                <div class="col-md-3"><b>{{ prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.gather }}</b></div> <div class="col-md-6"><b class="text-lg bg-highlihgt pd-10">{{ item.gather.desc }}</b></div>
+                                                <div class="col-md-3"><b>{{
+                                                        prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.gather
+                                                        }}</b></div>
+                                                <div class="col-md-6"><b class="text-lg bg-highlihgt pd-10">{{
+                                                        item.gather.desc }}</b></div>
                                             </div>
-                                            <hr v-if="item.gather && item.setout" />
-                                            <div class="row" v-if="item.Setout"><div class="col-md-3"><b>{{ prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.setout }}</b></div> <div class="col-md-6"><b class="text-md">{{ item.setout.desc }}</b></div></div>
+                                            <hr v-if="item.gather && item.setout"/>
+                                            <div class="row" v-if="item.Setout">
+                                                <div class="col-md-3"><b>{{
+                                                        prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.setout
+                                                        }}</b></div>
+                                                <div class="col-md-6"><b class="text-md">{{ item.setout.desc }}</b>
+                                                </div>
+                                            </div>
                                             <div class="pd-info-img">
                                                 <div class="embed-responsive embed-responsive-16by9">
-                                                    <iframe :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&amp;q=${ item.latlng.latitude},${item.latlng.longitude}&amp;zoom=17&amp;language=zh-tw`"
-                                                            frameborder="0" allowfullscreen="allowfullscreen" style="border: 0px;"></iframe>
+                                                    <iframe
+                                                        :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&amp;q=${ item.latlng.latitude},${item.latlng.longitude}&amp;zoom=17&amp;language=zh-tw`"
+                                                        frameborder="0" allowfullscreen="allowfullscreen"
+                                                        style="border: 0px;"></iframe>
                                                 </div>
                                             </div>
                                             <ul class="photo-group" v-if="item.Photo">
                                                 <template v-for="img in item.photo.media">
                                                     <li class="photo-item">
-                                                        <div data-target="#venue-photo-modal-0" data-toggle="modal" class="img-bg" :style="`background-image: url(&quot;${img.SourceContent}&quot;);`"></div>
+                                                        <div data-target="#venue-photo-modal-0" data-toggle="modal"
+                                                             class="img-bg"
+                                                             :style="`background-image: url(&quot;${img.SourceContent}&quot;);`"></div>
                                                     </li>
                                                 </template>
                                                 <li class="clearfix"></li>
@@ -403,30 +497,42 @@
 
                         <!-- Experience Location -->
                         <div id="map-sec" class="info-section" v-if="prod.description_module.PMDL_EXPERIENCE_LOCATION">
-                            <h3 class="info-title" v-html="prod.description_module.PMDL_EXPERIENCE_LOCATION.module_title"></h3>
+                            <h3 class="info-title"
+                                v-html="prod.description_module.PMDL_EXPERIENCE_LOCATION.module_title"></h3>
                             <div>
                                 <template v-for="item in prod.description_module.PMDL_EXPERIENCE_LOCATION.content.list">
                                     <div class="board map-board">
                                         <div class="board-title" v-if="item.location_name">
-                                            <h4 class="break-word" v-html="`${prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.location_name}：${item.location_name.desc}`"></h4>
-                                            <div class="text-grey break-word" v-html="`${prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.latlng} : ${item.latlng.des}`"></div>
+                                            <h4 class="break-word"
+                                                v-html="`${prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.location_name}：${item.location_name.desc}`"></h4>
+                                            <div class="text-grey break-word"
+                                                 v-html="`${prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.latlng} : ${item.latlng.des}`"></div>
                                         </div>
                                         <hr>
                                         <div class="con">
                                             <div class="pd-info-img">
                                                 <div class="embed-responsive embed-responsive-16by9">
-                                                    <iframe :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&amp;q=${item.latlng.latitude},${item.latlng.longitude}&amp;zoom=13&amp;language=zh-tw`" frameborder="0" allowfullscreen="allowfullscreen" style="border: 0px;"></iframe>
+                                                    <iframe
+                                                        :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&amp;q=${item.latlng.latitude},${item.latlng.longitude}&amp;zoom=13&amp;language=zh-tw`"
+                                                        frameborder="0" allowfullscreen="allowfullscreen"
+                                                        style="border: 0px;"></iframe>
                                                 </div>
                                             </div>
-                                            <ul class="photo-group"><li class="clearfix"></li></ul>
+                                            <ul class="photo-group">
+                                                <li class="clearfix"></li>
+                                            </ul>
                                             <div class="row" v-if="item.arrival_desc">
-                                                <div class="col-md-3"><b>{{ prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.arrival_desc }}</b></div>
+                                                <div class="col-md-3"><b>{{
+                                                        prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.arrival_desc
+                                                        }}</b></div>
                                                 <div class="col-md-9 pre-line" v-html="item.arrival_desc.desc"></div>
                                             </div>
 
                                             <hr style="display: none;">
                                             <div class="row" v-if="item.active_time_desc">
-                                                <div class="col-md-3"><b>{{ prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.active_time_desc }}</b></div>
+                                                <div class="col-md-3"><b>{{
+                                                        prod.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.active_time_desc
+                                                        }}</b></div>
                                                 <div class="col-md-9">
                                                     <div class="break-word" v-html="item.active_time_desc.desc"></div>
                                                 </div>
@@ -440,11 +546,14 @@
 
                         <!-- Cancellation Policy -->
                         <div id="policy-sec" class="info-section" v-if="prod.description_module.PMDL_REFUND_POLICY">
-                            <h3 class="info-title" v-html="prod.description_module.PMDL_REFUND_POLICY.module_title"></h3> <div>
+                            <h3 class="info-title"
+                                v-html="prod.description_module.PMDL_REFUND_POLICY.module_title"></h3>
+                            <div>
                                 <p v-if="prod.description_module.PMDL_REFUND_POLICY.content.properties.policy_type"
                                    v-html="prod.description_module.PMDL_REFUND_POLICY.content.properties.policy_type.Desc"></p>
                                 <ul v-if="prod.description_module.PMDL_REFUND_POLICY.content.properties.partial_refund">
-                                    <template v-for="item in prod.description_module.PMDL_REFUND_POLICY.content.properties.partial_refund.list">
+                                    <template
+                                        v-for="item in prod.description_module.PMDL_REFUND_POLICY.content.properties.partial_refund.list">
                                         <li v-html="item.desc"></li>
                                     </template>
                                 </ul>
@@ -462,14 +571,16 @@
     </div>
 
 </div>
- 
+
 <script type="text/javascript">
     const scrollToElement = ($element, {
         scrollOffset = 0,
         offset = 0,
         duration = 500,
-        start = () => { },
-        complete = () => { },
+        start = () => {
+        },
+        complete = () => {
+        },
     } = {}) => {
         if (!$element) {
             return;
@@ -492,7 +603,7 @@
                 isLoading: false,
                 prod_no: null,
                 prod_marketing: {},
-                prod: { description_module: {} },
+                prod: {description_module: {}},
                 pkg: [],
                 country_cities: []
             }
@@ -544,7 +655,11 @@
                         this.prod_marketing = data.prod_marketing;
                         this.prod = data.prod;
                         document.title = this.prod.prod_name;
-                        data.pkg.forEach(pkg => { pkg.loaded = false; pkg.show = false; pkg.selectable = true; });
+                        data.pkg.forEach(pkg => {
+                            pkg.loaded = false;
+                            pkg.show = false;
+                            pkg.selectable = true;
+                        });
                         this.pkg = data.pkg;
 
                         $('.parent-container').magnificPopup({
@@ -602,8 +717,7 @@
                                 if (pkg.item[0].inventory_set != 0) {
                                     this.fetchAllotment(pkg.pkg_no, av_dates[0]);
                                 }
-                            }
-                            else console.error(`The package(${pkg.pkg_no}) was Loading failed`);
+                            } else console.error(`The package(${pkg.pkg_no}) was Loading failed`);
 
                             $('#pkg_' + pkg.pkg_no).find('#loading').hide();
                         })
@@ -673,7 +787,9 @@
                     .then(data => {
                         console.log(`fetchAllotment (pkg:${pkg_no}) => ${JSON.stringify(data)}`)
                         let pkg = this.pkg.find(p => p.pkg_no === pkg_no);
-                        if (!pkg.allotment) { pkg.allotment = []; }
+                        if (!pkg.allotment) {
+                            pkg.allotment = [];
+                        }
                         if (data.result == '00') {
                             data.allotment[0].itemCal_qty?.forEach(q => {
                                 pkg.allotment.push(q);
@@ -707,7 +823,9 @@
             },
             galleryPopup(e) {
                 e.stopPropagation();
-                _items = $.map($('.gallery a'), function (obj) { return obj; });
+                _items = $.map($('.gallery a'), function (obj) {
+                    return obj;
+                });
                 $.magnificPopup.open({
                     items: _items,
                     type: 'image',
@@ -743,8 +861,7 @@
                 if (pkg.show) {
                     pkg.show = false;
                     $('#pkg_' + pkg.pkg_no).find('.option-booking').hide();
-                }
-                else {
+                } else {
                     emitter.emit('clicked-show-detail', pkg.pkg_no);
                     pkg.show = true;
                     this.$forceUpdate();
@@ -770,7 +887,7 @@
 
     ////////////////
 
-     // Calendar Component
+    // Calendar Component
     Vue.component('calendar-section', {
         props: ['pkg'],
         data: function () {
@@ -788,7 +905,7 @@
                 sel_edate: '',
                 go_date_setting: null,
                 is_date_range: false,
-                filter_options: { sku_id: null, timeslot: null }
+                filter_options: {sku_id: null, timeslot: null}
             }
         },
         template: `
@@ -868,20 +985,22 @@
         watch: {
             sel_sdate: function () {
                 emitter.emit('date-changed', {
-                    pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate }
+                    pkg_no: this.pkg.pkg_no, sel_date: {s_date: this.sel_sdate, e_date: this.sel_edate}
                 });
             },
             sel_edate: function () {
                 emitter.emit('date-changed', {
-                    pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate }
+                    pkg_no: this.pkg.pkg_no, sel_date: {s_date: this.sel_sdate, e_date: this.sel_edate}
                 });
             },
         },
         methods: {
             resetCalendar() {
                 this.sel_sdate = this.sel_edate = null;
+                console.log(`resetCalendar`);
+
                 this.dates.forEach(dt => dt.selected = false);
-                this.filter_options = { sku_id: null, timeslot: null };
+                this.filter_options = {sku_id: null, timeslot: null};
             },
             render() {
                 console.log(`Calendar render => sdate:${this.sel_sdate}, edate:${this.sel_edate}, go_date_setting:${JSON.stringify(this.go_date_setting)}`);
@@ -919,9 +1038,16 @@
                 // Loop to add the last dates of the previous month
                 for (let i = dayone; i > 0; i--) {
                     calendar.push({
-                        date: `${monthlastdate - i + 1}`, full_date: null, isToday: false, disabled: true, invalid: false, selected: false,
-                        lowest_price: null, highest_price: null,
-                        sdate: false, edate: false
+                        date: `${monthlastdate - i + 1}`,
+                        full_date: null,
+                        isToday: false,
+                        disabled: true,
+                        invalid: false,
+                        selected: false,
+                        lowest_price: null,
+                        highest_price: null,
+                        sdate: false,
+                        edate: false
                     });
                 }
 
@@ -944,8 +1070,7 @@
                     if (!this.av_dates.find(d => d === szdate)) {
                         _low_price = _high_price = null;
                         _disabled = _invalid = true;
-                    }
-                    else {
+                    } else {
                         // Precise price processing
                         let precise_price = this.getPrecisePrice(szdate);
                         if (precise_price) {
@@ -962,9 +1087,17 @@
                     // console.log(`cal render => ${szdate}, high_price: ${_high_price}, low_price: ${_low_price}, disabled: ${_disabled}, invalid:${_invalid}`)
 
                     calendar.push({
-                        date: `${i}`, full_date: szdate, isToday: _isToday, disabled: _disabled, invalid: _invalid, selected: false,
-                        lowest_price: _low_price, highest_price: _high_price,
-                        sdate: false, edate: false, soldout: false
+                        date: `${i}`,
+                        full_date: szdate,
+                        isToday: _isToday,
+                        disabled: _disabled,
+                        invalid: _invalid,
+                        selected: false,
+                        lowest_price: _low_price,
+                        highest_price: _high_price,
+                        sdate: false,
+                        edate: false,
+                        soldout: false
                     });
                 }
 
@@ -972,9 +1105,16 @@
                 for (let i = dayend; i < 6; i++) {
                     let day = i - dayend + 1;
                     calendar.push({
-                        date: `${day}`, full_date: null, isToday: false, disabled: true, invalid: false, selected: false,
-                        lowest_price: null, highest_price: null,
-                        sdate: false, edate: false
+                        date: `${day}`,
+                        full_date: null,
+                        isToday: false,
+                        disabled: true,
+                        invalid: false,
+                        selected: false,
+                        lowest_price: null,
+                        highest_price: null,
+                        sdate: false,
+                        edate: false
                     });
                 }
 
@@ -988,10 +1128,9 @@
                 let new_date = this.date;
 
                 if (action === 'prev') {
-                    if (this.checkPrevMonth())  return;
+                    if (this.checkPrevMonth()) return;
                     new_date = moment(this.date).subtract(1, 'months').toDate();
-                }
-                else {
+                } else {
                     new_date = moment(new_date).add(1, 'months').toDate();
                     this.loadMoreData([...this.av_dates].pop());
                 }
@@ -1036,7 +1175,10 @@
             },
             ResetMultipleSelect() {
                 this.sel_sdate = this.sel_edate = null;
-                this.dates.forEach(dt => { dt.selected = dt.sdate = dt.edate = false; });
+                console.log(`ResetMultipleSelect`);
+                this.dates.forEach(dt => {
+                    dt.selected = dt.sdate = dt.edate = false;
+                });
                 this.multi_select_str = null;
             },
             MultipleSelect(dt) {
@@ -1062,7 +1204,7 @@
                         }
                     }
                 }
-            }, 
+            },
             getPrecisePrice(date) {
                 let price = null;
                 if (this.filter_options.sku_id) {
@@ -1072,10 +1214,8 @@
                         if (matching_date?.b2b_price) {
                             if (this.filter_options.timeslot) price = matching_date.b2b_price[this.filter_options.timeslot];
                             else if (!this.pkg.item[0].has_event) price = matching_date.b2b_price["fullday"];
-                        }
-                        else console.log(`cal => ${date}: no b2b_price`)
-                    }
-                    else console.log(`cal => ${date}: no match sku(${this.filter_options.sku_id})`)
+                        } else console.log(`cal => ${date}: no b2b_price`)
+                    } else console.log(`cal => ${date}: no match sku(${this.filter_options.sku_id})`)
                 }
 
                 return price;
@@ -1096,18 +1236,15 @@
                                     d.selected = false; // Reset selected date
                                 }
                                 d.invalid = true;
-                            }
-                            else {
+                            } else {
                                 price = purposed_price; // Default purposed price
                                 d.invalid = false;
                             }
-                        }
-                        else d.invalid = false;
+                        } else d.invalid = false;
 
                         d.highest_price = d.lowest_price = price;
                         console.log(`cal refresh => date: ${d.full_date}, final price:${price}`);
-                    }
-                    else {
+                    } else {
                         console.log(`date: ${d.full_date} is disabled`);
                     }
                 });
@@ -1135,7 +1272,7 @@
                 return twoDateRange(sdate, edate);
             },
             dateChanged(sel_date) {
-
+                console.log(`dateChanged => ${JSON.stringify(sel_date)}`);
                 if (sel_date.disabled || sel_date.invalid) return;
 
                 // date range
@@ -1145,13 +1282,15 @@
                         this.sel_sdate = sel_date.full_date;
                         this.sel_edate = null;
                         // Reset last selected date & set new date be selected
-                        this.dates.forEach(dt => { dt.selected = dt.sdate = dt.edate = false; });
+                        this.dates.forEach(dt => {
+                            dt.selected = dt.sdate = dt.edate = false;
+                        });
                         let dt = this.dates.find(dt => dt.full_date === sel_date.full_date);
                         if (dt) dt.selected = dt.sdate = true;
                         console.log(`DateChanged start_date: ${this.sel_sdate}`)
 
                         this.multi_select_str = `${moment(this.sel_sdate).format('YYYY/MM/DD')} - N/A`;
-                        return; // nothing to do
+                        // nothing to do
                     }
                     // picked the end date
                     else if (!this.sel_edate) {
@@ -1164,13 +1303,13 @@
                             let dt = this.dates.find(dt => dt.full_date === sel_date.full_date);
                             if (dt) dt.selected = dt.edate = true;
 
-                            this.multi_select_str = `${moment(this.sel_sdate).format('YYYY/MM/DD')} - ${moment(this.sel_edate).format('YYYY/MM/DD') }`;
+                            this.multi_select_str = `${moment(this.sel_sdate).format('YYYY/MM/DD')} - ${moment(this.sel_edate).format('YYYY/MM/DD')}`;
                         }
-                        else return;
-                    }
-                    else {
+                    } else {
                         this.sel_sdate = this.sel_edate = null;
-                        this.dates.forEach(dt => { dt.selected = dt.sdate = dt.edate = false; });
+                        this.dates.forEach(dt => {
+                            dt.selected = dt.sdate = dt.edate = false;
+                        });
                         this.multi_select_str = null;
                     }
                 }
@@ -1179,20 +1318,21 @@
                     if (this.sel_sdate == sel_date.full_date) {
                         this.dates.find(dt => dt.full_date === sel_date.full_date).selected = false;
                         this.sel_sdate = this.sel_edate = null;
-                    }
-                    else {
+                    } else {
                         this.sel_sdate = sel_date.full_date;
                         this.sel_edate = null;
 
                         // Reset last selected date & set new date be selected
-                        this.dates.forEach(dt => { dt.selected = dt.sdate = dt.edate = false; });
+                        this.dates.forEach(dt => {
+                            dt.selected = dt.sdate = dt.edate = false;
+                        });
                         let single_date = this.dates.find(dt => dt.full_date === sel_date.full_date);
                         if (single_date) {
                             sel_date.selected = sel_date.sdate = sel_date.edate = true;
                         }
                     }
                 }
-
+                console.log(`dateChanged sel_sdate => ${this.sel_sdate}`);
                 // emitter.emit('date-changed', { pkg_no: this.pkg.pkg_no, sel_date: { s_date: this.sel_sdate, e_date: this.sel_edate } });
             },
             getAvDates() {
@@ -1206,7 +1346,10 @@
 
                 if (this.year === target_date.year() && this.month === target_date.month() - 1) {
                     if (moment(dt, 'YYYY-MM-DD') < moment(this.pkg.sale_e_date, 'YYYY-MM-DD')) {
-                        emitter.emit('load-package', { pkg_no: this.pkg.pkg_no, sdate: moment(dt, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD') });
+                        emitter.emit('load-package', {
+                            pkg_no: this.pkg.pkg_no,
+                            sdate: moment(dt, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD')
+                        });
                     }
                 }
             }
@@ -1262,7 +1405,7 @@
     ///////
 
     // Spec Component
-    const spec_condition = { count: 0, price: 0, can_plus: true, can_minus: false, valid: true };
+    const spec_condition = {count: 0, price: 0, can_plus: true, can_minus: false, valid: true};
 
     Vue.component('spec-section', {
         props: ['pkg'],
@@ -1281,7 +1424,7 @@
                 manual_setting: {},
                 unit: '',
                 unit_label: '',
-                sel_date: { s_date: null, e_date: null },
+                sel_date: {s_date: null, e_date: null},
                 sel_spec_items: [],
                 sel_time_slot: null,
                 default_qty: 1,
@@ -1391,9 +1534,15 @@
 
                 const unit_mapping = {
                     // 01:Traveler, 02:Ticket, 03:Car, 04:Set, 05:Room, 06:Day, 07:Tent, 08:Box, 09:Item
-                    '01': '@Localizer["Item_Unit01"]', '02': '@Localizer["Item_Unit02"]', '03': '@Localizer["Item_Unit03"]',
-                    '04': '@Localizer["Item_Unit04"]', '05': '@Localizer["Item_Unit05"]', '06': '@Localizer["Item_Unit06"]',
-                    '07': '@Localizer["Item_Unit07"]', '08': '@Localizer["Item_Unit08"]', '09': '@Localizer["Item_Unit09"]'
+                    '01': '@Localizer["Item_Unit01"]',
+                    '02': '@Localizer["Item_Unit02"]',
+                    '03': '@Localizer["Item_Unit03"]',
+                    '04': '@Localizer["Item_Unit04"]',
+                    '05': '@Localizer["Item_Unit05"]',
+                    '06': '@Localizer["Item_Unit06"]',
+                    '07': '@Localizer["Item_Unit07"]',
+                    '08': '@Localizer["Item_Unit08"]',
+                    '09': '@Localizer["Item_Unit09"]'
                 };
                 this.unit_label = unit_mapping[this.pkg.item[0].unit_code];
                 this.unit = this.pkg.item[0].unit;
@@ -1401,9 +1550,8 @@
                 this.mode = '01'; // default mode:'01'(single)
                 if (this.specs.some(s => s.spec_oid === 'spec-single')) {
                     this.sel_spec_items.push(this.specs[0].spec_items[0].spec_item_oid);
-                    this.single_qty = { ...spec_condition };
-                }
-                else {
+                    this.single_qty = {...spec_condition};
+                } else {
                     if (this.specs.some(s => s.spec_oid === 'spec-ticket')) {
                         this.mode = '02';
                         // append extra properties into ticketing spec items
@@ -1411,18 +1559,17 @@
                             i.selected = false;
                             i.disabled = false;
 
-                            this.ticket_qty[i.spec_item_oid] = { ...spec_condition };
+                            this.ticket_qty[i.spec_item_oid] = {...spec_condition};
                         });
-                    }
-                    else this.single_qty = { ...spec_condition };
+                    } else this.single_qty = {...spec_condition};
                 }
 
                 if (this.pkg.item[0].has_event) {
                     let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
+                    this.time_slots = []
                     times.forEach(t => {
-                        this.time_slots.push({ time: t, selected: false, disabled: false });
+                        this.time_slots.push({time: t, selected: false, disabled: false});
                     });
-                    // console.log(`Render, time_slots => ${JSON.stringify(this.time_slots)}`);
                 }
             },
             minus(spec_item_oid) {
@@ -1437,8 +1584,7 @@
                         this.single_qty.can_plus = true;
                     }
                     if (this.single_qty.count < 1 || this.single_qty.count <= rule.min_quantity) this.single_qty.can_minus = false;
-                }
-                else {
+                } else {
                     let min_quantity = 0;
                     if (this.pkg.item[0].unit_quantity_rule.ticket_rule.is_active) {
                         // if 'spec_items' of the ticket_rule has multiple specs that means it's OR condition and min_quantity can be zero
@@ -1476,8 +1622,7 @@
                         this.single_qty.can_minus = true;
                     }
                     if (this.single_qty.count >= rule.max_quantity) this.single_qty.can_plus = false;
-                }
-                else {
+                } else {
                     if (this.pkg.item[0].unit_quantity_rule.ticket_rule.is_active) {
                         // if 'spec_items' of the ticket_rule has multiple specs that means it's OR condition and min_quantity can be zero
                         // get one of ticketing rule
@@ -1522,8 +1667,7 @@
                             // console.log(`GetSkuPrice, date=${JSON.stringify(this.sel_date)}, time_slot=${this.sel_time_slot}, match_skus.calendar=${JSON.stringify(matched_date)} => price:${price}`)
 
                             console.log(`GetSkuPrice, final price:${price}`)
-                        }
-                        else {
+                        } else {
                             is_valid = false;
                             console.log(`GetSkuPrice, pkg_no:${this.pkg.pkg_no} and spec_item_oid:'${spec_item_oid}' has no matched price`);
                         }
@@ -1563,7 +1707,8 @@
                 // (1) make sure one of the dates in the calendar is selected
                 console.log(`CheckOut, s_date => ${this.sel_date.s_date}, e_date => ${this.sel_date.e_date} `)
                 if (!(this.sel_date.s_date || this.sel_date.e_date)) {
-                    this.totalPrice = 0; return;
+                    this.totalPrice = 0;
+                    return;
                 }
 
                 if (!this.is_date_range && this.sel_date.s_date) range_days = 1;
@@ -1624,8 +1769,7 @@
                 // bypass to check inventory
                 if (inventory_set === 0 || inventory_type === null) {
                     return true;
-                }
-                else {
+                } else {
                     // inventory is based on total quantity
                     if (inventory_type === 0) {
                         // item
@@ -1677,13 +1821,27 @@
             checkTimeslot() {
                 if (this.pkg.item[0].has_event) {
                     // force to un-select and disable to all time slots
-                    this.time_slots.forEach(t => { t.selected = false; t.disabled = true; });
+                    this.time_slots.forEach(t => {
+                        t.selected = false;
+                        t.disabled = true;
+                    });
                     // restore disable status to available time slots
                     let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
-                    // console.log(`checkTimeslot => times: ${JSON.stringify(times)}`)
+
+                    const saleStartDate = moment(this.pkg.item[0].sale_s_date, 'YYYY-MM-DD');
+                    const saleStartDateEvent = moment(this.pkg.item[0].sale_s_date_event, 'HH:mm');
+                    const selectedStartDate = this.sel_date.s_date ? moment(this.sel_date.s_date, 'YYYY-MM-DD') : null;
+
                     this.time_slots.filter(t => times.some(tm => tm === t.time)).forEach(t => {
                         t.disabled = false;
                         if (t.time === this.sel_time_slot) t.selected = true;
+
+                        if (selectedStartDate && selectedStartDate.isSame(saleStartDate) && saleStartDateEvent > moment(t.time, 'HH:mm')) {
+                            t.disabled = true;
+                            t.selected = false;
+                            if (this.sel_time_slot && saleStartDateEvent > moment(this.sel_time_slot, 'HH:mm'))
+                                this.sel_time_slot = null
+                        }
                     });
                 }
             },
@@ -1730,7 +1888,11 @@
                 let sel_specs = [...this.sel_spec_items];
                 if (this.mode === '02') sel_specs.push('adult');
                 let sku_id = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => sel_specs.indexOf(r.spec_value_id) != -1)).map(s => s.sku_id).join(",");
-                emitter.emit('show_precise_price', { pkg_no: this.pkg.pkg_no, sku_id: sku_id, timeslot: this.sel_time_slot });
+                emitter.emit('show_precise_price', {
+                    pkg_no: this.pkg.pkg_no,
+                    sku_id: sku_id,
+                    timeslot: this.sel_time_slot
+                });
 
                 setTimeout(() => {
                     this.checkOut();
@@ -1750,10 +1912,10 @@
                     i.disabled = false;
                 });
                 //
-                if (this.mode === '01') this.single_qty = { ...spec_condition };
+                if (this.mode === '01') this.single_qty = {...spec_condition};
                 else {
                     Object.keys(this.ticket_qty).forEach(spec => {
-                        this.ticket_qty[spec] = { ...spec_condition };
+                        this.ticket_qty[spec] = {...spec_condition};
                     });
                 }
             },
@@ -1788,8 +1950,7 @@
                     let ref_specs = Object.keys(this.ticket_qty).filter(id => this.ticket_qty[id].count > 0).flat().map(t => t);
                     let temp_sel_spec_items = [...this.sel_spec_items].concat(ref_specs);
                     match_skus = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => temp_sel_spec_items.some(i => i === r.spec_value_id)));
-                }
-                else match_skus = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => this.sel_spec_items.some(i => i === r.spec_value_id)));
+                } else match_skus = this.pkg.item[0].skus.filter(s => s.specs_ref.every(r => this.sel_spec_items.some(i => i === r.spec_value_id)));
 
                 if (match_skus) {
                     let range_days = 0
@@ -1803,8 +1964,7 @@
                         if (this.mode === '01') {
                             qty = this.single_qty.count;
                             price = this.single_qty.price;
-                        }
-                        else if (this.mode === '02') {
+                        } else if (this.mode === '02') {
                             let spec_item_oid = s.specs_ref.find(i => i.spec_item_id === "spec-ticket").spec_value_id;
                             let spec_item = this.ticket_qty[spec_item_oid];
                             if (spec_item) {
@@ -1823,7 +1983,9 @@
                 }
 
                 // check if the sku is available and in stock
-                let total_qty = req.skus.map(s => s.qty).reduce((a, b) => { return a + b }, 0);
+                let total_qty = req.skus.map(s => s.qty).reduce((a, b) => {
+                    return a + b
+                }, 0);
                 if (!this.checkQuantity(total_qty, req.skus)) {
                     alert('ERRPR: Out of stock！')
                     return;
@@ -1853,8 +2015,7 @@
                     }
                     console.log(`showSpecRule => ${JSON.stringify(rule)}, age: ${age_rule}, height: ${height_rule}`);
                     return age_rule && height_rule ? `${age_rule} / ${height_rule}` : (age_rule && !height_rule ? age_rule : (!age_rule && height_rule ? height_rule : ''));
-                }
-                else return null;
+                } else return null;
             }
         },
         created: function () {
@@ -1866,9 +2027,7 @@
         setup(props) {
             this.pkg = props.pkg;
         },
-        computed: {
-
-        },
+        computed: {},
         mounted: function () {
             emitter.on('clicked-show-detail', (data) => {
                 if (data === this.pkg.pkg_no) {
@@ -1878,7 +2037,7 @@
                 // If the product is for opendate, then default the selected first available date from pkg
                 if (app.checkOpenDate()) {
                     const pkg_cal_date = Object.keys(this.pkg.item[0].skus[0].calendar_detail)[0];
-                    this.sel_date = { s_date: pkg_cal_date, e_date: pkg_cal_date };
+                    this.sel_date = {s_date: pkg_cal_date, e_date: pkg_cal_date};
                 }
             });
 
