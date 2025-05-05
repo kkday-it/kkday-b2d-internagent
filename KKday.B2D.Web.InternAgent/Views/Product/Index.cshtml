@@ -12,7 +12,9 @@
 @section Styles {
  
     <link rel="stylesheet" href="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.css"/>
-    <style type="text/css"> 
+    <style type="text/css">
+
+    </style>
 }
 
 @section Scripts {
@@ -704,42 +706,40 @@
                     .then(response => {
                         if (response.ok) return response.json();
                         return response.text().then((text) => { throw Error(JSON.parse(text)) });
+                     }) 
+                    .then(data => {
+                        console.log(`pkg[${pkg.pkg_no}] => ${JSON.stringify(data)}`);
+                        if (data.result === "00") {
+                            pkg.guid = data.guid;
+                            pkg.exchange_type = data.exchange_type;
+                            pkg.confirm_time = data.confirm_time;
+                            pkg.confirm_time_unit = data.confirm_time_unit;
+                            pkg.policy_type = data.policy_type;
+                            pkg.refund_type = data.refund_type;
+                            pkg.partial_refund = data.partial_refund;
+                            pkg.lead_day_timezone = data.lead_day_timezone;
+                            pkg.b2c_min_price = data.b2c_min_price;
+                            pkg.b2b_min_price = data.b2b_min_price;
+                            pkg.item_no = data.item_no;
+                            pkg.sale_s_date = data.sale_s_date;
+                            pkg.sale_e_date = data.sale_e_date;
+                            pkg.description_module = data.description_module;
+                            pkg.item = data.item;
+
+                            pkg.loaded = true;
+                            pkg.selectable = pkg.item && pkg.item.length > 0;
+
+                            const av_dates = [...new Set([].concat(...pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
+                            if (pkg.item[0].inventory_set != 0) {
+                                this.fetchAllotment(pkg.pkg_no, av_dates[0]);
+                            }
+                        } else console.error(`The package(${pkg.pkg_no}) was Loading failed`);
+
+                        $('#pkg_' + pkg.pkg_no).find('#loading').hide();
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(`pkg[${pkg.pkg_no}] => ${JSON.stringify(data)}`);
-                            if (data.result === "00") {
-                                pkg.guid = data.guid;
-                                pkg.exchange_type = data.exchange_type;
-                                pkg.confirm_time = data.confirm_time;
-                                pkg.confirm_time_unit = data.confirm_time_unit;
-                                pkg.policy_type = data.policy_type;
-                                pkg.refund_type = data.refund_type;
-                                pkg.partial_refund = data.partial_refund;
-                                pkg.lead_day_timezone = data.lead_day_timezone;
-                                pkg.b2c_min_price = data.b2c_min_price;
-                                pkg.b2b_min_price = data.b2b_min_price;
-                                pkg.item_no = data.item_no;
-                                pkg.sale_s_date = data.sale_s_date;
-                                pkg.sale_e_date = data.sale_e_date;
-                                pkg.description_module = data.description_module;
-                                pkg.item = data.item;
-
-                                pkg.loaded = true;
-                                pkg.selectable = pkg.item && pkg.item.length > 0;
-
-                                const av_dates = [...new Set([].concat(...pkg.item[0].skus.map(s => Object.keys(s.calendar_detail))))];
-                                if (pkg.item[0].inventory_set != 0) {
-                                    this.fetchAllotment(pkg.pkg_no, av_dates[0]);
-                                }
-                            } else console.error(`The package(${pkg.pkg_no}) was Loading failed`);
-
-                            $('#pkg_' + pkg.pkg_no).find('#loading').hide();
-                        })
-                        .catch(error => {
-                            console.error(`Unable to load pkg(${pkg.pkg_no}) => `, error);
-                        });
-                });
+                    .catch(error => {
+                        console.error(`Unable to load pkg(${pkg.pkg_no}) => `, error);
+                    }); 
 
             },
             fetchPackage(pkg_no, s_date) {
