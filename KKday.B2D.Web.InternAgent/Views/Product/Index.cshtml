@@ -1566,10 +1566,10 @@
 
                 if (this.pkg.item[0].has_event) {
                     let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
+                    this.time_slots = []
                     times.forEach(t => {
                         this.time_slots.push({time: t, selected: false, disabled: false});
                     });
-                    // console.log(`Render, time_slots => ${JSON.stringify(this.time_slots)}`);
                 }
             },
             minus(spec_item_oid) {
