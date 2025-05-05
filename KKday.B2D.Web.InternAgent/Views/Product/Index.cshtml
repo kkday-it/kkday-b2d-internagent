@@ -1828,21 +1828,20 @@
                     // restore disable status to available time slots
                     let times = [...new Set([].concat(...this.pkg.item[0].skus.map(s => [...new Set([].concat(...Object.keys(s.calendar_detail).map(key => Object.keys(s.calendar_detail[key].b2c_price ?? {}))))])))];
 
-                    const saleStartDateEvent = moment(this.pkg.item[0].sale_s_date_event, 'HH:mm');
-                    const selectedDate = this.sel_date.s_date ? moment(this.sel_date.s_date, 'YYYY-MM-DD') : null;
                     const saleStartDate = moment(this.pkg.item[0].sale_s_date, 'YYYY-MM-DD');
+                    const saleStartDateEvent = moment(this.pkg.item[0].sale_s_date_event, 'HH:mm');
+                    const selectedStartDate = this.sel_date.s_date ? moment(this.sel_date.s_date, 'YYYY-MM-DD') : null;
 
                     this.time_slots.filter(t => times.some(tm => tm === t.time)).forEach(t => {
                         t.disabled = false;
                         if (t.time === this.sel_time_slot) t.selected = true;
 
-                        if (selectedDate && selectedDate.isSame(saleStartDate) && saleStartDateEvent > moment(t.time, 'HH:mm')) {
+                        if (selectedStartDate && selectedStartDate.isSame(saleStartDate) && saleStartDateEvent > moment(t.time, 'HH:mm')) {
                             t.disabled = true;
                             t.selected = false;
                             if (this.sel_time_slot && saleStartDateEvent > moment(this.sel_time_slot, 'HH:mm'))
                                 this.sel_time_slot = null
                         }
-
                     });
                 }
             },
