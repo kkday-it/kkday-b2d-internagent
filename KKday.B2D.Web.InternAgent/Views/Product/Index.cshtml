@@ -695,7 +695,7 @@
                 };
                 // console.log(`load pkg req => ${JSON.stringify(req)}`);
 
-                 fetch(uri, {
+                fetch(uri, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json;charset=utf-8',
@@ -706,7 +706,7 @@
                     .then(response => {
                         if (response.ok) return response.json();
                         return response.text().then((text) => { throw Error(JSON.parse(text)) });
-                     }) 
+                    })
                     .then(data => {
                         console.log(`pkg[${pkg.pkg_no}] => ${JSON.stringify(data)}`);
                         if (data.result === "00") {
@@ -736,6 +736,12 @@
                         } else console.error(`The package(${pkg.pkg_no}) was Loading failed`);
 
                         $('#pkg_' + pkg.pkg_no).find('#loading').hide();
+
+                        // call by sequence to load package data
+                        if (idx < this.pkg.length -1) {
+                            let next_pkg_idx = idx + 1;
+                            this.loadPackage(this.pkg[next_pkg_idx], next_pkg_idx);
+                        }
                     })
                     .catch(error => {
                         console.error(`Unable to load pkg(${pkg.pkg_no}) => `, error);
