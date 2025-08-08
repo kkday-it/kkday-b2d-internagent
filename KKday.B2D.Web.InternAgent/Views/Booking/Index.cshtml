@@ -383,7 +383,7 @@
                                 <select class="form-control" name="booking-guid-lang" v-model="booking.guide_lang" required>
                                     <option value="" disabled>@Localizer["component_form_title_placeholder"]</option>
                                     <template v-for="lang in bookingField.guide_lang?.list_option">
-                                        <option :value="lang" v-html="lang"></option>
+                                        <option :value="lang.code" v-html="lang.name"></option>
                                     </template>
                                 </select>
                             </div>

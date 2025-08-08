@@ -157,7 +157,13 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public partial class GuideLang : CustomAttribute
     { 
-        public List<string> list_option { get; set; }
+        public List<GuidLangItem> list_option { get; set; }
+        
+        public partial class GuidLangItem
+        {
+            public string code { get; set; }
+            public string name { get; set; }
+        }
     }
 
     public partial class IdName
