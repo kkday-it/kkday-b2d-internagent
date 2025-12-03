@@ -12,8 +12,13 @@
 @section Styles {
  
     <link rel="stylesheet" href="~/lib/jquery.magnific-popup/dist/jquery.magnific-popup.css"/>
-    <style type="text/css">
-
+    <style>
+        .option_item__info {
+            background: #f6f6f6;
+            border-radius: 4px; 
+            padding: 20px;
+            height: 100%;
+        }
     </style>
 }
 
@@ -228,16 +233,83 @@
                             </div>
                             <!-- Date Picker & Options -->
                             <div class="choose-date-title"
-                                 v-if="!checkOpenDate(prod.go_date_setting.type)">@Localizer["Select_DateAndOptions"]</div>
+                                 v-if="!checkOpenDate(item.pkg_no)">@Localizer["Select_DateAndOptions"]</div>
 
                         </div>
                         <div class="row">
                             <div class="col-md-6 option-item-calendar">
-                                <calendar-section ref="calendar" :pkg="item"></calendar-section>
+                                <div v-if="checkOpenDate(item.pkg_no)" class="option_item__info">
+                                    <h5>@Localizer["About_Item"]</h5>
+                                    <ul class="option-list list-unstyled">
+                                        <li v-if="item.confirm_time == 0 && item.deliver_time == 0">
+                                            <i class="ri-flashlight-fill"></i>
+                                            <span class="option-list__title instant_booking">@Localizer["InstantConfirm_Label"]</span>
+                                        </li>
+                                        <li v-else-if="item.confirm_time == 0 && item.deliver_time != 0">
+                                            <i class="ri-flashlight-fill"></i>
+                                            <span class="option-list__title instant_confirm">@Localizer["Confirm_Immediately"]</span>
+                                        </li>
+                                        <li v-if="item.policy_type === '1'">
+                                            <i class="ri-money-dollar-circle-line"></i>
+                                            <span class="option-list__title">@Localizer["Cancel_Free"]</span>
+                                            <!---->
+                                        </li>
+                                        <!---->
+                                    </ul>
+                                    <hr class="option_item__hr">
+                                    <!----><!----><!----><!----><!----><!---->
+                                    
+                                    <div class="option-cancel-policy" v-if="item.description_module?.PMDL_USE_VALID">
+                                        <h5>{{ item.description_module.PMDL_USE_VALID.module_title }}</h5>
+                                        <div class="layout-list layout-list--gap-5 layout-list--horizontal-align-default desc-refund-policy option-cancel-policy__list">
+                                            <ul class="desc-refund-policy-list none-bullet-style">
+                                                <li v-if="item.description_module.PMDL_USE_VALID.content?.properties?.exchange?.desc">{{ item.description_module.PMDL_USE_VALID.content.properties.exchange.desc }}</li>
+                                                <li v-if="item.description_module.PMDL_USE_VALID.content?.properties?.exchange_description?.desc">{{ item.description_module.PMDL_USE_VALID.content.properties.exchange_description.desc }}</li>
+                                            </ul> 
+                                        </div>
+                                        <hr class="option_item__hr">
+                                    </div>
+                                    
+                                    <div class="option-cancel-policy" v-if="item.description_module?.PMDL_EXCHANGE_VALID">
+                                        <h5>{{ item.description_module.PMDL_EXCHANGE_VALID.module_title }}</h5>
+                                        <div class="layout-list layout-list--gap-5 layout-list--horizontal-align-default desc-refund-policy option-cancel-policy__list">
+                                            <ul class="desc-refund-policy-list none-bullet-style">
+                                                <li v-if="item.description_module.PMDL_EXCHANGE_VALID.content?.properties?.exchange?.desc">{{ item.description_module.PMDL_EXCHANGE_VALID.content.properties.exchange.desc }}</li>
+                                                <li v-if="item.description_module.PMDL_EXCHANGE_VALID.content?.properties?.exchange_description?.desc">{{ item.description_module.PMDL_EXCHANGE_VALID.content.properties.exchange_description.desc }}</li>
+                                                <li v-if="item.description_module.PMDL_EXCHANGE_VALID.content?.properties?.expired?.desc">{{ item.description_module.PMDL_EXCHANGE_VALID.content.properties.expired.desc }}</li>
+                                            </ul> 
+                                        </div>
+                                        <hr class="option_item__hr">
+                                    </div>
+                                    
+                                    <div class="option-cancel-policy" v-if="item.description_module?.PMDL_REFUND_POLICY">
+                                        <h5>{{ item.description_module.PMDL_REFUND_POLICY.module_title }}</h5>
+                                        <div class="layout-list layout-list--gap-5 layout-list--horizontal-align-default desc-refund-policy option-cancel-policy__list">
+                                            <ul class="desc-refund-policy-list none-bullet-style">
+                                                <li>{{ item.description_module.PMDL_REFUND_POLICY.content.properties.policy_type.desc }}</li>
+                                            </ul>
+                                            <div class="cancel-policy-hint kk-u-text-medium">
+                                                <div class="kk-icon-with-text kk-icon-with-text--xs kk-u-mb-3">
+                                                    <svg viewBox="0 0 24 24" class="kk-icon kk-icon--xs"><use href="#ic_info_line"></use></svg>
+                                                    <div class="kk-icon-with-text__text"><i class="ri-error-warning-line"></i> @Localizer["Refund_Title"]</div>
+                                                </div>
+                                                <div class="api-cancel-policy-content">
+                                                    <ul style="list-style: none;">
+                                                        <li><span>@Localizer["Refund_Desc"]</span></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div v-else class="option-item-calendar">
+                                    <calendar-section ref="calendar" :pkg="item"></calendar-section>    
+                                </div>
                             </div>
                             <div class="col-md-6 option-item-sku">
                                 <div class="h4"
-                                     v-if="checkOpenDate(prod.go_date_setting.type)">@Localizer["SelectOptions_Title"]</div>
+                                     v-if="checkOpenDate(item.pkg_no)">@Localizer["SelectOptions_Title"]</div>
                                 <spec-section ref="skus" :pkg="item"></spec-section>
                             </div>
                         </div>
@@ -274,9 +346,8 @@
                                             </template>
                                         </div>
                                     </div>
-                                    <div class="overlap"><a href="javascript:"
-                                                            class="link-secondary text-md">@Localizer["Collapse_Product_Desc"] <i
-                                                class="fa fa-angle-up"></i></a></div>
+                                    <div class="overlap"><a href="javascript:"  class="link-secondary text-md">@Localizer["Collapse_Product_Desc"] <i
+                                         class="fa fa-angle-up"></i></a></div>
                                 </div>
                             </div>
                         </div>
@@ -617,10 +688,7 @@
 
             this.Query();
         },
-        computed: {
-            checkOpenDate() {
-                return ['03', '04'].some(el => el === this.prod.go_date_setting.type);
-            }
+        computed: { 
         },
         methods: {
             Query() {
@@ -893,8 +961,10 @@
             optionReload(pkg_no) {
                 emitter.emit('unselect-package', pkg_no);
             },
-            checkOpenDate() {
-                return ['03', '04'].some(el => el === this.prod.go_date_setting.type);
+            checkOpenDate(pkg_no) {
+                const _pkg = this.pkg.find(i => i.pkg_no === pkg_no);
+                const goDateSettingType = (this.prod.go_date_setting.type === '06') ? _pkg.go_date_setting.type : this.prod.go_date_setting.type;
+                return ['03', '04'].some(el => el === goDateSettingType);
             },
         },
         mounted: function () {
@@ -931,7 +1001,7 @@
             }
         },
         template: `
-    <div v-if="app.checkOpenDate()" class="option_item_info">
+    <div v-if="app.checkOpenDate(pkg.pkg_no)" class="option_item_info">
         <div class="h4 mt-0">@Localizer["PackageDetails_Title"]</div>
         <ul class="option-list list-unstyled">
             <li v-if="pkg.confirm_time == 0"><i class="ri-flashlight-fill"></i> <span class="option-list__title">@Localizer["InstantConfirm_Label"]</span></li>
@@ -1248,7 +1318,7 @@
                 this.dates.forEach(d => {
                     if (!d.disabled) {
                         let price = this.getPrecisePrice(d.full_date);
-                        console.log(`cal refresh => ${d.full_date}, sku_id=${this.filter_options.sku_id}, precise_price: ${price}`)
+                        // console.log(`cal refresh => ${d.full_date}, sku_id=${this.filter_options.sku_id}, precise_price: ${price}`)
                         if (!price) {
                             // Matching sku has no price
                             if (this.filter_options.sku_id && this.filter_options.timeslot ||
@@ -1265,7 +1335,7 @@
                         } else d.invalid = false;
 
                         d.highest_price = d.lowest_price = price;
-                        console.log(`cal refresh => date: ${d.full_date}, final price:${price}`);
+                        // console.log(`cal refresh => date: ${d.full_date}, final price:${price}`);
                     } else {
                         console.log(`date: ${d.full_date} is disabled`);
                     }
@@ -1377,7 +1447,7 @@
             }
         },
         created: function () {
-            this.go_date_setting = this.$parent.prod.go_date_setting;
+            this.go_date_setting = (this.$parent.prod.go_date_setting.type == "06") ? this.pkg.go_date_setting : this.$parent.prod.go_date_setting;
             this.is_date_range = date_range_types.some(t => this.go_date_setting.type == t);
         },
         setup(props) {
@@ -2060,7 +2130,7 @@
                     this.render();
                 }
                 // If the product is for opendate, then default the selected first available date from pkg
-                if (app.checkOpenDate()) {
+                if (app.checkOpenDate(this.pkg.pkg_no)) {
                     const pkg_cal_date = Object.keys(this.pkg.item[0].skus[0].calendar_detail)[0];
                     this.sel_date = {s_date: pkg_cal_date, e_date: pkg_cal_date};
                     // console.log(`opendate.default: ${JSON.stringify(this.sel_date)}`)
@@ -2070,7 +2140,7 @@
 
             emitter.on('date-changed', (data) => {
                 if (data.pkg_no === this.pkg.pkg_no) {
-                    if (!app.checkOpenDate()) {
+                    if (!app.checkOpenDate(this.pkg.pkg_no)) {
                         console.log(`date changed, dates: ${JSON.stringify(data.sel_date)}, pkg_no: ${data.pkg_no}`);
                         this.sel_date = data.sel_date;
                         this.checkTimeslot();

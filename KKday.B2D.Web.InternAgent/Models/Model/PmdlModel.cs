@@ -712,6 +712,9 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public partial class PurpleProperties
     {
+        [JsonPropertyName("expired")]
+        public Exchange Expired { get; set; }
+        
         [JsonPropertyName("exchange")]
         public Exchange Exchange { get; set; }
 

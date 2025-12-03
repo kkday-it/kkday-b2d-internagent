@@ -31,7 +31,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public List<string> img_list { get; set; }
         public List<string> video_list { get; set; }
         public ProductCommentInfo prod_comment_info { get; set; }
-        public ProductGoDateSetting go_date_setting { get; set; }
+        public GoDateSettingModel go_date_setting { get; set; }
         public List<CountryCityMapModel> cities { get; set; } 
         public PmdlModel description_module { get; set; }
         public bool? is_translate_complete { get; set; }
@@ -46,18 +46,4 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string click_count { get; set; }
         public string comment_record { get; set; }
     }
-
-    public class ProductGoDateSetting
-    {       
-        public ProductGoDateSettingDays days { get; set; }
-        // 01: Single Day, 02: Start and End Date, 03 & 04: Open Date, 05: Accommodation Check-in and Check-out Dates
-        public string type { get; set; }
-    }
-
-    public class ProductGoDateSettingDays
-    {
-        public int? max { get; set; }
-        public int? min { get; set; }
-    }
-  
 }
