@@ -34,6 +34,7 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 var searchReq = new SearchReqModel()
                 {
                     locale = locale,
+                    facets = new List<string>(new [] { "destination", "product_category"}),
                     state = "tw",
                     keywords = req.key,
                     start = ((req.page - 1) * req.size).ToString(),
@@ -45,7 +46,9 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                     price_from = req.price_from,
                     price_to = req.price_to,
                     sort = req.sort ?? "PASC",
-                    page_size = req.size.ToString()
+                    page_size = req.size.ToString(),
+                    destination = req.destination,
+                    product_categories = req.product_categories
                 };
 
                 result = searchProxy.Search(searchReq);
@@ -54,18 +57,7 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 resp.metadata.current_page = req.page ?? 1;
                 resp.metadata.page_size = Convert.ToInt32(searchReq.page_size);
 
-                // If there is nothing in the small category, the large category will not be displayed.
-                resp.facets.tag.ForEach(x =>
-                {
-                    x.count = 0;
-                    x.sub_tags.ForEach(s =>
-                    {
-                        if (Convert.ToInt16(s.count) > 0)
-                        {
-                            x.count++;
-                        }
-                    });
-                });
+                // If there is nothing in the small category, the large category will not be displayed. 
 
                 jsonData.Add("data", resp);
             }

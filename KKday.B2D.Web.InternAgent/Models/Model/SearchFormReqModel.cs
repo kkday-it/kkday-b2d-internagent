@@ -6,10 +6,10 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     public class SearchFormReqModel
     {
         public string key { get; set; }
-        public List<string> country_keys { get; set; }
-        public List<string> city_keys { get; set; }
-        public List<string> cat_main_keys { get; set; }
-        public List<string> cat_keys { get; set; }
+        public List<string> country_keys { get; set; }  // deprecated!
+        public List<string> city_keys { get; set; }  // deprecated!
+        public List<string> cat_main_keys { get; set; }  // deprecated!
+        public List<string> cat_keys { get; set; }  // deprecated!
         public string date_from { get; set; }
         public string date_to { get; set; }
         public double? price_from { get; set; }
@@ -18,5 +18,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string sort { get; set; }
         public int? page { get; set; }
         public int? size { get; set; }
+        public List<string> destination { get; set; }
+        public List<string> product_categories { get; set; }
     }
 }

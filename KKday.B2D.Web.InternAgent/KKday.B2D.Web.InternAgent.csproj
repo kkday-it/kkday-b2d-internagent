@@ -31,7 +31,6 @@
     <Folder Include="AppCode\" />
     <Folder Include="Resources\" />
     <Folder Include="Proxy\" />
-    <Folder Include="Models\Model\" />
     <Folder Include="Models\Repository\" />
     <Folder Include="AppData\" />
     <Folder Include="Resources\Views\Shared\" />
@@ -54,5 +53,6 @@
   <ItemGroup>
     <Content Remove="Resources\Views\Order\Detail.zh-TW" />
     <Content Remove="Resources\Views\Order\Detail.en-Us" />
+    <Content Remove="Views\Search\Index (copy).cshtml" />
   </ItemGroup>
 </Project>

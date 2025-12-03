@@ -27,7 +27,7 @@ namespace KKday.B2D.Web.InternAgent.Proxy
                         #region JSON Payload
 
                         req.stats = new List<string>() { "price" };
-                        req.facets = new List<string>() { "cat_main", "cat" }; 
+                        // req.facets = new List<string>() { "cat_main", "cat" }; 
    
                         var content = JsonConvert.SerializeObject(req, new JsonSerializerSettings{ NullValueHandling = NullValueHandling.Ignore });
                         Console.WriteLine($"Search Req Payload => {content}");

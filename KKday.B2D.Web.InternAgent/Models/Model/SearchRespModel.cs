@@ -27,9 +27,8 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public class SearchFacet
     {
-        public List<ProductCategory> cat_main { get; set; } // 主分類
-        public List<ProductCategory> cat { get; set; } // 次分類 (由id區分)
-        public List<Tag> tag { get; set; }  // 新版大小分類
+        public List<DestinationModel> destination { get; set; }
+        public List<CategoryModel> category { get; set; } 
     }
       
     ////////////
