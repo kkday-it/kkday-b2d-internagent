@@ -38,19 +38,18 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                     state = "tw",
                     keywords = req.key,
                     start = ((req.page - 1) * req.size).ToString(),
-                    cat_main_keys = req.cat_main_keys,
-                    cat_keys = req.cat_keys,
                     date_from = req.date_from,
                     date_to = req.date_to,
-                    durations = req.durations?.Select(s => s.Replace("8h", "0,8").Replace("1d", "8,24").Replace("2d", "24,48").Replace("*", "48,*")).ToList(),
                     price_from = req.price_from,
-                    price_to = req.price_to,
+                    price_to = req.price_to, 
+                    schedule_minute_from = req.schedule_minute_from,
+                    schedule_minute_to = req.schedule_minute_to,
                     sort = req.sort ?? "PASC",
                     page_size = req.size.ToString(),
                     destination = req.destination,
                     product_categories = req.product_categories
                 };
-
+                
                 result = searchProxy.Search(searchReq);
                 Console.WriteLine($"Search Result => {result}");
                 var resp = JsonConvert.DeserializeObject<SearchRespModel>(result);

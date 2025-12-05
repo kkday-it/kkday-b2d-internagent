@@ -182,11 +182,14 @@
                     <div class="filter-group">
                         <!-- destination filter -->
                         <div class="filter-box">
-                            <h4 class="collapsable collapsed">
+                            <h4 @@click.stop="show_destination=!show_destination">
                                 @Localizer["Destination"]
+                                <i class="fa fa-caret-up pull-right" v-if="show_destination"></i>
+                                <i class="fa fa-caret-down pull-right" v-if="!show_destination"></i>
                             </h4>
+                            
 
-                            <div v-for="dest in facets.destination">
+                            <div v-for="dest in facets.destination" v-show="show_destination">
                                 <div :value="dest.code" class="drop-title">
                                     <div>
                                         <i class="ri-lg" :class="{'ri-checkbox-blank-line': !dest.checked, 'ri-checkbox-fill': dest.checked}" @@click.stop="destinationCheck(dest)"></i>
@@ -216,11 +219,13 @@
                         </div>
                         <!-- category filter -->
                         <div class="filter-box">
-                            <h4>
+                            <h4 @@click.stop="show_category=!show_category">
                                 @Localizer["All_Categories"]
+                                <i class="fa fa-caret-up pull-right" v-if="show_category"></i>
+                                <i class="fa fa-caret-down pull-right" v-if="!show_category"></i>
                             </h4>
-
-                            <div v-for="cate in facets.category">
+                             
+                            <div v-for="cate in facets.category" v-show="show_category">
                                 <div :value="cate.code" class="drop-title">
                                     <div>
                                         <i class="ri-lg" :class="{'ri-checkbox-blank-line': !cate.checked, 'ri-checkbox-fill': cate.checked}" @@click.stop="categoryCheck(cate)"></i>
@@ -287,23 +292,18 @@
                                 <i class="fa fa-caret-down pull-right" v-if="!show_duration"></i>
                             </h4>
                             <ul class="filter-list collapse in" v-if="show_duration">
-                                <li class="checkbox" @@click.stop="durations[0].checked=!durations[0].checked; Query();">
-                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[0].checked, 'ri-checkbox-fill': durations[0].checked }"></i>
-                                    <span data-val="time|8h" class="checkbox-title">@Localizer["Journey_Time_0h_8h"]</span>
-                                </li>
-                                <li class="checkbox" @@click.stop="durations[1].checked=!durations[1].checked; Query();">
-                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[1].checked, 'ri-checkbox-fill': durations[1].checked }"></i>
-                                    <span data-val="time|1d" class="checkbox-title">@Localizer["Journey_Time_8h_1d"]</span>
-                                </li>
-                                <li class="checkbox" @@click.stop="durations[2].checked=!durations[2].checked; Query();">
-                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[2].checked, 'ri-checkbox-fill': durations[2].checked }"></i>
-                                    <span data-val="time|2d" class="checkbox-title">@Localizer["Journey_Time_1d_2d"]</span>
-                                </li>
-                                <li class="checkbox" @@click.stop="durations[3].checked=!durations[3].checked; Query();">
-                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[3].checked, 'ri-checkbox-fill': durations[3].checked }"></i>
-                                    <span data-val="time|*" class="checkbox-title">@Localizer["Journey_Time_2d_more"]</span>
-                                </li>
+                                <template v-for="(duration, idx) in durations">
+                                    <li class="checkbox" @@click.stop="clickDuration(idx)">
+                                        <i class="ri-lg" :class="{'ri-checkbox-blank-circle-line': !duration.checked, 'ri-checkbox-circle-line': duration.checked }"></i>
+                                        <span class="checkbox-title">{{duration.name}}</span>
+                                    </li>
+                                    @* <li class="checkbox" @@click.stop="durations[idx].checked=!durations[idx].checked; Query();"> *@
+                                    @*     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[idx].checked, 'ri-checkbox-fill': durations[idx].checked }"></i> *@
+                                    @*     <span class="checkbox-title">{{duration.name}}</span> *@
+                                    @* </li> *@
+                                </template>
                             </ul>
+                             
                         </div>
                     </div>
                 </div>
@@ -423,10 +423,14 @@
                 facets: {},
                 stats: {},
                 prods: [],
+                show_destination: false,
+                show_category: true,
                 show_duration: true,
                 durations: [
-                    { time: "0,8", checked: false }, { time: "8,24", checked: false },
-                    { time: "24,48", checked: false }, { time: "72,*", checked: false }
+                    { seq: 0, from: 0, to: 480, name: '@Localizer["Journey_Time_0h_8h"]', checked: false }, 
+                    { seq: 1, from: 480, to: 1440, name: '@Localizer["Journey_Time_8h_1d"]', checked: false },
+                    { seq: 2, from: 1440, to: 2880, name: '@Localizer["Journey_Time_1d_2d"]', checked: false }, 
+                    { seq: 3, from: 2880, to: null, name: '@Localizer["Journey_Time_2d_more"]',  checked: false }
                 ],
                 search_key: '',
                 sel_destination: [],
@@ -472,13 +476,18 @@
             Fetch() {
                 let vm = this;
                 let req = {
-                    key: this.search_key, page: this.currentPage, size: this.perPage,
-                    durations: this.durations.filter(d => d.checked).map(d => d.time)
+                    key: this.search_key, page: this.currentPage, size: this.perPage
                 };
-
+                
                 if (this.sorting) req.sort = this.sorting;
                 if (this.sel_destination.length) req.destination = this.sel_destination.map(dt => dt.code);
                 if (this.sel_categories.length) req.product_categories = this.sel_categories.map(st => st.code);
+
+                const duration = this.durations.find(d => d.checked);
+                if (duration) { 
+                    req.schedule_minute_from = duration.from; 
+                    req.schedule_minute_to =  duration.to; 
+                }
 
                 if (!this.load_once) {
                     var slider = $("#js-range-slider").data("ionRangeSlider");
@@ -552,18 +561,18 @@
 
                                 // #endregion Category 
                                 
-                                // this.stats = result.data.stats;
-                                // let range = $("#js-range-slider").data("ionRangeSlider");
-                                // if (range) {
-                                //     range.update({
-                                //         min: this.stats.price.min, max: this.stats.price.max,
-                                //         from: this.stats.price.min, to: this.stats.price.max
-                                //     });
-                                // }
-                                //
-                                // $("#js-range-slider").on('change', function () {
-                                //     vm.rangeChanged(this.value);
-                                // });
+                                this.stats = result.data.stats;
+                                let range = $("#js-range-slider").data("ionRangeSlider");
+                                if (range) {
+                                    range.update({
+                                        min: this.stats.price.min, max: this.stats.price.max,
+                                        from: this.stats.price.min, to: this.stats.price.max
+                                    });
+                                }
+
+                                $("#js-range-slider").on('change', function () {
+                                    vm.rangeChanged(this.value);
+                                });
 
                                 this.load_once = false;
                             }
@@ -573,11 +582,11 @@
                             this.prods = [];
                             this.totalRows = 0;
                             
-                            // this.stats = {};
-                            // let range = $("#js-range-slider").data("ionRangeSlider");
-                            // if (range) {
-                            //     range.update({ min: 0, max: 0});
-                            // }
+                            this.stats = {};
+                            let range = $("#js-range-slider").data("ionRangeSlider");
+                            if (range) {
+                                range.update({ min: 0, max: 0});
+                            }
                             
                             this.load_once = true;
                         }
@@ -644,6 +653,18 @@
                 
                 this.facets.category = this.traversalAllNodes(this.facets?.category, false);
                 this.sel_categories = [];
+            },
+            clickDuration(idx) {
+                const last_duration = this.durations.find(d => d.checked);
+                console.log(`clickDuration => idx: ${idx}, duration: ${last_duration?.seq}`);
+                if(last_duration) {
+                    last_duration.checked = false;
+                    if(idx == last_duration.seq)  return; // toggle self
+                }
+                
+                this.durations[idx].checked= true;
+                
+                this.Query();
             },
             traversalAllNodes(source, isSelectAll) {
                 const traversal = (nodes) => nodes?.map(item => ({

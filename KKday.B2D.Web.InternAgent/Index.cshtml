@@ -3,6 +3,7 @@
 
 @inject IViewLocalizer Localizer
 @{
+    Layout = "_Layout";
     ViewData["Title"] = Localizer["Search_Title"].Value;
 
     var locale = CultureInfo.CurrentCulture;
