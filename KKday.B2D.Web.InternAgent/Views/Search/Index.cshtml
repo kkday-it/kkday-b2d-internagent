@@ -427,7 +427,7 @@
                 show_category: true,
                 show_duration: true,
                 durations: [
-                    { seq: 0, from: 0, to: 480, name: '@Localizer["Journey_Time_0h_8h"]', checked: false }, 
+                    { seq: 0, from: null, to: 480, name: '@Localizer["Journey_Time_0h_8h"]', checked: false }, 
                     { seq: 1, from: 480, to: 1440, name: '@Localizer["Journey_Time_8h_1d"]', checked: false },
                     { seq: 2, from: 1440, to: 2880, name: '@Localizer["Journey_Time_1d_2d"]', checked: false }, 
                     { seq: 3, from: 2880, to: null, name: '@Localizer["Journey_Time_2d_more"]',  checked: false }
@@ -659,7 +659,10 @@
                 console.log(`clickDuration => idx: ${idx}, duration: ${last_duration?.seq}`);
                 if(last_duration) {
                     last_duration.checked = false;
-                    if(idx == last_duration.seq)  return; // toggle self
+                    if(idx == last_duration.seq) {
+                        this.Query();
+                        return; // toggle self
+                    }
                 }
                 
                 this.durations[idx].checked= true;
