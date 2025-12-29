@@ -1969,7 +1969,7 @@
             booking: {
                 handler(newVal, oldVal) {
                     console.log(`bookingmodel been changed!`);
-                    document.getElementById("raw_booking").textContent = JSON.stringify(newVal, undefined, 2);
+                    document.getElementById("raw_booking").textContent = JSON.stringify(this.booking, undefined, 2);
                 },
                 deep: true
             },

@@ -180,54 +180,108 @@
             <div class="col-3 d-none d-sm-block filter">
                 <div class="filter-container">
                     <div class="filter-group">
-                        <div class="filter-box" is-show-filter="A01-001">
-                            <h4 class="collapsable collapsed">
-                                @Localizer["Destination"]<i class="fa fa-caret-up pull-right"></i>
+                        <!-- destination filter -->
+                        <div class="filter-box">
+                            <h4 @@click.stop="show_destination=!show_destination">
+                                @Localizer["Destination"]
+                                <i class="fa fa-caret-up pull-right" v-if="show_destination"></i>
+                                <i class="fa fa-caret-down pull-right" v-if="!show_destination"></i>
                             </h4>
-                            <ul class="filter-list collapse">
-                                @*<div class="chip-city-group">
-                                        <template v-for="city in cities">
-                                            <span class="chip chip-city">
-                                                <a class="" v-html="city.name"></a>
-                                            </span>
-                                        </template>
-                                    </div>*@
-                            </ul>
-                        </div>
-                        <div class="checkbox-filter-box">
-                            <h4>@Localizer["All_Categories"]</h4>
-                            <template v-for="tag in facets.tag">
-                                <div>
-                                    <div :value="tag.id" class="drop-title" @@click.stop="tagToggle(tag)">
-                                        <h5>
-                                            {{ tag.name }}
-                                            <div class="pull-right">
-                                                <i :class="{'ri-arrow-down-s-line': !tag.open, 'ri-arrow-up-s-line': tag.open }"></i>
+                            
+
+                            <div v-for="dest in facets.destination" v-show="show_destination">
+                                <div :value="dest.code" class="drop-title">
+                                    <div>
+                                        <i class="ri-lg" :class="{'ri-checkbox-blank-line': !dest.checked, 'ri-checkbox-fill': dest.checked}" @@click.stop="destinationCheck(dest)"></i>
+                                        {{ dest.name }}
+                                        <div class="pull-right" v-if="dest?.children" @@click.stop="destinationToggle(dest)">
+                                            <i :class="{'ri-arrow-down-s-line': !dest.open, 'ri-arrow-up-s-line': dest.open }"></i>
+                                        </div>
+
+                                        <div v-show="dest.open" style="margin-left: 20px;">
+                                            <!-- Select/Unselect all sub destination -->
+                                            <div class="drop-item">
+                                                <i class="ri-lg" :class="{'ri-checkbox-blank-line': !dest.select_all, 'ri-checkbox-fill': dest.select_all}" @@click.stop="destinationCheckAll(dest)"></i>
+                                                <span class="checkbox-title">@Localizer["All"]</span>
                                             </div>
-                                            <div class="clearfix"></div>
-                                        </h5>
+
+                                            <div class="drop-item" v-for="sub_dest in dest?.children">
+                                                <div>
+                                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_dest.checked, 'ri-checkbox-fill': sub_dest.checked}" @@click="destinationCheck(sub_dest)"></i>
+                                                    <span>{{ sub_dest.name }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                    <ul class="checkbox-dropdown-list" v-if="tag.open">
-                                        <li class="checkbox" @@click.stop="subTagToggleAll(tag)">
-                                            <i class="ri-lg" :class="{'ri-checkbox-blank-line': !subTagCheckAll(tag), 'ri-checkbox-fill': subTagCheckAll(tag)}"></i>
-                                            <span class="checkbox-title">@Localizer["All"]</span>
-                                        </li>
-                                        <template v-for="sub_tag in tag.sub_tags">
-                                            <li class="checkbox" v-if="sub_tag.count > 0" @@click.stop="subTagToggle(sub_tag)">
-                                                <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_tag.checked, 'ri-checkbox-fill': sub_tag.checked}"></i>
-                                                <span :data-val="`cat|${sub_tag.id}`" class="checkbox-title" v-html="`${sub_tag.name} (${sub_tag.count})`"></span>
-                                            </li>
-                                        </template>
-                                    </ul>
                                 </div>
-                            </template>
+                            </div>
                         </div>
+                        <!-- category filter -->
+                        <div class="filter-box">
+                            <h4 @@click.stop="show_category=!show_category">
+                                @Localizer["All_Categories"]
+                                <i class="fa fa-caret-up pull-right" v-if="show_category"></i>
+                                <i class="fa fa-caret-down pull-right" v-if="!show_category"></i>
+                            </h4>
+                             
+                            <div v-for="cate in facets.category" v-show="show_category">
+                                <div :value="cate.code" class="drop-title">
+                                    <div>
+                                        <i class="ri-lg" :class="{'ri-checkbox-blank-line': !cate.checked, 'ri-checkbox-fill': cate.checked}" @@click.stop="categoryCheck(cate)"></i>
+                                        {{ cate.name }}
+                                        <div class="pull-right" v-if="cate?.children" @@click.stop="categoryToggle(cate)">
+                                            <i :class="{'ri-arrow-down-s-line': !cate.open, 'ri-arrow-up-s-line': cate.open }"></i>
+                                        </div>
+
+                                        <div v-show="cate.open" style="margin-left: 15px;">
+                                            <!-- Select/Unselect all sub categories -->
+                                            <div class="drop-item">
+                                                <i class="ri-lg" :class="{'ri-checkbox-blank-line': !cate.select_all, 'ri-checkbox-fill': cate.select_all}" @@click.stop="categoryCheckAll(cate)"></i>
+                                                <span class="checkbox-title">@Localizer["All"]</span>
+                                            </div>
+
+                                            <template v-for="sub_cate in cate?.children">
+                                                <div class="drop-item">
+                                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_cate.checked, 'ri-checkbox-fill': sub_cate.checked}" @@click.stop="categoryCheck(sub_cate)"></i>
+                                                    <span v-html="sub_cate.name"></span>
+                                                    <div class="pull-right" v-if="sub_cate?.children" @@click.stop="categoryToggle(sub_cate)">
+                                                        <i :class="{'ri-arrow-down-s-line': !sub_cate.open, 'ri-arrow-up-s-line': sub_cate.open }"></i>
+                                                    </div>
+                                                    <div class="clearfix"></div>
+
+                                                    <div v-show="sub_cate.open" style="margin-left: 15px;">
+                                                        <div class="sub-drop-item">
+                                                            <!-- Select/Unselect all next-level sub categories -->
+                                                            <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_cate.select_all, 'ri-checkbox-fill': sub_cate.select_all}" @@click.stop="categoryCheckAll(sub_cate)"></i>
+                                                            <span class="checkbox-title">@Localizer["All"]</span>
+                                                        </div>
+
+                                                        <div v-for="sub3_cate in sub_cate?.children" class="sub-drop-item">
+                                                            <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub3_cate.checked, 'ri-checkbox-fill': sub3_cate.checked}" @@click="categoryCheck(sub3_cate)"></i>
+                                                            <span>{{ sub3_cate.name }}</span>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </template>
+                                        </div>
+
+                                    </div>
+                                    <div class="clearfix"></div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
                         <div class="filter-box">
                             <h4 v-cloak>@Localizer["Price_Range"] ({{currency}})</h4>
                             <div>
                                 <input v-cloak type="text" id="js-range-slider" name="range" data-min="{{stats.price.min}}"
                                        data-max="{{stats.price.max}}" data-from="{{stats.price.min}}"
-                                       data-to="{{stats.price.max}}" @@change="rangeChanged" />
+                                       data-to="{{stats.price.max}}" @@change="rangeChanged"/>
                             </div>
                         </div>
 
@@ -238,23 +292,18 @@
                                 <i class="fa fa-caret-down pull-right" v-if="!show_duration"></i>
                             </h4>
                             <ul class="filter-list collapse in" v-if="show_duration">
-                                <li class="checkbox" @@click.stop="durations[0].checked=!durations[0].checked; Query();">
-                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[0].checked, 'ri-checkbox-fill': durations[0].checked }"></i>
-                                    <span data-val="time|8h" class="checkbox-title">@Localizer["Journey_Time_0h_8h"]</span>
-                                </li>
-                                <li class="checkbox" @@click.stop="durations[1].checked=!durations[1].checked; Query();">
-                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[1].checked, 'ri-checkbox-fill': durations[1].checked }"></i>
-                                    <span data-val="time|1d" class="checkbox-title">@Localizer["Journey_Time_8h_1d"]</span>
-                                </li>
-                                <li class="checkbox" @@click.stop="durations[2].checked=!durations[2].checked; Query();">
-                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[2].checked, 'ri-checkbox-fill': durations[2].checked }"></i>
-                                    <span data-val="time|2d" class="checkbox-title">@Localizer["Journey_Time_1d_2d"]</span>
-                                </li>
-                                <li class="checkbox" @@click.stop="durations[3].checked=!durations[3].checked; Query();">
-                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[3].checked, 'ri-checkbox-fill': durations[3].checked }"></i>
-                                    <span data-val="time|*" class="checkbox-title">@Localizer["Journey_Time_2d_more"]</span>
-                                </li>
+                                <template v-for="(duration, idx) in durations">
+                                    <li class="checkbox" @@click.stop="clickDuration(idx)">
+                                        <i class="ri-lg" :class="{'ri-checkbox-blank-circle-line': !duration.checked, 'ri-checkbox-circle-line': duration.checked }"></i>
+                                        <span class="checkbox-title">{{duration.name}}</span>
+                                    </li>
+                                    @* <li class="checkbox" @@click.stop="durations[idx].checked=!durations[idx].checked; Query();"> *@
+                                    @*     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[idx].checked, 'ri-checkbox-fill': durations[idx].checked }"></i> *@
+                                    @*     <span class="checkbox-title">{{duration.name}}</span> *@
+                                    @* </li> *@
+                                </template>
                             </ul>
+                             
                         </div>
                     </div>
                 </div>
@@ -263,6 +312,7 @@
             <!-- product-list -->
             <div class="col-md-9 product-list">
                 <div class="board product-result mb-0 result-board">
+                    <tag-section></tag-section>
                     <div class="d-flex flex-row">
                         <h4>
                             <span class="text-primary">
@@ -270,7 +320,6 @@
                             </span>
                             @Localizer["ExperienceFound"]
                         </h4>
-                        <tags-section></tags-section>
                         <div class="ms-auto">
                             <b-form-select v-model="sorting" :options="sort_options" @@change="sortChanged" class="form-control"></b-form-select>
                         </div>
@@ -374,13 +423,18 @@
                 facets: {},
                 stats: {},
                 prods: [],
+                show_destination: false,
+                show_category: true,
                 show_duration: true,
                 durations: [
-                    { time: "0,8", checked: false }, { time: "8,24", checked: false },
-                    { time: "24,48", checked: false }, { time: "72,*", checked: false }
+                    { seq: 0, from: null, to: 480, name: '@Localizer["Journey_Time_0h_8h"]', checked: false }, 
+                    { seq: 1, from: 480, to: 1440, name: '@Localizer["Journey_Time_8h_1d"]', checked: false },
+                    { seq: 2, from: 1440, to: 2880, name: '@Localizer["Journey_Time_1d_2d"]', checked: false }, 
+                    { seq: 3, from: 2880, to: null, name: '@Localizer["Journey_Time_2d_more"]',  checked: false }
                 ],
                 search_key: '',
-                sel_sub_tags: [],
+                sel_destination: [],
+                sel_categories: [],
                 sorting: null,
                 sort_options: [
                     { value: null, text: "KKday Recommended" },
@@ -392,11 +446,13 @@
             }
         },
         watch: {
-            sel_sub_tags: {
-                handler: function () {
-                    this.currentPage = 1;
-                    this.Query();
-                }
+            sel_destination: function (val) { 
+                this.currentPage = 1;
+                this.Query();
+            },
+            sel_categories: function (val) {
+                this.currentPage = 1;
+                this.Query();
             }
         },
         created: function () {
@@ -420,12 +476,18 @@
             Fetch() {
                 let vm = this;
                 let req = {
-                    key: this.search_key, page: this.currentPage, size: this.perPage,
-                    durations: this.durations.filter(d => d.checked).map(d => d.time)
+                    key: this.search_key, page: this.currentPage, size: this.perPage
                 };
-
+                
                 if (this.sorting) req.sort = this.sorting;
-                if (this.sel_sub_tags.length) req.cat_keys = this.sel_sub_tags.map(st => st.id);
+                if (this.sel_destination.length) req.destination = this.sel_destination.map(dt => dt.code);
+                if (this.sel_categories.length) req.product_categories = this.sel_categories.map(st => st.code);
+
+                const duration = this.durations.find(d => d.checked);
+                if (duration) { 
+                    req.schedule_minute_from = duration.from; 
+                    req.schedule_minute_to =  duration.to; 
+                }
 
                 if (!this.load_once) {
                     var slider = $("#js-range-slider").data("ionRangeSlider");
@@ -457,14 +519,49 @@
                             console.log(`Fetch => totalRows:${this.totalRows}, product.len:${this.prods.length}`)
 
                             if (this.load_once) {
-                                result.data.facets.tag.forEach(t => {
-                                    t.open = false;
-                                    t.select_all = false;
-                                    t.sub_tags.forEach(st => { st.checked = false });
-                                });
-                                this.facets = result.data.facets;
-                                this.stats = result.data.stats;
+                                
+                                // #region Destination
 
+                                const extendDestinationFields = (destination) => destination.map(dest => {
+                                    // 1. Check if the `children` property exists and is not empty
+                                    const hasChildren = dest.children && Array.isArray(dest.children) && dest.children.length > 0;
+
+                                    // 2. Process child nodes (if any exist)
+                                    const processedChildren = hasChildren ? extendDestinationFields(dest.children) : undefined;
+                                    return {
+                                        ...dest,
+                                        ...(hasChildren && { open: false,  select_all: false,  checked: false }),
+                                        ...(!hasChildren && { checked: false }),
+                                        ...(processedChildren && { children: processedChildren })
+                                    }
+                                });
+                                result.data.facets.destination = extendDestinationFields(result.data.facets?.destination);
+                                
+                                // #endregion Destination
+                                
+                                // #region Category 
+                                
+                                const extendCategoryFields = (categories) => categories.map(category => {
+                                    // 1. Check if the `children` property exists and is not empty
+                                    const hasChildren = category.children && Array.isArray(category.children) && category.children.length > 0;
+
+                                    // 2. Process child nodes (if any exist)
+                                    const processedChildren = hasChildren ? extendCategoryFields(category.children) : undefined;
+                                    return {
+                                        ...category,
+                                        ...(hasChildren && { open: false,  select_all: false,  checked: false }),
+                                        ...(!hasChildren && { checked: false }),
+                                        ...(processedChildren && { children: processedChildren })
+                                    }
+                                }); 
+                                result.data.facets.category = extendCategoryFields(result.data.facets?.category);
+                                
+                                this.facets = result.data.facets;
+                                console.log(`Facets: ${JSON.stringify(this.facets)}`);
+
+                                // #endregion Category 
+                                
+                                this.stats = result.data.stats;
                                 let range = $("#js-range-slider").data("ionRangeSlider");
                                 if (range) {
                                     range.update({
@@ -481,13 +578,16 @@
                             }
                         }
                         else {
-                            this.facets = this.stats = {};
+                            this.facets = {};
                             this.prods = [];
                             this.totalRows = 0;
+                            
+                            this.stats = {};
                             let range = $("#js-range-slider").data("ionRangeSlider");
                             if (range) {
                                 range.update({ min: 0, max: 0});
                             }
+                            
                             this.load_once = true;
                         }
 
@@ -496,54 +596,146 @@
                     .catch(error => { console.error('Unable to search.', error); this.isLoading = false });
 
             },
-            tagToggle(tag) {
-                // console.log(`Tag Toggle, tag=>${JSON.stringify(tag)}`)
-                tag.open = !tag.open;
+            destinationToggle(dest){
+                dest.open = !dest.open;
             },
-            subTagCheckAll(tag) {
-                tag.select_all = tag.sub_tags.filter(t => t.checked === false).length < 1;
-                return tag.select_all;
+            destinationCheck(dest){
+                // console.log(`Destination Check =>${JSON.stringify(dest)}`);
+                dest.checked = !dest.checked;
+                dest.select_all = dest.checked; 
+                this.destinationSelecting(dest, dest.select_all);
             },
-            subTagToggleAll(tag) {
-                if (tag.select_all) {
-                    tag.sub_tags.forEach(t => t.checked = false);
-                    this.sel_sub_tags = this.sel_sub_tags.filter(t => !tag.sub_tags.some(s => s.id === t.id));
-                }
-                else {
-                    tag.sub_tags.forEach(st => {
-                        st.checked = true;
-                        this.sel_sub_tags.push(st);
-                    });
-                    this.sel_sub_tags = [...new Set(this.sel_sub_tags)];
-                }
+            destinationCheckAll(dest) {
+                // console.log(`Destination CheckAll =>${JSON.stringify(dest)}`);
+                dest.select_all = !dest.select_all;
+                this.destinationSelecting(dest, dest.select_all);
             },
-            subTagToggle(sub_tag) {
-                if (sub_tag.checked) {
-                    sub_tag.checked = false;
-                    this.sel_sub_tags = this.sel_sub_tags.filter(t => t.id != sub_tag.id);
-                }
-                else {
-                    sub_tag.checked = true;
-                    this.sel_sub_tags.push(sub_tag);
-                }
+            destinationSelecting(dest, isSelectAll) {
+                dest.children = this.traversalAllNodes(dest?.children, isSelectAll);
+                // console.log(`Selected Destination =>${JSON.stringify(dest)}`);
+                this.sel_destination = [...this.getCheckedNodes(this.facets.destination)];
             },
-            unselectTag(id) {
-                let sel_sub_tags = this.facets.tag.map(t => t.sub_tags.filter(st => st.id === id && st.checked).map(st => st)).flat();
-                if (sel_sub_tags.length) {
-                    this.sel_sub_tags = this.sel_sub_tags.filter(st => st.id != id);
+            unselectDestination(code) {
+                this.uncheckNodeByCode(this.facets.destination, code);
+                this.sel_destination = this.sel_destination.filter(node =>
+                    node.code !== code
+                );
+            },
+            categoryToggle(category) {
+                // console.log(`Category Toggle =>${JSON.stringify(category)}`)
+                category.open = !category.open; 
+            },
+            categoryCheck(category) {
+                // console.log(`Category Check =>${JSON.stringify(category)}`);
+                category.checked = !category.checked;
+                category.select_all = category.checked; 
+                this.categorySelecting(category, category.select_all);
+            },
+            categoryCheckAll(category) {
+                // console.log(`Category CheckAll =>${JSON.stringify(category)}`);
+                category.select_all = !category.select_all;
+                this.categorySelecting(category, category.select_all);
+            },
+            categorySelecting(category, isSelectAll) {
+                category.children = this.traversalAllNodes(category?.children, isSelectAll);
+                // console.log(`Selected Category =>${JSON.stringify(category)}`);
+                this.sel_categories = [...this.getCheckedNodes(this.facets.category)];                
+            },
+            unselectCategory(code) {
+                this.uncheckNodeByCode(this.facets.category, code);
+                this.sel_categories = this.sel_categories.filter(node =>
+                    node.code !== code
+                );
+            },
+            resetAllTags() {
+                this.facets.destination = this.traversalAllNodes(this.facets?.destination, false);
+                this.sel_destination = [];
+                
+                this.facets.category = this.traversalAllNodes(this.facets?.category, false);
+                this.sel_categories = [];
+            },
+            clickDuration(idx) {
+                const last_duration = this.durations.find(d => d.checked);
+                console.log(`clickDuration => idx: ${idx}, duration: ${last_duration?.seq}`);
+                if(last_duration) {
+                    last_duration.checked = false;
+                    if(idx == last_duration.seq) {
+                        this.Query();
+                        return; // toggle self
+                    }
+                }
+                
+                this.durations[idx].checked= true;
+                
+                this.Query();
+            },
+            traversalAllNodes(source, isSelectAll) {
+                const traversal = (nodes) => nodes?.map(item => ({
+                    ...item,
+                    // 1. Determine checked by 'isChecked'
+                    checked: isSelectAll,
+                    select_all: isSelectAll,
+                    // 2. Use the ternary operator to check and recursively handle children.
+                    children: (item.children && Array.isArray(item.children))
+                        ? traversal(item.children) // Any children, recursively processed
+                        : undefined // No children，set to undefined (the propeerty will not be added or overwritten)
+                }));
+                
+                return traversal(source);
+            },
+            getCheckedNodes(source) {
+                const getCheckedNodes = (nodes, checkedNodes = []) => { 
+                    // Ensure that the categories exist and are arrays.
+                    if (!nodes || !Array.isArray(nodes)) {
+                        return checkedNodes;
+                    }
+                    // Traverse the nodes at the current level
+                    nodes.forEach(item => {
+                        // 1. Check if the current node is selected.
+                        if (item.checked === true) { 
+                            checkedNodes.push({ code: item.code, name: item.name });
+                        }
 
-                    let sub_tags = this.facets.tag.map(t => t.sub_tags.filter(st => st.id === id).map(st => st)).flat();
-                    sub_tags.forEach(st => st.checked = false);
-                }
+                        // 2. Recursively process child nodes
+                        // Use the ternary operator to check if children exist and concatenate them into an array
+                        (item.children && Array.isArray(item.children))
+                            ? getCheckedNodes(item.children, checkedNodes) // Recursively use the same cumulative array
+                            : null; // End recursion
+                    });
+
+                    return checkedNodes;
+                };
+                
+                return getCheckedNodes(source);
+            },
+            uncheckNodeByCode(source, targetCode) {
+                const uncheckNodeByCode = (nodes, checkedNodes = []) => {
+                    // Ensure that the categories exist and are arrays.
+                    if (!nodes || !Array.isArray(nodes)) {
+                        return checkedNodes;
+                    }
+                    // Traverse the nodes at the current level
+                    nodes.forEach(item => {
+                        // 1. Check if the current node is selected.
+                        if (item.code === targetCode) {
+                            item.checked = false;
+                            return true; // The target is found, immediately return and stop recursion.
+                        }
+                        // 2. Recursively process child nodes 
+                        if (item.children && Array.isArray(item.children)) {
+                            // The target is found, immediately return and stop recursion.
+                            if (uncheckNodeByCode(item.children, targetCode)) {
+                                return true;
+                            }
+                        }
+                    });
+                };
+
+                return uncheckNodeByCode(source, targetCode);
             },
             rangeChanged(val) {
                 this.currentPage = 1;
                 this.Query();
-            },
-            resetAllTags() {
-                let sub_tags = this.facets.tag.map(t => t.sub_tags.filter(st => st.checked).map(st => st)).flat();
-                sub_tags.forEach(st => st.checked = false);
-                this.sel_sub_tags = [];
             },
             sortChanged() {
                 this.currentPage = 1;
@@ -555,33 +747,66 @@
                 this.resetAllTags();
             });
 
-            emitter.on('unselect-tag', (data) => {
-                this.unselectTag(data);
+            emitter.on('unselect-destination', (data) => {
+                this.unselectDestination(data);
+            });
+
+            emitter.on('unselect-category', (data) => {
+                this.unselectCategory(data);
             });
         }
     });
 
-     Vue.component('tags-section', {
+    Vue.component('tag-section', {
         data: function () {
              return {
 
             }
         },
         template: `
-    <span v-if="this.$parent.sel_sub_tags.length">
-        <span class="chip" v-for="tag in this.$parent.sel_sub_tags"><a>{{tag.name}}</a> <span class="delete-chip" @@click.stop="unselectTag(tag.id)">✕</span></span>
+    <div v-if="this.$parent.sel_destination.length || this.$parent.sel_categories.length">
+        <span class="chip" v-for="dest in this.$parent.sel_destination"><a>{{dest.name}}</a> <span class="delete-chip" @@click.stop="unselectDestination(dest.code)">✕</span></span>
+        <span class="chip" v-for="cat in this.$parent.sel_categories"><a>{{cat.name}}</a> <span class="delete-chip" @@click.stop="unselectCategory(cat.code)">✕</span></span>
         <span class="chip clearall"><a href="javascript:;" @@click="resetAllTags()">清除所有</a></span>
-    </span>`,
+    </div>
+    `,
          created: function () {
 
          },
          methods: {
-             unselectTag(id) {
-                 emitter.emit('unselect-tag', id);
+             unselectDestination(code) {
+                 emitter.emit('unselect-destination', code);
+             },
+             unselectCategory(code) {
+                 emitter.emit('unselect-category', code);
              },
              resetAllTags() {
                  emitter.emit('reset-all-tags');
              }
          }
+    });
+
+    Vue.component('category-section', {
+        data: function () {
+            return {
+
+            }
+        },
+        template: `
+    <span v-if="this.$parent.sel_categories.length">
+        <span class="chip" v-for="cat in this.$parent.sel_categories"><a>{{cat.name}}</a> <span class="delete-chip" @@click.stop="unselectCategory(cat.code)">✕</span></span>
+        <span class="chip clearall"><a href="javascript:;" @@click="resetAllCategories()">清除所有</a></span>
+    </span>`,
+        created: function () {
+
+        },
+        methods: {
+            unselectCategory(id) {
+                emitter.emit('unselect-tag', id);
+            },
+            resetAllCategories() {
+                emitter.emit('reset-all-tags');
+            }
+        }
     });
 </script>

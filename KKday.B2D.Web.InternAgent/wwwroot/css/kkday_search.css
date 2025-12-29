@@ -136,6 +136,23 @@ ul.sub-category li a {
     background: #eff9fa
 }
 
+.drop-title .drop-item {
+    margin: 0;
+    padding: 3px;
+}
+.drop-title .drop-item:hover {
+    background: #F2F4F4;
+}
+
+.drop-title .sub-drop-item {
+    margin: 0;
+    padding: 3px;
+}
+
+.drop-title .sub-drop-item:hover {
+    background: #E5E8E8;
+}
+
 .checkbox-dropdown-list .checkbox {
     margin: 5px 20px;
     padding: 10px 20px;
