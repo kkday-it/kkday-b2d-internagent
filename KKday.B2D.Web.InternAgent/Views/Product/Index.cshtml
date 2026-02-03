@@ -19,6 +19,49 @@
             padding: 20px;
             height: 100%;
         }
+
+        .info-section:last-child { 
+            border-bottom: none;
+        }
+
+        /* cursor type */
+        .zoom-trigger {
+            cursor: zoom-in; 
+            border: 1px solid #ddd;
+        }
+
+        /* dialog body */
+        .native-modal {
+            border: none;
+            padding: 0;
+            background: transparent;
+            overflow: visible;
+        }
+
+        /* dialog pop-up background mask */
+        .native-modal::backdrop {
+            background: rgba(0, 0, 0, 0.85);
+        }
+
+        .dialog-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .full-view-img {
+            max-width: 90vw;
+            max-height: 85vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            border: 1px solid white;
+            background-color: white;
+        }
+
+        .dialog-hint {
+            color: #ccc;
+            margin-top: 10px;
+            font-size: 14px;
+        }
     </style>
 }
 
@@ -78,8 +121,9 @@
                             <h1 v-html="prod.prod_name"></h1>
                             <ul class="product-action list-unstyled">
                                 <li>
-                                    <div id="product-action-add-to-wish-list" class="btn-wish"><i
-                                            class="fa fa-heart-o"></i></div>
+                                    <div id="product-action-add-to-wish-list" class="btn-wish">
+                                        <i class="fa fa-heart-o"></i>
+                                    </div>
                                 </li>
                             </ul>
                         </div>
@@ -91,7 +135,7 @@
                         </div>
                         <hr>
                         <div class="product-benefit">
-                            <div class="critical-info" v-if="prod.days != 0 || prod.hours != 0 || prod.duration != 0">
+                            <div class="critical-info" v-if="!(prod.days == 0 && prod.hours == 0)">
                                 <i class="icons icon-clock"></i>
                                 <span v-html="journeyTime()"></span>
                             </div>
@@ -102,11 +146,9 @@
                             </div>
 
                             <div class="critical-info">
-                                <div
-                                    v-if="prod.is_cancel_free || prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">
+                                <div v-if="prod.is_cancel_free || prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">
                                     <img src="https://cdn.kkday.com/pc-web/assets/img/ic_cancellation.svg"/>
-                                    <span
-                                        v-if="prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">@Localizer["Cancel_By_Condtion"]</span>
+                                    <span v-if="prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">@Localizer["Cancel_By_Condtion"]</span>
                                     <!-- Free Cancel -->
                                     <span v-if="prod.is_cancel_free">@Localizer["Cancel_Free"]</span>
                                 </div>
@@ -121,9 +163,7 @@
                             </div>
                         </div>
                         <hr>
-                        <p class="pre-line">
-
-                        </p>
+                        <p class="pre-line"> </p>
                     </div>
 
                 </div>
@@ -185,7 +225,8 @@
     <div id="option-sec" class="new-product option-section" v-if="pkg && Object.keys(pkg).length > 0">
         <div class="container">
             <h3 class="info-title" v-html="'@Localizer["About_Item"]'"></h3>
-            <template v-for="item in pkg">
+            <div v-for="item in pkg">
+                <!-- Calendar & Spec -->
                 <div class="option-item" :id="'pkg_' + item.pkg_no" :data-pkgno="item.pkg_no">
                     <div class="option-head">
                         <div class="option-content">
@@ -194,33 +235,29 @@
                                 <span class="label label-danger" v-html="``"></span>
                                 <span v-if="item.policy_type == '1'" class="label label-danger"
                                       v-html="'@Localizer["Free_Cancel_Title"]'"></span>
-
                             </h3>
-                            <ul v-if="item.description_module?.PMDL_PACKAGE_DESC?.content?.list">
-                                <template v-for="lst in item.description_module?.PMDL_PACKAGE_DESC?.content?.list">
-                                    <li><span class="break-word" v-html="lst.desc"></span></li>
-                                </template>
-                            </ul>
                         </div>
-                        <div class="option-action" v-show="item.selectable">
-                            <span v-if="isSoldout(item)">@Localizer["Sold_Out"]</span>
-                            <div class="product-pricing" v-if="!isSoldout(item)">
+                        <div class="option-action d-flex flex-column flex-md-row" v-show="item.selectable">
+                            <div class="product-pricing m-2" v-if="!isSoldout(item)">
                                 <h4>
                                     <span class="text-grey">@Localizer[Website.Instance.Currency] {{ Number((item.b2b_min_price ?? prod.b2b_min_price).toFixed(02)) }}</span>
                                     <span class="text-grey" v-html="'@Localizer["Price_Up"]'"></span>
                                 </h4>
                             </div>
-                            <a class="btn btn-success select-option" :class="{ disabled: !item.loaded }"
+                            <div v-if="moment(pkg.sale_s_date).isBefore(new Date())" class="tip text-blue"
+                                 v-html="`@Localizer["Earliest_Bookable_Date"]: ${item.sale_s_date}`"></div>
+                            <button type="button" class="btn btn-primary m-2" data-bs-toggle="modal" :data-bs-target="`#pkg_desc_modal_${item.pkg_no}`" @@click="active_modal_pkg=item.pkg_name">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i> @Localizer["Package_Detail"]
+                            </button> 
+                            <a class="btn btn-success select-option m-2" :class="{ disabled: !item.loaded }"
                                @@click="selectPackage(item.pkg_no)" v-if="!isSoldout(item)">
                                 <span v-if="!item.show">@Localizer["Select"]</span>
                                 <span v-if="item.show">@Localizer["Cancel"]</span>
                             </a>
- 
+                            <div class="btn btn-light" v-if="isSoldout(item)">@Localizer["Sold_Out"]</div>
                             <img id="loading" src="@Url.Content("~/images/loading.gif")"
                                  style="width: 32px; position: absolute; right: 60px; top: 32px;"/>
-                            <div v-if="moment(pkg.sale_s_date).isBefore(new Date())" class="tip text-blue"
-                                 v-html="`@Localizer["Earliest_Bookable_Date"]: ${item.sale_s_date}`"></div>
- 
+
                         </div>
                     </div>
                     <div class="option-booking">
@@ -258,18 +295,18 @@
                                     </ul>
                                     <hr class="option_item__hr">
                                     <!----><!----><!----><!----><!----><!---->
-                                    
+
                                     <div class="option-cancel-policy" v-if="item.description_module?.PMDL_USE_VALID">
                                         <h5>{{ item.description_module.PMDL_USE_VALID.module_title }}</h5>
                                         <div class="layout-list layout-list--gap-5 layout-list--horizontal-align-default desc-refund-policy option-cancel-policy__list">
                                             <ul class="desc-refund-policy-list none-bullet-style">
                                                 <li v-if="item.description_module.PMDL_USE_VALID.content?.properties?.exchange?.desc">{{ item.description_module.PMDL_USE_VALID.content.properties.exchange.desc }}</li>
                                                 <li v-if="item.description_module.PMDL_USE_VALID.content?.properties?.exchange_description?.desc">{{ item.description_module.PMDL_USE_VALID.content.properties.exchange_description.desc }}</li>
-                                            </ul> 
+                                            </ul>
                                         </div>
                                         <hr class="option_item__hr">
                                     </div>
-                                    
+
                                     <div class="option-cancel-policy" v-if="item.description_module?.PMDL_EXCHANGE_VALID">
                                         <h5>{{ item.description_module.PMDL_EXCHANGE_VALID.module_title }}</h5>
                                         <div class="layout-list layout-list--gap-5 layout-list--horizontal-align-default desc-refund-policy option-cancel-policy__list">
@@ -277,11 +314,11 @@
                                                 <li v-if="item.description_module.PMDL_EXCHANGE_VALID.content?.properties?.exchange?.desc">{{ item.description_module.PMDL_EXCHANGE_VALID.content.properties.exchange.desc }}</li>
                                                 <li v-if="item.description_module.PMDL_EXCHANGE_VALID.content?.properties?.exchange_description?.desc">{{ item.description_module.PMDL_EXCHANGE_VALID.content.properties.exchange_description.desc }}</li>
                                                 <li v-if="item.description_module.PMDL_EXCHANGE_VALID.content?.properties?.expired?.desc">{{ item.description_module.PMDL_EXCHANGE_VALID.content.properties.expired.desc }}</li>
-                                            </ul> 
+                                            </ul>
                                         </div>
                                         <hr class="option_item__hr">
                                     </div>
-                                    
+
                                     <div class="option-cancel-policy" v-if="item.description_module?.PMDL_REFUND_POLICY">
                                         <h5>{{ item.description_module.PMDL_REFUND_POLICY.module_title }}</h5>
                                         <div class="layout-list layout-list--gap-5 layout-list--horizontal-align-default desc-refund-policy option-cancel-policy__list">
@@ -301,10 +338,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                 </div>
                                 <div v-else class="option-item-calendar">
-                                    <calendar-section ref="calendar" :pkg="item"></calendar-section>    
+                                    <calendar-section ref="calendar" :pkg="item"></calendar-section>
                                 </div>
                             </div>
                             <div class="col-md-6 option-item-sku">
@@ -316,8 +353,312 @@
                     </div>
                 </div>
 
-            </template>
+                <!-- Package description modal -->
+                <div :id="`pkg_desc_modal_${item.pkg_no}`" class="modal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title mt-0">@Localizer["Package_Detail"]</h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
 
+                            <div class="modal-body m-3 mt-0">
+                                <div class="fs-4 fw-bold text-dark m-2 p-3">
+                                    {{ active_modal_pkg }} ({{ item.pkg_no }})
+                                </div>
+                                
+                                <div v-if="item.description_module?.PMDL_PACKAGE_DESC">
+                                    <h4 class="info-title fs-3" v-html="item.description_module.PMDL_PACKAGE_DESC.module_title"></h4>
+                                    <div class="info-sec-collapsable expand">
+                                        <ul>
+                                            <li v-for="lst in item.description_module?.PMDL_PACKAGE_DESC?.content?.list">
+                                                <span class="break-word" v-html="lst.desc"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Introduction -->
+                                <div id="product-info-sec" class="info-section" v-if="item.description_module.PMDL_INTRODUCE_SUMMARY">
+                                    <h4 class="info-title fs-3" v-html="item.description_module.PMDL_INTRODUCE_SUMMARY.module_title"></h4>
+                                    <div v-if="item.description_module.PMDL_INTRODUCE_SUMMARY.content">
+                                        <div class="info-sec-collapsable expand">
+                                            <div v-html="item.description_module.PMDL_INTRODUCE_SUMMARY.content?.desc"></div>
+                                            <div v-if="item.description_module.PMDL_GRAPHIC">
+                                                <div class="pd-photo-info">
+                                                    <template v-for="pmdl in item.description_module.PMDL_GRAPHIC.content?.list">
+                                                        <p v-html="pmdl.Desc"></p>
+                                                        <template v-for="media in pmdl.Media">
+                                                            <div class="pd-info-img">
+                                                                <img alt="" :src="media.SourceContent" lazy="loaded">
+                                                            </div>
+                                                        </template>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <div class="overlap">
+                                                <a href="javascript:" class="link-secondary text-md">@Localizer["Collapse_Product_Desc"]
+                                                    <i
+                                                        class="fa fa-angle-up"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Itinerary Schedule -->
+                                <div id="schedule-sec" class="info-section" v-if="item.description_module.PMDL_SCHEDULE">
+                                    <h4 class="info-title fs-3" v-html="item.description_module.PMDL_SCHEDULE.module_title"></h4>
+                                    <div class="info-sec-collapsable expand">
+                                        <div class="critical-info">
+                                            <i class="icons icon-clock"></i>
+                                            <span v-html="`${item.description_module.PMDL_SCHEDULE.content?.properties.total_day.title} : ${item.description_module.PMDL_SCHEDULE.content?.properties.total_day.desc}`"></span>
+                                        </div>
+                                        <div v-for="sch_iter in item.description_module.PMDL_SCHEDULE.content?.properties.schedule_list.list">
+                                            <div>
+                                                <h5>{{ sch_iter.daily_title.desc }}</h5>
+                                            </div>
+                                            <div class="travel-schedule">
+                                                <ul>
+                                                    <li v-for="iter in sch_iter.daily_schedule_list.list">
+                                                        <span class="time">{{ iter.time?.desc }}</span>
+                                                        <span class="event">{{ iter.content?.desc }}</span> 
+                                                        <div class="row" v-if="iter.media?.media">
+                                                            <div v-for="media_el in iter.media.media" class="col-md-4">
+                                                                <img :src="media_el.source_content" class="w-100 zoom-trigger" @@click="openDialog" />
+                                                            </div> 
+                                                        </div> 
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        @* <div class="overlap"> *@
+                                        @*     <a href="javascript:" class="link-secondary text-md"> *@
+                                        @*         @Localizer["Collapse_Itinerary"] <i class="fa fa-angle-up"></i> *@
+                                        @*     </a> *@
+                                        @* </div> *@
+                                    </div>
+                                </div>
+
+                                <!-- Purchase Summary & Include/Exclude -->
+                                <div id="notice-sec" class="info-section">
+                                    <h4 class="info-title fs-3" v-if="item.description_module.PMDL_PURCHASE_SUMMARY || item.description_module.PMDL_INC_NINC || item.description_module.PMDL_EXTRA_FEE || item.description_module.PMDL_NOTICE">
+                                        @Localizer["Purchase_Notes"]
+                                        </h4>
+                                    <div>
+                                        <div v-if="item.description_module.PMDL_PURCHASE_SUMMARY" v-html="item.description_module.PMDL_PURCHASE_SUMMARY.content?.desc"></div>
+                                        <div v-if="item.description_module.PMDL_INC_NINC">
+                                            <h4 class="info-subtitle" v-html="item.description_module.PMDL_INC_NINC.module_title"></h4>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <ul class="price-include">
+                                                        <li v-for="el in item.description_module.PMDL_INC_NINC.content?.properties.include_item?.list">
+                                                            <img src="https://cdn.kkday.com/pc-web/assets/img/ic_include.svg">{{el.desc}} </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <ul class="price-not">
+                                                        <li v-for="el in item.description_module.PMDL_INC_NINC.content?.properties.not_include_item?.list">
+                                                            <img src="https://cdn.kkday.com/pc-web/assets/img/ic_notinclude.svg"/>{{ el.desc }} </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="item.description_module.PMDL_EXTRA_FEE">
+                                            <h4 class="info-subtitle" v-html="item.description_module.PMDL_EXTRA_FEE.module_title"></h4>
+                                            <div>
+                                                <div>
+                                                    <h5 class="break-word" v-html="item.description_module.PMDL_EXTRA_FEE.content?.title"></h5>
+                                                    <p class="pre-line">
+                                                        <template
+                                                            v-for="el in item.description_module.PMDL_EXTRA_FEE.content?.list">
+                                                            {{ el.desc }}
+                                                        </template>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="board bg-highlihgt mt-20" v-if="item.description_module.PMDL_NOTICE">
+                                            <h4 class="info-subtitle mt-0" v-html="item.description_module.PMDL_NOTICE.module_title"></h4>
+                                            <div class="mt-10" v-if="item.description_module.PMDL_NOTICE.content?.properties.reminds">
+                                                <ul>
+                                                    <li v-for="el in item.description_module.PMDL_NOTICE.content?.properties.reminds.list">
+                                                        <p v-html="el.desc"></p>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="mt-10"
+                                                 v-if="item.description_module.PMDL_NOTICE.content?.properties.cust_reminds">
+                                                <ul>
+                                                    <li v-for="el in item.description_module.PMDL_NOTICE.content?.properties.cust_reminds.list">
+                                                        <p v-html="el.desc"></p> </li>
+                                                </ul>
+                                            </div>
+
+
+                                            <div class="mt-10"
+                                                 v-if="item.description_module.PMDL_NOTICE.content?.properties.cust_reminds_after">
+                                                <ul>
+                                                    <li v-for="el in item.description_module.PMDL_NOTICE.content?.properties.cust_reminds_after.list">
+                                                        <p v-html="el.desc"></p> </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- How To Use -->
+                                <div id="usage-sec" class="info-section" v-if="item.description_module.PMDL_EXCHANGE || item.description_module.PMDL_USE_VALID">
+                                    <h4 class="info-title fs-3" v-html="'@Localizer["How_To_Use"]'"></h4>
+                                    <div>
+                                        <div v-if="item.description_module.PMDL_EXCHANGE">
+                                            <h4 class="info-subtitle" v-html="item.description_module.PMDL_EXCHANGE.module_title"></h4>
+                                            <ul>
+                                                <li v-html="item.description_module.PMDL_EXCHANGE.content.properties.exchange_type.desc"></li>
+                                            </ul>
+                                        </div>
+
+                                        <div v-if="item.description_module.PMDL_USE_VALID">
+                                            <h4 class="info-subtitle" v-html="item.description_module.PMDL_USE_VALID.module_title"></h4>
+                                            <ul>
+                                                <li v-html="item.description_module.PMDL_USE_VALID.content.properties.exchange.desc"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Venue Location -->
+                                <div id="meeting-sec" class="info-section" v-if="item.description_module.PMDL_VENUE_LOCATION">
+                                    <h4 class="info-title fs-3" v-html="item.description_module.PMDL_VENUE_LOCATION.module_title"></h4>
+                                    <div>
+                                        <template v-for="el in item.description_module.PMDL_VENUE_LOCATION.content?.list">
+                                            <div class="board map-board">
+                                                <div class="board-title">
+                                                    <h4 class="break-word"
+                                                        v-html="`${item.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.location_name} : ${item.location_name?.desc}`"></h4>
+                                                    <div class="text-grey break-word"
+                                                         v-html="`${item.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.latlng} : ${item.latlng?.desc}`"></div>
+                                                </div>
+                                                <hr>
+                                                <div class="con">
+                                                    <div class="row" v-if="el.gather">
+                                                        <div class="col-md-3">
+                                                            <b>{{
+                                                                item.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.gather
+                                                                }}</b></div>
+                                                        <div class="col-md-6">
+                                                            <b class="text-lg bg-highlihgt pd-10">{{
+                                                                el.gather.desc }}</b></div>
+                                                    </div>
+                                                    <hr v-if="item.gather && item.setout"/>
+                                                    <div class="row" v-if="el.Setout">
+                                                        <div class="col-md-3">
+                                                            <b>{{
+                                                                item.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.setout
+                                                                }}</b></div>
+                                                        <div class="col-md-6"><b class="text-md">{{ el.setout.desc }}</b>
+                                                        </div>
+                                                    </div>
+                                                    <div class="pd-info-img">
+                                                        <div class="embed-responsive embed-responsive-16by9">
+                                                            <iframe
+                                                                :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&amp;q=${el.latlng.latitude},${el.latlng.longitude}&amp;zoom=17&amp;language=zh-tw`"
+                                                                frameborder="0" allowfullscreen="allowfullscreen"
+                                                                style="border: 0px;"></iframe>
+                                                        </div>
+                                                    </div>
+                                                    <ul class="photo-group" v-if="el.Photo">
+                                                        <template v-for="img in el.photo.media">
+                                                            <li class="photo-item">
+                                                                <div data-target="#venue-photo-modal-0" data-toggle="modal" class="img-bg"
+                                                                     :style="`background-image: url(&quot;${img.SourceContent}&quot;);`"></div>
+                                                            </li>
+                                                        </template>
+                                                        <li class="clearfix"></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                    </div>
+                                </div>
+
+                                <!-- Experience Location -->
+                                <div id="map-sec" class="info-section" v-if="item.description_module.PMDL_EXPERIENCE_LOCATION">
+                                    <h4 class="info-title fs-3" v-html="item.description_module.PMDL_EXPERIENCE_LOCATION.module_title"></h4>
+                                    <div>
+                                        <div class="board map-board" v-for="el in item.description_module.PMDL_EXPERIENCE_LOCATION.content.list">
+                                            <div class="board-title" v-if="el.location_name">
+                                                <h4 class="break-word"
+                                                    v-html="`${item.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.location_name}：${el.location_name.desc}`"></h4>
+                                                <div class="text-grey break-word"
+                                                     v-html="`${item.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.latlng} : ${el.latlng.des}`"></div>
+                                            </div>
+                                            <hr>
+                                            <div class="con">
+                                                <div class="pd-info-img">
+                                                    <div class="embed-responsive embed-responsive-16by9">
+                                                        <iframe
+                                                            :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&amp;q=${el.latlng.latitude},${el.latlng.longitude}&amp;zoom=13&amp;language=zh-tw`"
+                                                            frameborder="0" allowfullscreen="allowfullscreen"
+                                                            style="border: 0px;"></iframe>
+                                                    </div>
+                                                </div>
+                                                <ul class="photo-group">
+                                                    <li class="clearfix"></li>
+                                                </ul>
+                                                <div class="row" v-if="el.arrival_desc">
+                                                    <div class="col-md-3">
+                                                        <b>{{
+                                                            item.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.arrival_desc
+                                                            }}</b></div>
+                                                    <div class="col-md-9 pre-line" v-html="el.arrival_desc.desc"></div>
+                                                </div>
+
+                                                <hr style="display: none;">
+                                                <div class="row" v-if="el.active_time_desc">
+                                                    <div class="col-md-3">
+                                                        <b>{{
+                                                            item.description_module.PMDL_EXPERIENCE_LOCATION.content.table_key_langs.active_time_desc
+                                                            }}</b></div>
+                                                    <div class="col-md-9">
+                                                        <div class="break-word" v-html="el.active_time_desc.desc"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Cancellation Policy -->
+                                <div id="policy-sec" class="info-section" v-if="item.description_module.PMDL_REFUND_POLICY">
+                                    <h4 class="info-title fs-3" v-html="item.description_module.PMDL_REFUND_POLICY.module_title"></h4>
+                                    <div>
+                                        <p v-if="item.description_module.PMDL_REFUND_POLICY.content.properties.policy_type"
+                                           v-html="item.description_module.PMDL_REFUND_POLICY.content.properties.policy_type.Desc"></p>
+                                        <ul v-if="item.description_module.PMDL_REFUND_POLICY.content.properties.partial_refund">
+                                            <li v-for="el in item.description_module.PMDL_REFUND_POLICY.content.properties.partial_refund.list">
+                                                <span v-html="el.desc"></span></li>
+                                        </ul>
+                                        <div class="tip mt-20">
+                                            <i class="icons icon-info"></i>@Localizer["Refund_Desc"]
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div> <!-- modal-body end -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Close"]</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
         </div>
     </div>
 
@@ -353,52 +694,35 @@
                         </div>
 
                         <!-- Itinerary Schedule -->
-                        <div id="schedule-sec" class="info-section" v-if="prod.description_module.PMDL_SCHEDULE">
+                        <div id="schedule-sec" class="info-section" v-if="prod.description_module?.PMDL_SCHEDULE">
                             <h3 class="info-title" v-html="prod.description_module.PMDL_SCHEDULE.module_title"></h3>
                             <div class="info-sec-collapsable expand">
                                 <div class="critical-info">
                                     <i class="icons icon-clock"></i>
-                                    <span
-                                        v-html="`${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.title} : ${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.desc}`"></span>
+                                    <span v-html="`${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.title} : ${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.desc}`"></span>
                                 </div>
-                                <template
-                                    v-for="sch_item in prod.description_module.PMDL_SCHEDULE.content.properties.schedule_list.list">
+                                <div v-for="sch_iter in prod.description_module.PMDL_SCHEDULE.content.properties.schedule_list.list">
                                     <div>
-                                        <h4 class="info-subtitle" v-html="sch_item.daily_title.Desc"></h4>
-                                        <div class="critical-info mb-20"
-                                             v-if="sch_item.meals && sch_item.meals.list.length > 0"><i
-                                                class="fa fa-cutlery"></i> <span
-                                                v-html="`@Localizer["Meals_Of_Today"]： ${sch_item.meals.list.join(',')}`"></span>
-                                        </div>
-                                        <ul class="time-info">
-                                            <template v-for="tm in sch_item.daily_schedule_list.List">
-                                                <li class="time-info-spot">
-                                                    <div class="time-info-title">
-                                                        <div class="txt"
-                                                             v-html="`${tm.time.Desc} ${tm.Content.Desc}`"></div>
-                                                    </div>
-                                                    <div class="pd-info-img" v-if="tm.media">
-                                                        <template v-for="_mdeia in tm.media.media">
-                                                            <img data-target="#sche-modal-0-0-0" alt=""
-                                                                 data-toggle="modal" :data-src="_mdeia.source_content"
-                                                                 :src="_mdeia.source_content" lazy="loaded"/>
-                                                        </template>
-                                                    </div>
-                                                </li>
-                                            </template>
-
+                                        <h5>{{ sch_iter.daily_title.desc }}</h5>
+                                    </div>
+                                    <div class="travel-schedule">
+                                        <ul>
+                                            <li v-for="iter in sch_iter.daily_schedule_list.list">
+                                                <span class="time">{{ iter.time?.desc }}</span>
+                                                <span class="event">{{ iter.content?.desc }}</span>
+                                                <div class="row" v-if="iter.media?.media">
+                                                    <div v-for="media_el in iter.media.media" class="col-md-4">
+                                                        <img :src="media_el.source_content" class="w-100 zoom-trigger" @@click="openDialog" />
+                                                    </div> 
+                                                </div>
+                                            </li>
                                         </ul>
                                     </div>
-                                </template>
-
-                                <div class="overlap">
-                                    <a href="javascript:"
-                                       class="link-secondary text-md">@Localizer["Collapse_Itinerary"] <i
-                                            class="fa fa-angle-up"></i></a>
                                 </div>
+      
                             </div>
                         </div>
-
+                      
                         <!-- Purchase Summary & Include/Exclude -->
                         <div id="notice-sec" class="info-section">
                             <h3 class="info-title"
@@ -644,6 +968,12 @@
         </div>
     </div>
 
+    <dialog ref="imgDialog" class="native-modal" @@click="closeDialog">
+        <div class="dialog-wrapper">
+            <img :src="active_img" class="full-view-img" />
+            <p class="dialog-hint">Click anywhere outside the image or press ESC to close.</p>
+        </div>
+    </dialog>
 </div>
 
 <script type="text/javascript">
@@ -679,7 +1009,9 @@
                 prod_marketing: {},
                 prod: {description_module: {}},
                 pkg: [],
-                country_cities: []
+                country_cities: [],
+                active_modal_pkg: '',
+                active_img: '',
             }
         },
         created: function () {
@@ -966,6 +1298,18 @@
                 const goDateSettingType = (this.prod.go_date_setting.type === '06') ? _pkg.go_date_setting.type : this.prod.go_date_setting.type;
                 return ['03', '04'].some(el => el === goDateSettingType);
             },
+            
+            openDialog(event) { 
+                this.active_img = event.target.src; 
+                this.$nextTick(() => {
+                    this.$refs.imgDialog.showModal();
+                });
+            },
+            closeDialog(event) {
+                if (event.target.tagName === 'DIALOG') {
+                    this.$refs.imgDialog.close();
+                }
+            }
         },
         mounted: function () {
             emitter.on('load-package', (data) => {
