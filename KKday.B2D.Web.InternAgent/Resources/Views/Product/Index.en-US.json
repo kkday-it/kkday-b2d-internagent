@@ -17,6 +17,7 @@
   "Free_Cancel_Title": "Cancel for free!",
   "Select": "Select",
   "Cancel": "Cancel",
+  "Close": "Close",
   "Refresh": "Refresh",
   "Collapse_Product_Desc": "Collapse product description",
   "Collapse_Itinerary": "Collapse the itinerary",
@@ -80,6 +81,7 @@
   "Item_Unit09": "Item",
   "PackageDetails_Title": "Package Details",
   "SelectOptions_Title": "Select Options",
-  "InstantConfirm_Label": "Instant Confirmation"
+  "InstantConfirm_Label": "Instant Confirmation",
+  "Package_Detail": "Package Detail"
 }
 

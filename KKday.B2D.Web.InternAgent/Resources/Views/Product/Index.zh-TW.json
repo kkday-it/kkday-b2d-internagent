@@ -17,6 +17,7 @@
   "Free_Cancel_Title": "免費取消！",
   "Select": "選擇",
   "Cancel": "取消",
+  "Close": "關閉",
   "Refresh": "重新整理",
   "Collapse_Product_Desc": "收起商品說明",
   "Collapse_Itinerary": "收起行程表",
@@ -80,6 +81,7 @@
   "Item_Unit09": "個數",
   "PackageDetails_Title": "關於此方案",
   "SelectOptions_Title": "選擇選項",
-  "InstantConfirm_Label": "立即確認並發送憑證"
+  "InstantConfirm_Label": "立即確認並發送憑證",
+  "Package_Detail": "套餐內容"
 }
 
