@@ -62,6 +62,64 @@
             margin-top: 10px;
             font-size: 14px;
         }
+
+        /* Schedule Timeline styles */
+        .schedule-node {
+            border-left: 1px solid #ddd;
+            padding-left: 15px;
+            margin-left: 15px;
+            position: relative;
+        }
+        .schedule-node::before {
+            content: '';
+            position: absolute;
+            left: -5px; /* (border-width 1 + width 9)/2 = center? no. left is 0 relative to padding. */
+            /* border is at left=0. */ 
+            top: 0;
+            width: 9px;
+            height: 9px;
+            background-color: #ddd;
+            border-radius: 50%;
+            margin-top: 5px; /* Adjust to align with h5 */
+        }
+
+        .travel-schedule li.have-time {
+            margin-left: -30px;
+            list-style: none;
+        } 
+        .travel-schedule li.no-time  {
+            margin-left: -30px;
+            list-style: none;
+        }
+
+        .timeline-title .event {
+            flex: 1;                /* 讓 event 佔滿剩餘的所有寬度 */
+            word-break: break-all;  /* 避免超長英文單字撐破版面 */
+        }
+
+        .timeline-title {
+            display: flex;          /* 開啟彈性佈局 */
+            align-items: flex-start; /* 讓內容對齊頂部 */
+            gap: 8px;              /* 設定時間與內容之間的間距 */
+        }
+
+        .timeline-title .time {
+            flex-shrink: 0;         /* 重要：防止時間欄位被擠壓變形 */
+            min-width: 25px;        /* 建議設定一個固定寬度，視覺上更整齊 */
+            color: #666;
+        }
+        
+        .timeline-title .time {
+            width: 40px;
+            min-width: 40px;
+            flex-shrink: 0;         /* 重要：防止時間欄位被擠壓變形 */
+        }
+        
+        .travel-schedule .timeline-wrap {
+            padding-left: 50px;
+        }
+
+       
     </style>
 }
 
@@ -414,16 +472,18 @@
                                             <i class="icons icon-clock"></i>
                                             <span v-html="`${item.description_module.PMDL_SCHEDULE.content?.properties.total_day.title} : ${item.description_module.PMDL_SCHEDULE.content?.properties.total_day.desc}`"></span>
                                         </div>
-                                        <div v-for="sch_iter in item.description_module.PMDL_SCHEDULE.content?.properties.schedule_list.list">
-                                            <div>
+                                        <div class="schedule-node" v-for="sch_iter in item.description_module.PMDL_SCHEDULE.content?.properties.schedule_list.list">
+                                            <div class="iter-day">
                                                 <h5>{{ sch_iter.daily_title.desc }}</h5>
                                             </div>
                                             <div class="travel-schedule">
                                                 <ul>
-                                                    <li v-for="iter in sch_iter.daily_schedule_list.list">
-                                                        <span class="time">{{ iter.time?.desc }}</span>
-                                                        <span class="event">{{ iter.content?.desc }}</span> 
-                                                        <div class="row" v-if="iter.media?.media">
+                                                    <li v-for="iter in sch_iter.daily_schedule_list.list" :class="{ 'no-time': !iter.time?.desc, 'have-time': iter.time?.desc }">
+                                                        <div class="timeline-title">
+                                                            <span class="time">{{ iter.time?.desc }}</span>
+                                                            <span class="event">{{ iter.content?.desc }}</span>
+                                                        </div>
+                                                        <div class="row timeline-wrap" v-if="iter.media?.media">
                                                             <div v-for="media_el in iter.media.media" class="col-md-4">
                                                                 <img :src="media_el.source_content" class="w-100 zoom-trigger" @@click="openDialog" />
                                                             </div> 
@@ -701,19 +761,21 @@
                                     <i class="icons icon-clock"></i>
                                     <span v-html="`${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.title} : ${prod.description_module.PMDL_SCHEDULE.content.properties.total_day.desc}`"></span>
                                 </div>
-                                <div v-for="sch_iter in prod.description_module.PMDL_SCHEDULE.content.properties.schedule_list.list">
+                                <div class="schedule-node" v-for="sch_iter in prod.description_module.PMDL_SCHEDULE.content.properties.schedule_list.list">
                                     <div>
                                         <h5>{{ sch_iter.daily_title.desc }}</h5>
                                     </div>
                                     <div class="travel-schedule">
                                         <ul>
-                                            <li v-for="iter in sch_iter.daily_schedule_list.list">
-                                                <span class="time">{{ iter.time?.desc }}</span>
-                                                <span class="event">{{ iter.content?.desc }}</span>
-                                                <div class="row" v-if="iter.media?.media">
+                                            <li v-for="iter in sch_iter.daily_schedule_list.list" :class="{ 'no-time': !iter.time?.desc, 'have-time': iter.time?.desc }">
+                                                <div class="timeline-title">
+                                                    <span class="time">{{ iter.time?.desc }}</span>
+                                                    <span class="event">{{ iter.content?.desc }}</span>
+                                                </div>
+                                                <div class="row timeline-wrap" v-if="iter.media?.media">
                                                     <div v-for="media_el in iter.media.media" class="col-md-4">
-                                                        <img :src="media_el.source_content" class="w-100 zoom-trigger" @@click="openDialog" />
-                                                    </div> 
+                                                        <img :src="media_el.source_content" class="w-100 zoom-trigger" @@click="openDialog"/>
+                                                    </div>
                                                 </div>
                                             </li>
                                         </ul>
