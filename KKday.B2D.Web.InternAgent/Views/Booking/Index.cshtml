@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @using Microsoft.AspNetCore.Mvc.Localization
 
 @inject IViewLocalizer Localizer
@@ -195,6 +195,7 @@
                                 <div class="form-group">
                                     <label>@Localizer["booking_step1_cust_data_passport_english_firstname"]<span class="text-danger">*</span></label>
                                     <input placeholder="@Localizer["KHSR_Booking_FirstName_PlaceHolder"]" name="`enFirstName-${idx}`" type="text" maxlength="50" class="form-control"
+                                           pattern="^[A-Za-z]+([ -]?[A-Za-z]+)*$"
                                            v-model="pax.english_first_name" required />
                                 </div>
                             </div>
@@ -202,6 +203,7 @@
                             <div class="col-md-4 col-sm-6 col-xs-12" v-if="checkBookingField('custom.english_last_name', 'cus_01, cus_02')">
                                 <label>@Localizer["booking_step1_cust_data_passport_english_lastname"]<span class="text-danger">*</span></label>
                                 <input placeholder="@Localizer["KHSR_Booking_LastName_PlaceHolder"]" name="`enlLastName-${idx}`" type="text" maxlength="50" class="form-control"
+                                       pattern="^[A-Za-z]+([ -]?[A-Za-z]+)*$"
                                        v-model="pax.english_last_name" required />
                             </div>
                         </div>
@@ -1124,12 +1126,12 @@
                         <div class="col-md-6 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.english_first_name', 'send')">
                             <!-- Booking First Name (same as passport) -->
                             <label>@Localizer["booking_step1_send_data_buyer_passport_english_firstname"]<span class="text-danger">*</span></label>
-                            <input placeholder="@Localizer["booking_step1_send_data_buyer_passport_english_firstname_placeholder"]" autocomplete="on" type="text" id="booking-send-data-booker-english-lastname" name="sendPassportFirstName0" class="form-control" v-model="booking.custom.find(t=>t.cus_type === 'send').english_first_name" />
+                            <input placeholder="@Localizer["booking_step1_send_data_buyer_passport_english_firstname_placeholder"]" autocomplete="on" type="text" id="booking-send-data-booker-english-lastname" name="sendPassportFirstName0" class="form-control" pattern="^[A-Za-z]+([ -]?[A-Za-z]+)*$" v-model="booking.custom.find(t=>t.cus_type === 'send').english_first_name" />
                         </div>
                         <div class="col-md-6 col-sm-6 col-xs-12 form-group" v-show="checkBookingField('custom.english_last_name', 'send')">
                             <!-- Booking Last Name (same as passport) -->
                             <label>@Localizer["booking_step1_send_data_buyer_passport_english_lastname"]<span class="text-danger">*</span></label>
-                            <input placeholder="@Localizer["booking_step1_send_data_buyer_passport_english_lastname_placeholder"]" autocomplete="on" type="text" id="booking-send-data-booker-english-firstname" name="sendPassportLastName0" class="form-control" v-model="booking.custom.find(t=>t.cus_type === 'send').english_last_name" />
+                            <input placeholder="@Localizer["booking_step1_send_data_buyer_passport_english_lastname_placeholder"]" autocomplete="on" type="text" id="booking-send-data-booker-english-firstname" name="sendPassportLastName0" class="form-control" pattern="^[A-Za-z]+([ -]?[A-Za-z]+)*$" v-model="booking.custom.find(t=>t.cus_type === 'send').english_last_name" />
                         </div>
                     </div>
                     <div class="row">
