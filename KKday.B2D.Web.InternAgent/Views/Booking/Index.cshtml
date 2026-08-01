@@ -19,6 +19,657 @@
     <script src="https://unpkg.com/vue-select@latest"></script>
     <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
     <script src="~/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.@(locale).min.js"></script>
+<script type="text/javascript">
+    Array.prototype.containsAll = function () {
+        return Array.from(arguments).every(i => this.includes(i));
+    }
+
+    Array.prototype.containsSome = function () {
+        return Array.from(arguments).some(i => this.includes(i));
+    }
+
+    getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
+
+    Vue.component('v-select', VueSelect.VueSelect);
+
+    let app = new Vue({
+        el: '#App',
+        data() {
+            return {
+                isLoading: false,
+                isBooking: false,
+                prod_no: null,
+                pkg_no: null,
+                country_cities: [],
+                country_areas: [],
+                booking: { custom:[], traffic:[] },
+                bookingField: {},
+                show_travel_contact_app: false,
+                show_travel_contact_phone: false,
+                show_cus_route: false,
+                show_cus_shuttle: false,
+                booking_custom_routes: [],
+                prod_info: null,
+                receive_cities: []
+            }
+        },
+        created: function () {
+            this.Query();
+            // Hide the contact info
+            this.show_travel_contact_app = this.checkBookingField('custom.contact_app', 'contact');
+            this.show_travel_contact_phone = this.checkBookingField('custom.tel_number', 'contact');
+        },
+        methods: {
+            Query() {
+                if (this.isLoading) {
+                    return;
+                }
+
+                // Load Country Code & Tel Country Code
+                fetch(`${_root_path}Common/QueryCountryInfo/@locale`)
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
+                    })
+                    .then(data => {
+                        // console.log(`countries => ${JSON.stringify(data)}`);
+                        this.country_cities = data.countries;
+                        this.country_areas = data.country_areas.sort((prev, next) => prev.tel_area > next.tel_area);
+
+                        // select2 binding
+                        //$('.select2').select2({
+                        //    theme: "bootstrap-5",
+                        //});
+                    }).catch(error => {
+                        alert(`Error: ${error.message}`)
+                        console.log('Error', error.message);
+                    });
+
+                this.isLoading = true;
+                setTimeout(() => {
+                    this.Fetch();
+                }, 100)
+            },
+            Fetch() {
+                let req = localStorage.getItem("bookingReq");
+                // localStorage.removeItem("bookingReq");
+                //console.log(`Fetch Req => ${req}`);
+                var reqObj = JSON.parse(req);
+                this.prod_no = reqObj.prod_no;
+                this.pkg_no = reqObj.pkg_no;
+                let uri = `${_root_path}Booking/LoadData`;
+                fetch(uri, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: req,
+                })
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
+                    })
+                    .then(result => {
+                        console.log(`${JSON.stringify(result)}`);
+
+                        this.booking = result.booking;
+                        this.bookingField = result.bookingfield;
+                        this.prod_info = result.prod_info;
+
+                        this.isLoading = false;
+
+                        // Default value for 'departure_time' or 'arrival_time'
+                        if (this.checkBookingFieldforFlight('departure_time')) {
+                            this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "departure_time", "00:00");
+                        }
+                        if (this.checkBookingFieldforFlight('arrival_time')) {
+                            this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "arrival_time", "00:00");
+                        }
+                    })
+                    .catch(error => {
+                        alert(`Error: ${error.message}`)
+                        console.log('Error', error.message);
+                    });
+
+            },
+            getCountryLabel: function (val) {
+                if (typeof val === 'object') {
+                    return `${val.country_name} ${val.country_code}`;
+                } else {
+                    let option = this.country_areas.filter(function (data) {
+                        return data.country_code === val || data.country_name.indexOf(val) != -1;
+                    })[0];
+                    return `${option.country_name} ${option.country_code}`;
+                }
+            },
+            getTelAreaLabel: function (val) {
+                if (typeof val === 'object') {
+                    return `+${val.tel_area}`;
+                } else {
+                    let option = this.country_areas.filter(function (data) {
+                        return data.tel_area === val || data.country_name.indexOf(val) != -1;
+                    })[0];
+                    return `+${option.tel_area}`;
+                }
+            },
+            checkBookingField(path, keys, mandatory) {
+                try {
+                    let key_array = keys.split(',').map(s => s.trim());
+                    let using = getValue(this.bookingField, path + '.use');
+
+                    let is_required = using ? using.filter(v => key_array.includes(v)).length : getValue(this.bookingField, path + '.is_require');
+                    let result = is_required ? true : false;
+
+                    console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)} / matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
+                    return result;
+                } catch (e) {
+                    // console.log(`checkBookingField, path: ${path} => error : ${e}`);
+                    return false;
+                }
+            },
+            checkBookingFieldforFlight(path) {
+                try {
+                    //debugger;
+                    let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'flight');
+                    let is_required = getValue(flight, path + '.is_require');
+                    let result = is_required == "True" ? true : false;
+                    return result;
+                } catch (e) {
+                    // console.log(`checkBookingFieldforFlight, path: ${path} => error : ${e}`);
+                    return false;
+                }
+            },
+            checkBookingFieldforRentCar(path, trafficTypeValue) {
+                try {
+                    //debugger;
+                    let rentcar = (trafficTypeValue) ?
+                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue) :
+                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'rentcar_01' || t.traffic_type?.traffic_type_value == 'rentcar_02');
+
+                    let result = false;
+                    if (rentcar) {
+                        let is_required = getValue(rentcar, path + '.is_require');
+                        result = (is_required == "True") ? true : false;
+                        if (path.indexOf('provide') == -1) {
+                            result = (is_required == "True") ? true : false;
+                        }
+                    }
+                    // console.log(`rentcar => ${path}, is_require: ${result}`);
+                    return result;
+                } catch (e) {
+                    // console.log(`rentcar => ${path}, error : ${e}`);
+                    return false;
+                }
+            },
+            checkBookingFieldforPickUp(path) {
+                try {
+                    //debugger;
+                    let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'pickup_03' || t.traffic_type?.traffic_type_value == 'pickup_04');
+                    if (flight == undefined) { return false; }
+
+                    let is_revisible = getValue(flight, path + '.is_visible');
+                    let is_required = getValue(flight, path + '.is_require');
+                    if (path.indexOf('provide') == -1) {
+                        var result = is_required == "True" ? true : false;
+                        return result;
+                    }
+                    else {
+                        var result = is_revisible == "True" ? true : false;
+                        return result;
+                    }
+                    // console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)}/matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
+                } catch (e) {
+                    // console.log(`checkBookingFieldforPickUp, path: ${path} => error : ${e}`);
+                    return false;
+                }
+            },
+            getBookingFieldReference(path) {
+                if (path.indexOf('glass') == -1) {
+                    var ref = getValue(this.bookingField, path);
+                    if (ref == null) {
+                        return [];
+                    }
+                    else {
+                        let refTemp = getValue(this.bookingField, path + '.list_option');
+                        return refTemp;
+                    }
+                    // console.log(`getBookingFieldReference,  path => bookingfield.${path}.${key}, vale=>${JSON.stringify(ref)}`);
+                }
+                // for glass_degree
+                else {
+                    let refTemp = [];
+                    let option = getValue(this.bookingField, path + '.list_option');
+                    if (option) {
+                        let range = option[0].range.split('~');
+                        let start = parseFloat(range[0]);
+                        let end = parseFloat(range[1]);
+                        let interval = parseFloat(option[0].interval);
+                        while (start < end) {
+                            refTemp.push({
+                                code: start,
+                                value: start
+                            });
+                            start += interval;
+                        }
+                    }
+                    return refTemp;
+                }
+            },
+            getBookingFieldReferenceforFlight(path) {
+                let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'flight');
+
+                try {
+                    if (flight != null) {
+                        let refTemp = getValue(flight, path + '.list_option');
+                        return refTemp;
+                    }
+                    else {
+                        return [];
+                    }
+                }
+                catch (e) { return []; }
+            },
+            getBookingFieldReferenceforRentCar(path, trafficTypeValue) {
+                try {
+                    let rentCar = (trafficTypeValue) ?
+                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue) :
+                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value != 'flight');
+                        // this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'rentcar_01' || t.traffic_type?.traffic_type_value == 'rentcar_02' || t.traffic_type?.traffic_type_value == 'rentcar_03' || t.traffic_type?.traffic_type_value == 'pickup_03' || t.traffic_type?.traffic_type_value == 'pickup_04' || t.traffic_type?.traffic_type_value == 'voucher');
+
+                    if (rentCar) {
+                        let _type = rentCar.traffic_type.traffic_type_value;
+                        let refTemp = getValue(rentCar, path + '.list_option');
+
+                        if (path == 's_time' && _type == "pickup_04") {
+                            if (refTemp.some(t => t.time_range)) return [];
+                            refTemp.forEach(function (element) {
+                                if (element.hour != 0) {
+                                    element.hour = String(element.hour).padStart(2, '0');
+                                    element.min = String(element.min).padStart(2, '0');
+                                }
+                            });
+                        }
+                        return refTemp;
+                    }
+                }
+                catch (e) { }
+
+                return [];
+            },
+            getBookingFieldReferenceTimeforRentCar(path) {
+                try {
+                    let rentCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value === 'rentcar_01' || t.traffic_type?.traffic_type_value === 'rentcar_02');
+
+                    if (rentCar) {
+                        let ref_path = (path === 'e_time') ? 'e_location' : 's_location';
+
+                        let refData = getValue(rentCar, ref_path + '.list_option')[0];
+                        let s_time = moment.utc(refData.s_time, 'HH:mm');
+                        let interval = refData.interval;
+                        let time_list = [];
+
+                        while (s_time <= moment.utc(refData.e_time, 'HH:mm')) {
+                            time_list.push({ id: s_time.format('HH:mm'), name: s_time.format('HH:mm') });
+                            s_time = s_time.add(refData.interval, 'minute');
+                        }
+                        return time_list;
+                    }
+                }
+                catch (e) { console.log(e); }
+
+                return [];
+            },
+            getBookingFieldReferenceforVoucher(path) {
+                let rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'voucher');
+
+                try {
+                    if (rendCar != null) {
+                        let refTemp = getValue(rendCar, path + '.location_list'); 
+                        return refTemp;
+                    }
+                    else {
+                        return [];
+                    }
+                }
+                catch (e) { return []; }
+            },
+            getPickupTime() {
+                return this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ?
+                            this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => !t.time_range) : []
+            },
+            getPickupCustomTime() {
+                return this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ?
+                            this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => t.time_range && t.time_range != '~') : []
+            },
+            getLocationWeekday(week) {
+                const weekday = [];
+                weekday[0] = "Mon"; // Monday
+                weekday[1] = "Tue"; // Tuesday
+                weekday[2] = "Wed"; // Wednesday
+                weekday[3] = "Thu"; // Thursday
+                weekday[4] = "Fri"; // Friday
+                weekday[5] = "Sat"; // Saturday
+                weekday[6] = "Sun"; // Sunday
+
+                let idx = week.replace(/,/g, '').indexOf('Y');
+                return idx != -1 ? weekday[idx] : '';
+            },
+            changeShuttleTime(val) {
+                this.show_cus_shuttle = val === 'customize';
+
+                if (this.show_cus_shuttle) {
+                    let option = this.bookingField.traffics.find(t => t.traffic_type?.traffic_type_value == 'pickup_04')?.s_time?.list_option[0];
+                    let ranges = option.time_range.split('~');
+                    let start_time = moment.utc(ranges[0], 'HH:mm');
+                    let end_time = moment.utc(ranges[1], 'HH:mm');
+
+                    $('#selShuttleCusHour :not(:first-child)').remove();
+                    while (start_time <= end_time) {
+                        $('#selShuttleCusHour').append($('<option>', {
+                            value: start_time.format('HH'),
+                            text: start_time.format('HH')
+                        }));
+                        start_time = start_time.add(1, 'hour');
+                    }
+                    $('#selShuttleCusMinute :not(:first-child)').remove();
+                }
+                else {
+                    // this.booking.traffic.find(t => t.traffic_type == 'pickup_04').s_time = val;
+                    this.$set(this.booking.traffic.find(t => t.traffic_type == 'pickup_04'), "s_time", val);
+                }
+            },
+            changeShuttleHour() {
+                let hour = $('#selShuttleCusHour').val();
+                let option = this.bookingField.traffics.find(t => t.traffic_type?.traffic_type_value == 'pickup_04')?.s_time?.list_option[0];
+                let ranges = option.time_range.split('~');
+                let end_time = moment.utc(ranges[1], 'HH:mm');
+                let begin_time = moment.utc(`${hour}:00`, 'HH:mm');
+                let max_minute = 59;
+
+                if (begin_time.format("HH") == end_time.format("HH")) {
+                    max_minute = end_time.diff(begin_time, 'minutes');
+                }
+
+                $('#selShuttleCusMinute :not(:first-child)').remove();
+                for (let tm = 0; tm <= max_minute; tm++) {
+                    $('#selShuttleCusMinute').append($('<option>', {
+                        value: tm.toString().padStart(2, '0'),
+                        text: tm.toString().padStart(2, '0')
+                    }));
+                }
+            },
+            changeShuttleMinute() {
+                // this.booking.traffic.find(t => t.traffic_type == 'pickup_04').s_time = `${$('#selShuttleCusHour').val()}:${$('#selShuttleCusMinute').val()}`;
+                this.$set(this.booking.traffic.find(t => t.traffic_type == 'pickup_04'), "s_time", `${$('#selShuttleCusHour').val()}:${$('#selShuttleCusMinute').val()}`);
+            },
+            refreshShoeSize(idx) {
+                $(`#shoeSizeValue_${idx} option:not(:first)`).remove();
+                let shoe_type = $(`#shoeSizeType_${idx}`).val();
+                let shoe_unit = $(`#shoeSizeUnit_${idx}`).val();
+                //@* console.log(`idx => ${idx}, type=${shoe_type}, unit=${shoe_unit}`) *@
+
+                let sel_unit = null;
+
+                if (shoe_type == "M") sel_unit = this.bookingField.custom.shoe.list_option.find(t => t.man).man;
+                else if (shoe_type == "W") sel_unit = this.bookingField.custom.shoe.list_option.find(t => t.woman).woman;
+                else if (shoe_type == "C") sel_unit = this.bookingField.custom.shoe.list_option.find(t => t.child).child;
+                // console.log(` shoe list => ${JSON.stringify(sel_unit)}`)
+
+                sel_unit = sel_unit ? sel_unit.find(u => u.unit_code === shoe_unit) : undefined;
+                // console.log(` sel size unit => ${JSON.stringify(sel_unit)}`)
+
+                $(`#shoeSizeValue_${idx} :not(:first-child)`).remove();
+                if (sel_unit) {
+                    let start = parseFloat(sel_unit.size_range_start);
+                    let end = parseFloat(sel_unit.size_range_end);
+                    let interval = parseFloat(sel_unit.interval);
+                    while (start < end) {
+                        $(`#shoeSizeValue_${idx}`).append($('<option>', {
+                            value: start,
+                            text: start.toString()
+                        }));
+                        start += interval;
+                    }
+                }
+            },
+            setArrivalVisa(chk) {
+                if (chk == "1") {
+                    this.booking.traffic.find(t => t.traffic_type == 'flight').arrival_visa = true;
+                }
+                else {
+                    this.booking.traffic.find(t => t.traffic_type == 'flight').arrival_visa = false;
+                }
+            },
+            setWifi(chk) {
+                if (chk == "1") {
+                    this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).provide_wifi = true;
+                }
+                else {
+                    this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).provide_wifi = false;
+                }
+            },
+            setGps(chk) {
+                if (chk == "1") {
+                    this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).provide_gps = true;
+                }
+                else {
+                    this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).provide_gps = false;
+                }
+            },
+            setCountry(target, val) {
+                //@* console.log(` target = ${target}, val => ${val}`); *@
+                this.receive_cities = [];
+                if (this.bookingField.custom.country_cities.list_option) {
+                    let country = this.bookingField.custom.country_cities.list_option.find(n => n.id == val);
+                    this.receive_cities = country ? country.cities : [];
+                    this.receive_cities.forEach(ct => {
+                        ct.city_code = `${country.id}_${ct.city_code}`;
+                    });
+                }
+                //@* console.log(`cities => ${JSON.stringify(cities)}`); *@
+                $(target).find('option:not(:first)').remove();
+            },
+            changeRentLocation(val, type) {
+                 if (type === 'pick') {
+                     $('#booking_pickup_time').find(`option:not(:first)`).remove();
+                     $('#booking_dropoff_time').find(`option:not(:first)`).remove();
+
+                     if (val == "") return false;
+                     let _location = this.bookingField?.traffics?.find(t => t.traffic_type.traffic_type_value.startsWith('rentcar_01') || t.traffic_type.traffic_type_value.startsWith('rentcar_02'))?.s_location?.list_option.find(o => o.id === val);
+                     if (_location != undefined) {
+                         let start_time = moment.utc(_location.s_time, 'HH:mm');
+                         let end_time = moment.utc(_location.e_time, 'HH:mm');
+                         while (start_time <= end_time) {
+                             $('#booking_pickup_time').append($('<option>', {
+                                 value: start_time.format('HH:mm'),
+                                 text: start_time.format('HH:mm')
+                             }));
+                             start_time = start_time.add(_location.interval, 'minute');
+                         }
+                         start_time = moment.utc(_location.s_time, 'HH:mm');
+                         end_time = moment.utc(_location.e_time, 'HH:mm');
+                         while (start_time <= end_time) {
+                             $('#booking_dropoff_time').append($('<option>', {
+                                 value: start_time.format('HH:mm'),
+                                 text: start_time.format('HH:mm')
+                             }));
+                             start_time = start_time.add(_location.interval, 'minute');
+                         }
+                     }
+
+                     var temp = this.booking?.traffic?.find(t => t.traffic_type?.startsWith('rentcar_01') || t.traffic_type?.startsWith('rentcar_02'));
+                     if (temp != undefined) { temp.e_location = val; }
+                 }
+                 if (type === 'drop') {
+                     $('#booking_dropoff_time').find(`option:not(:first)`).remove();
+
+                     if (val == "") return false;
+                     let _location = this.bookingField.traffics.find(t => t.traffic_type.traffic_type_value.startsWith('rentcar_01') || t.traffic_type.traffic_type_value.startsWith('rentcar_02'))?.e_location.list_option.find(o => o.id === val);
+                     let start_time = moment.utc(_location.s_time, 'HH:mm');
+                     let end_time = moment.utc(_location.e_time, 'HH:mm');
+                     while (start_time <= end_time) {
+                         $('#booking_dropoff_time').append($('<option>', {
+                             value: start_time.format('HH:mm'),
+                             text: start_time.format('HH:mm')
+                         }));
+                         start_time = start_time.add(_location.interval, 'minute');
+                     }
+                 }
+            },
+            changeShuttleRoute(val) {
+                this.show_cus_route = (val === 'customize');
+                let rentcar03 = this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar_03'));
+
+                // rentcar03.is_rent_customize = this.show_cus_route ? true : false;
+                // rentcar03.s_location = val;
+                this.$set(rentcar03, "is_rent_customize", this.show_cus_route ? true : false);
+                this.$set(rentcar03, "s_location", val);
+            },
+            addCusRoute() {
+                this.booking_custom_routes.push($('#booking-shuttle-custom-route').val());
+                $('#booking-shuttle-custom-route').val('');
+                if (this.booking_custom_routes.length >= 2) {
+                    $('#booking-shuttle-custom-route').attr('disabled', true);
+                    $('.btn-next').attr('disabled', true);
+                }
+                // this.booking.traffic.find(t => t.traffic_type == 'rentcar_03').s_address = this.booking_custom_routes.join(',');
+                 this.$set(this.booking.traffic.find(t => t.traffic_type == 'rentcar_03'), "s_address", this.booking_custom_routes.join(','));
+            },
+            removeCusRoute(idx) {
+                this.booking_custom_routes.splice(idx, 1);
+                if (this.booking_custom_routes.length < 2) {
+                    $('#booking-shuttle-custom-route').attr('disabled', false);
+                    $('.btn-next').attr('disabled', false);
+                }
+                // this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).s_address = this.booking_custom_routes.join(',');
+                this.$set(this.booking.traffic.find(t => t.traffic_typestartsWith('rentcar')), "s_address", this.booking_custom_routes.join(','));
+            },
+            showTravelContactTel(flag) {
+                this.show_travel_contact_phone = flag;
+                let cus = this.booking.custom.find(c => c.cus_type === 'contact');
+                if (!flag) {
+                    cus.tel_country_code = "";
+                    cus.tel_number = "";
+                }
+                console.log(`Contact => ${JSON.stringify(cus)}`)
+            },
+            showTravelContactApp(flag) {
+                this.show_travel_contact_app = flag;
+                let cus = this.booking.custom.find(c => c.cus_type === 'contact');
+                cus.has_app = flag;
+                if (!flag) {
+                    cus.contact_app = "";
+                    cus.contact_app_account = "";
+                }
+                console.log(`Contact => ${JSON.stringify(cus)}`)
+            },
+            doBooking() {
+                var receiverCountry = $("#receiverCountry").val();
+                var receiverCity = $("#receiverCity").val();
+                if (receiverCountry != undefined && receiverCity != undefined) {
+                    this.booking.custom.find(t=>t.cus_type === 'send').country_cities = receiverCountry + "_" + receiverCity;
+                }
+
+                if (this.show_travel_contact_phone == false && this.booking.custom.find(c=>c.cus_type === 'contact') != null) {
+                    this.booking.custom.find(c=>c.cus_type === 'contact').tel_number = "";
+                    this.booking.custom.find(c=>c.cus_type === 'contact').tel_country_code = "";
+
+                }
+                if (this.show_travel_contact_app == false && this.booking.custom.find(c=>c.cus_type === 'contact') != null) {
+                    this.booking.custom.find(c=>c.cus_type === 'contact').contact_app = "";
+                    this.booking.custom.find(c=>c.cus_type === 'contact').contact_app_account = "";
+                }
+
+                console.log(`${JSON.stringify(this.booking)}`);
+                this.isBooking = true;
+                let uri = `${_root_path}Booking/Booking`;
+                fetch(uri, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.booking)
+                })
+                    .then(response => {
+                        // console.log(response.status);
+                        return response.json();
+                    })
+                    .then(result => {
+                        console.log(`${JSON.stringify(result)}`);
+                        this.isBooking = false;
+                        if (result.status === "OK") alert(result.order_no);
+                        else alert(result.msg);
+                    })
+                    .catch(error => {
+                        console.error('Unable to search.', error);
+                        this.isBooking = false;
+                    });
+            },
+            checkTwResident(pax) {
+                // Ensure the bookingfield has "nationality"
+                const need_na = this.checkBookingField('custom.nationality', 'cus_01,cus_02');
+                if (!need_na) return false;
+
+                // Check the nationality must be Taiwnaese
+                return (pax.nationality === 'TW') ? true : false;
+            },
+            formatTimePadding(num) {
+                return num.toString().padStart(2, '0');
+            },
+            changeDepartureTime() {
+                this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "departure_time", this.$refs.dept_time_hour.value + ':' + this.$refs.dept_time_min.value);
+            },
+            changeArrivalTime() {
+                this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "arrival_time", this.$refs.arrv_time_hour.value + ':' + this.$refs.arrv_time_min.value);
+            },
+        },
+        watch: {
+            booking: {
+                handler(newVal, oldVal) {
+                    console.log(`bookingmodel been changed!`);
+                    document.getElementById("raw_booking").textContent = JSON.stringify(this.booking, undefined, 2);
+                },
+                deep: true
+            },
+        },
+        computed: {
+
+        }
+    });
+
+    Vue.component('datepicker', {
+        template: `<input type="text" class="form-control datepicker" ref="input" v-bind:value="value" v-on:input="updateValue($event.target.value)" />`,
+        props: {
+            value: {
+                type: String,
+            //    default: moment().format('YYYY-MM-DD')
+            }
+        },
+        mounted: function () {
+            let self = this;
+            this.$nextTick(function () {
+                $(this.$el).datepicker({
+                    language: '@locale',
+                    todayHighlight: true,
+                    todayBtn: "linked",
+                    autoclose: true,
+                    format: "yyyy-mm-dd"
+                })
+                    .on('changeDate', function (e) {
+                        var date = e.format('yyyy-mm-dd');
+                        self.updateValue(date);
+                    });
+            });
+        },
+        methods: {
+            updateValue: function (value) {
+                this.$emit('input', value);
+            },
+        }
+    });
+</script>
 }
 
 <h3>@Localizer["boooking_title"]</h3>
@@ -1361,654 +2012,3 @@
     </div>
 </div>
 
-<script type="text/javascript">
-    Array.prototype.containsAll = function () {
-        return Array.from(arguments).every(i => this.includes(i));
-    }
-
-    Array.prototype.containsSome = function () {
-        return Array.from(arguments).some(i => this.includes(i));
-    }
-
-    getValue = (o, p) => p.split('.').reduce((r, k) => r[k], o);
-
-    Vue.component('v-select', VueSelect.VueSelect);
-
-    let app = new Vue({
-        el: '#App',
-        data() {
-            return {
-                isLoading: false,
-                isBooking: false,
-                prod_no: null,
-                pkg_no: null,
-                country_cities: [],
-                country_areas: [],
-                booking: { custom:[], traffic:[] },
-                bookingField: {},
-                show_travel_contact_app: false,
-                show_travel_contact_phone: false,
-                show_cus_route: false,
-                show_cus_shuttle: false,
-                booking_custom_routes: [],
-                prod_info: null,
-                receive_cities: []
-            }
-        },
-        created: function () {
-            this.Query();
-            // Hide the contact info
-            this.show_travel_contact_app = this.checkBookingField('custom.contact_app', 'contact');
-            this.show_travel_contact_phone = this.checkBookingField('custom.tel_number', 'contact');
-        },
-        methods: {
-            Query() {
-                if (this.isLoading) {
-                    return;
-                }
-
-                // Load Country Code & Tel Country Code
-                fetch(`${_root_path}Common/QueryCountryInfo/@locale`)
-                    .then(response => {
-                        if (response.ok) return response.json();
-                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
-                    })
-                    .then(data => {
-                        // console.log(`countries => ${JSON.stringify(data)}`);
-                        this.country_cities = data.countries;
-                        this.country_areas = data.country_areas.sort((prev, next) => prev.tel_area > next.tel_area);
-
-                        // select2 binding
-                        //$('.select2').select2({
-                        //    theme: "bootstrap-5",
-                        //});
-                    }).catch(error => {
-                        alert(`Error: ${error.message}`)
-                        console.log('Error', error.message);
-                    });
-
-                this.isLoading = true;
-                setTimeout(() => {
-                    this.Fetch();
-                }, 100)
-            },
-            Fetch() {
-                let req = localStorage.getItem("bookingReq");
-                // localStorage.removeItem("bookingReq");
-                //console.log(`Fetch Req => ${req}`);
-                var reqObj = JSON.parse(req);
-                this.prod_no = reqObj.prod_no;
-                this.pkg_no = reqObj.pkg_no;
-                let uri = `${_root_path}Booking/LoadData`;
-                fetch(uri, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: req,
-                })
-                    .then(response => {
-                        if (response.ok) return response.json();
-                        return response.text().then((text) => { throw Error(JSON.parse(text)) });
-                    })
-                    .then(result => {
-                        console.log(`${JSON.stringify(result)}`);
-
-                        this.booking = result.booking;
-                        this.bookingField = result.bookingfield;
-                        this.prod_info = result.prod_info;
-
-                        this.isLoading = false;
-
-                        // Default value for 'departure_time' or 'arrival_time'
-                        if (this.checkBookingFieldforFlight('departure_time')) {
-                            this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "departure_time", "00:00");
-                        }
-                        if (this.checkBookingFieldforFlight('arrival_time')) {
-                            this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "arrival_time", "00:00");
-                        }
-                    })
-                    .catch(error => {
-                        alert(`Error: ${error.message}`)
-                        console.log('Error', error.message);
-                    });
-
-            },
-            getCountryLabel: function (val) {
-                if (typeof val === 'object') {
-                    return `${val.country_name} ${val.country_code}`;
-                } else {
-                    let option = this.country_areas.filter(function (data) {
-                        return data.country_code === val || data.country_name.indexOf(val) != -1;
-                    })[0];
-                    return `${option.country_name} ${option.country_code}`;
-                }
-            },
-            getTelAreaLabel: function (val) {
-                if (typeof val === 'object') {
-                    return `+${val.tel_area}`;
-                } else {
-                    let option = this.country_areas.filter(function (data) {
-                        return data.tel_area === val || data.country_name.indexOf(val) != -1;
-                    })[0];
-                    return `+${option.tel_area}`;
-                }
-            },
-            checkBookingField(path, keys, mandatory) {
-                try {
-                    let key_array = keys.split(',').map(s => s.trim());
-                    let using = getValue(this.bookingField, path + '.use');
-
-                    let is_required = using ? using.filter(v => key_array.includes(v)).length : getValue(this.bookingField, path + '.is_require');
-                    let result = is_required ? true : false;
-
-                    console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)} / matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
-                    return result;
-                } catch (e) {
-                    // console.log(`checkBookingField, path: ${path} => error : ${e}`);
-                    return false;
-                }
-            },
-            checkBookingFieldforFlight(path) {
-                try {
-                    //debugger;
-                    let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'flight');
-                    let is_required = getValue(flight, path + '.is_require');
-                    let result = is_required == "True" ? true : false;
-                    return result;
-                } catch (e) {
-                    // console.log(`checkBookingFieldforFlight, path: ${path} => error : ${e}`);
-                    return false;
-                }
-            },
-            checkBookingFieldforRentCar(path, trafficTypeValue) {
-                try {
-                    //debugger;
-                    let rentcar = (trafficTypeValue) ?
-                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue) :
-                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'rentcar_01' || t.traffic_type?.traffic_type_value == 'rentcar_02');
-
-                    let result = false;
-                    if (rentcar) {
-                        let is_required = getValue(rentcar, path + '.is_require');
-                        result = (is_required == "True") ? true : false;
-                        if (path.indexOf('provide') == -1) {
-                            result = (is_required == "True") ? true : false;
-                        }
-                    }
-                    // console.log(`rentcar => ${path}, is_require: ${result}`);
-                    return result;
-                } catch (e) {
-                    // console.log(`rentcar => ${path}, error : ${e}`);
-                    return false;
-                }
-            },
-            checkBookingFieldforPickUp(path) {
-                try {
-                    //debugger;
-                    let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'pickup_03' || t.traffic_type?.traffic_type_value == 'pickup_04');
-                    if (flight == undefined) { return false; }
-
-                    let is_revisible = getValue(flight, path + '.is_visible');
-                    let is_required = getValue(flight, path + '.is_require');
-                    if (path.indexOf('provide') == -1) {
-                        var result = is_required == "True" ? true : false;
-                        return result;
-                    }
-                    else {
-                        var result = is_revisible == "True" ? true : false;
-                        return result;
-                    }
-                    // console.log(`path: ${path}  ${JSON.stringify(key_array)} => using: ${JSON.stringify(using)}/matched=${using.filter(v => key_array.includes(v)).length}, is_required: ${is_required} => ${result}`);
-                } catch (e) {
-                    // console.log(`checkBookingFieldforPickUp, path: ${path} => error : ${e}`);
-                    return false;
-                }
-            },
-            getBookingFieldReference(path) {
-                if (path.indexOf('glass') == -1) {
-                    var ref = getValue(this.bookingField, path);
-                    if (ref == null) {
-                        return [];
-                    }
-                    else {
-                        let refTemp = getValue(this.bookingField, path + '.list_option');
-                        return refTemp;
-                    }
-                    // console.log(`getBookingFieldReference,  path => bookingfield.${path}.${key}, vale=>${JSON.stringify(ref)}`);
-                }
-                // for glass_degree
-                else {
-                    let refTemp = [];
-                    let option = getValue(this.bookingField, path + '.list_option');
-                    if (option) {
-                        let range = option[0].range.split('~');
-                        let start = parseFloat(range[0]);
-                        let end = parseFloat(range[1]);
-                        let interval = parseFloat(option[0].interval);
-                        while (start < end) {
-                            refTemp.push({
-                                code: start,
-                                value: start
-                            });
-                            start += interval;
-                        }
-                    }
-                    return refTemp;
-                }
-            },
-            getBookingFieldReferenceforFlight(path) {
-                let flight = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'flight');
-
-                try {
-                    if (flight != null) {
-                        let refTemp = getValue(flight, path + '.list_option');
-                        return refTemp;
-                    }
-                    else {
-                        return [];
-                    }
-                }
-                catch (e) { return []; }
-            },
-            getBookingFieldReferenceforRentCar(path, trafficTypeValue) {
-                try {
-                    let rentCar = (trafficTypeValue) ?
-                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == trafficTypeValue) :
-                        this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value != 'flight');
-                        // this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'rentcar_01' || t.traffic_type?.traffic_type_value == 'rentcar_02' || t.traffic_type?.traffic_type_value == 'rentcar_03' || t.traffic_type?.traffic_type_value == 'pickup_03' || t.traffic_type?.traffic_type_value == 'pickup_04' || t.traffic_type?.traffic_type_value == 'voucher');
-
-                    if (rentCar) {
-                        let _type = rentCar.traffic_type.traffic_type_value;
-                        let refTemp = getValue(rentCar, path + '.list_option');
-
-                        if (path == 's_time' && _type == "pickup_04") {
-                            if (refTemp.some(t => t.time_range)) return [];
-                            refTemp.forEach(function (element) {
-                                if (element.hour != 0) {
-                                    element.hour = String(element.hour).padStart(2, '0');
-                                    element.min = String(element.min).padStart(2, '0');
-                                }
-                            });
-                        }
-                        return refTemp;
-                    }
-                }
-                catch (e) { }
-
-                return [];
-            },
-            getBookingFieldReferenceTimeforRentCar(path) {
-                try {
-                    let rentCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value === 'rentcar_01' || t.traffic_type?.traffic_type_value === 'rentcar_02');
-
-                    if (rentCar) {
-                        let ref_path = (path === 'e_time') ? 'e_location' : 's_location';
-
-                        let refData = getValue(rentCar, ref_path + '.list_option')[0];
-                        let s_time = moment.utc(refData.s_time, 'HH:mm');
-                        let interval = refData.interval;
-                        let time_list = [];
-
-                        while (s_time <= moment.utc(refData.e_time, 'HH:mm')) {
-                            time_list.push({ id: s_time.format('HH:mm'), name: s_time.format('HH:mm') });
-                            s_time = s_time.add(refData.interval, 'minute');
-                        }
-                        return time_list;
-                    }
-                }
-                catch (e) { console.log(e); }
-
-                return [];
-            },
-            getBookingFieldReferenceforVoucher(path) {
-                let rendCar = this.bookingField?.traffics?.find(t => t.traffic_type?.traffic_type_value == 'voucher');
-
-                try {
-                    if (rendCar != null) {
-                        let refTemp = getValue(rendCar, path + '.location_list'); 
-                        return refTemp;
-                    }
-                    else {
-                        return [];
-                    }
-                }
-                catch (e) { return []; }
-            },
-            getPickupTime() {
-                return this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ?
-                            this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => !t.time_range) : []
-            },
-            getPickupCustomTime() {
-                return this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option ?
-                            this.bookingField?.traffics.find(t => t.traffic_type?.traffic_type_value=='pickup_04')?.s_time?.list_option?.filter(t => t.time_range && t.time_range != '~') : []
-            },
-            getLocationWeekday(week) {
-                const weekday = [];
-                weekday[0] = "Mon"; // Monday
-                weekday[1] = "Tue"; // Tuesday
-                weekday[2] = "Wed"; // Wednesday
-                weekday[3] = "Thu"; // Thursday
-                weekday[4] = "Fri"; // Friday
-                weekday[5] = "Sat"; // Saturday
-                weekday[6] = "Sun"; // Sunday
-
-                let idx = week.replace(/,/g, '').indexOf('Y');
-                return idx != -1 ? weekday[idx] : '';
-            },
-            changeShuttleTime(val) {
-                this.show_cus_shuttle = val === 'customize';
-
-                if (this.show_cus_shuttle) {
-                    let option = this.bookingField.traffics.find(t => t.traffic_type?.traffic_type_value == 'pickup_04')?.s_time?.list_option[0];
-                    let ranges = option.time_range.split('~');
-                    let start_time = moment.utc(ranges[0], 'HH:mm');
-                    let end_time = moment.utc(ranges[1], 'HH:mm');
-
-                    $('#selShuttleCusHour :not(:first-child)').remove();
-                    while (start_time <= end_time) {
-                        $('#selShuttleCusHour').append($('<option>', {
-                            value: start_time.format('HH'),
-                            text: start_time.format('HH')
-                        }));
-                        start_time = start_time.add(1, 'hour');
-                    }
-                    $('#selShuttleCusMinute :not(:first-child)').remove();
-                }
-                else {
-                    // this.booking.traffic.find(t => t.traffic_type == 'pickup_04').s_time = val;
-                    this.$set(this.booking.traffic.find(t => t.traffic_type == 'pickup_04'), "s_time", val);
-                }
-            },
-            changeShuttleHour() {
-                let hour = $('#selShuttleCusHour').val();
-                let option = this.bookingField.traffics.find(t => t.traffic_type?.traffic_type_value == 'pickup_04')?.s_time?.list_option[0];
-                let ranges = option.time_range.split('~');
-                let end_time = moment.utc(ranges[1], 'HH:mm');
-                let begin_time = moment.utc(`${hour}:00`, 'HH:mm');
-                let max_minute = 59;
-
-                if (begin_time.format("HH") == end_time.format("HH")) {
-                    max_minute = end_time.diff(begin_time, 'minutes');
-                }
-
-                $('#selShuttleCusMinute :not(:first-child)').remove();
-                for (let tm = 0; tm <= max_minute; tm++) {
-                    $('#selShuttleCusMinute').append($('<option>', {
-                        value: tm.toString().padStart(2, '0'),
-                        text: tm.toString().padStart(2, '0')
-                    }));
-                }
-            },
-            changeShuttleMinute() {
-                // this.booking.traffic.find(t => t.traffic_type == 'pickup_04').s_time = `${$('#selShuttleCusHour').val()}:${$('#selShuttleCusMinute').val()}`;
-                this.$set(this.booking.traffic.find(t => t.traffic_type == 'pickup_04'), "s_time", `${$('#selShuttleCusHour').val()}:${$('#selShuttleCusMinute').val()}`);
-            },
-            refreshShoeSize(idx) {
-                $(`#shoeSizeValue_${idx} option:not(:first)`).remove();
-                let shoe_type = $(`#shoeSizeType_${idx}`).val();
-                let shoe_unit = $(`#shoeSizeUnit_${idx}`).val();
-                //@* console.log(`idx => ${idx}, type=${shoe_type}, unit=${shoe_unit}`) *@
-
-                let sel_unit = null;
-
-                if (shoe_type == "M") sel_unit = this.bookingField.custom.shoe.list_option.find(t => t.man).man;
-                else if (shoe_type == "W") sel_unit = this.bookingField.custom.shoe.list_option.find(t => t.woman).woman;
-                else if (shoe_type == "C") sel_unit = this.bookingField.custom.shoe.list_option.find(t => t.child).child;
-                // console.log(` shoe list => ${JSON.stringify(sel_unit)}`)
-
-                sel_unit = sel_unit ? sel_unit.find(u => u.unit_code === shoe_unit) : undefined;
-                // console.log(` sel size unit => ${JSON.stringify(sel_unit)}`)
-
-                $(`#shoeSizeValue_${idx} :not(:first-child)`).remove();
-                if (sel_unit) {
-                    let start = parseFloat(sel_unit.size_range_start);
-                    let end = parseFloat(sel_unit.size_range_end);
-                    let interval = parseFloat(sel_unit.interval);
-                    while (start < end) {
-                        $(`#shoeSizeValue_${idx}`).append($('<option>', {
-                            value: start,
-                            text: start.toString()
-                        }));
-                        start += interval;
-                    }
-                }
-            },
-            setArrivalVisa(chk) {
-                if (chk == "1") {
-                    this.booking.traffic.find(t => t.traffic_type == 'flight').arrival_visa = true;
-                }
-                else {
-                    this.booking.traffic.find(t => t.traffic_type == 'flight').arrival_visa = false;
-                }
-            },
-            setWifi(chk) {
-                if (chk == "1") {
-                    this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).provide_wifi = true;
-                }
-                else {
-                    this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).provide_wifi = false;
-                }
-            },
-            setGps(chk) {
-                if (chk == "1") {
-                    this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).provide_gps = true;
-                }
-                else {
-                    this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).provide_gps = false;
-                }
-            },
-            setCountry(target, val) {
-                //@* console.log(` target = ${target}, val => ${val}`); *@
-                this.receive_cities = [];
-                if (this.bookingField.custom.country_cities.list_option) {
-                    let country = this.bookingField.custom.country_cities.list_option.find(n => n.id == val);
-                    this.receive_cities = country ? country.cities : [];
-                    this.receive_cities.forEach(ct => {
-                        ct.city_code = `${country.id}_${ct.city_code}`;
-                    });
-                }
-                //@* console.log(`cities => ${JSON.stringify(cities)}`); *@
-                $(target).find('option:not(:first)').remove();
-            },
-            changeRentLocation(val, type) {
-                 if (type === 'pick') {
-                     $('#booking_pickup_time').find(`option:not(:first)`).remove();
-                     $('#booking_dropoff_time').find(`option:not(:first)`).remove();
-
-                     if (val == "") return false;
-                     let _location = this.bookingField?.traffics?.find(t => t.traffic_type.traffic_type_value.startsWith('rentcar_01') || t.traffic_type.traffic_type_value.startsWith('rentcar_02'))?.s_location?.list_option.find(o => o.id === val);
-                     if (_location != undefined) {
-                         let start_time = moment.utc(_location.s_time, 'HH:mm');
-                         let end_time = moment.utc(_location.e_time, 'HH:mm');
-                         while (start_time <= end_time) {
-                             $('#booking_pickup_time').append($('<option>', {
-                                 value: start_time.format('HH:mm'),
-                                 text: start_time.format('HH:mm')
-                             }));
-                             start_time = start_time.add(_location.interval, 'minute');
-                         }
-                         start_time = moment.utc(_location.s_time, 'HH:mm');
-                         end_time = moment.utc(_location.e_time, 'HH:mm');
-                         while (start_time <= end_time) {
-                             $('#booking_dropoff_time').append($('<option>', {
-                                 value: start_time.format('HH:mm'),
-                                 text: start_time.format('HH:mm')
-                             }));
-                             start_time = start_time.add(_location.interval, 'minute');
-                         }
-                     }
-
-                     var temp = this.booking?.traffic?.find(t => t.traffic_type?.startsWith('rentcar_01') || t.traffic_type?.startsWith('rentcar_02'));
-                     if (temp != undefined) { temp.e_location = val; }
-                 }
-                 if (type === 'drop') {
-                     $('#booking_dropoff_time').find(`option:not(:first)`).remove();
-
-                     if (val == "") return false;
-                     let _location = this.bookingField.traffics.find(t => t.traffic_type.traffic_type_value.startsWith('rentcar_01') || t.traffic_type.traffic_type_value.startsWith('rentcar_02'))?.e_location.list_option.find(o => o.id === val);
-                     let start_time = moment.utc(_location.s_time, 'HH:mm');
-                     let end_time = moment.utc(_location.e_time, 'HH:mm');
-                     while (start_time <= end_time) {
-                         $('#booking_dropoff_time').append($('<option>', {
-                             value: start_time.format('HH:mm'),
-                             text: start_time.format('HH:mm')
-                         }));
-                         start_time = start_time.add(_location.interval, 'minute');
-                     }
-                 }
-            },
-            changeShuttleRoute(val) {
-                this.show_cus_route = (val === 'customize');
-                let rentcar03 = this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar_03'));
-
-                // rentcar03.is_rent_customize = this.show_cus_route ? true : false;
-                // rentcar03.s_location = val;
-                this.$set(rentcar03, "is_rent_customize", this.show_cus_route ? true : false);
-                this.$set(rentcar03, "s_location", val);
-            },
-            addCusRoute() {
-                this.booking_custom_routes.push($('#booking-shuttle-custom-route').val());
-                $('#booking-shuttle-custom-route').val('');
-                if (this.booking_custom_routes.length >= 2) {
-                    $('#booking-shuttle-custom-route').attr('disabled', true);
-                    $('.btn-next').attr('disabled', true);
-                }
-                // this.booking.traffic.find(t => t.traffic_type == 'rentcar_03').s_address = this.booking_custom_routes.join(',');
-                 this.$set(this.booking.traffic.find(t => t.traffic_type == 'rentcar_03'), "s_address", this.booking_custom_routes.join(','));
-            },
-            removeCusRoute(idx) {
-                this.booking_custom_routes.splice(idx, 1);
-                if (this.booking_custom_routes.length < 2) {
-                    $('#booking-shuttle-custom-route').attr('disabled', false);
-                    $('.btn-next').attr('disabled', false);
-                }
-                // this.booking.traffic.find(t => t.traffic_type.startsWith('rentcar')).s_address = this.booking_custom_routes.join(',');
-                this.$set(this.booking.traffic.find(t => t.traffic_typestartsWith('rentcar')), "s_address", this.booking_custom_routes.join(','));
-            },
-            showTravelContactTel(flag) {
-                this.show_travel_contact_phone = flag;
-                let cus = this.booking.custom.find(c => c.cus_type === 'contact');
-                if (!flag) {
-                    cus.tel_country_code = "";
-                    cus.tel_number = "";
-                }
-                console.log(`Contact => ${JSON.stringify(cus)}`)
-            },
-            showTravelContactApp(flag) {
-                this.show_travel_contact_app = flag;
-                let cus = this.booking.custom.find(c => c.cus_type === 'contact');
-                cus.has_app = flag;
-                if (!flag) {
-                    cus.contact_app = "";
-                    cus.contact_app_account = "";
-                }
-                console.log(`Contact => ${JSON.stringify(cus)}`)
-            },
-            doBooking() {
-                var receiverCountry = $("#receiverCountry").val();
-                var receiverCity = $("#receiverCity").val();
-                if (receiverCountry != undefined && receiverCity != undefined) {
-                    this.booking.custom.find(t=>t.cus_type === 'send').country_cities = receiverCountry + "_" + receiverCity;
-                }
-
-                if (this.show_travel_contact_phone == false && this.booking.custom.find(c=>c.cus_type === 'contact') != null) {
-                    this.booking.custom.find(c=>c.cus_type === 'contact').tel_number = "";
-                    this.booking.custom.find(c=>c.cus_type === 'contact').tel_country_code = "";
-
-                }
-                if (this.show_travel_contact_app == false && this.booking.custom.find(c=>c.cus_type === 'contact') != null) {
-                    this.booking.custom.find(c=>c.cus_type === 'contact').contact_app = "";
-                    this.booking.custom.find(c=>c.cus_type === 'contact').contact_app_account = "";
-                }
-
-                console.log(`${JSON.stringify(this.booking)}`);
-                this.isBooking = true;
-                let uri = `${_root_path}Booking/Booking`;
-                fetch(uri, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(this.booking)
-                })
-                    .then(response => {
-                        // console.log(response.status);
-                        return response.json();
-                    })
-                    .then(result => {
-                        console.log(`${JSON.stringify(result)}`);
-                        this.isBooking = false;
-                        if (result.status === "OK") alert(result.order_no);
-                        else alert(result.msg);
-                    })
-                    .catch(error => {
-                        console.error('Unable to search.', error);
-                        this.isBooking = false;
-                    });
-            },
-            checkTwResident(pax) {
-                // Ensure the bookingfield has "nationality"
-                const need_na = this.checkBookingField('custom.nationality', 'cus_01,cus_02');
-                if (!need_na) return false;
-
-                // Check the nationality must be Taiwnaese
-                return (pax.nationality === 'TW') ? true : false;
-            },
-            formatTimePadding(num) {
-                return num.toString().padStart(2, '0');
-            },
-            changeDepartureTime() {
-                this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "departure_time", this.$refs.dept_time_hour.value + ':' + this.$refs.dept_time_min.value);
-            },
-            changeArrivalTime() {
-                this.$set(this.booking.traffic.find(t => t.traffic_type == 'flight'), "arrival_time", this.$refs.arrv_time_hour.value + ':' + this.$refs.arrv_time_min.value);
-            },
-        },
-        watch: {
-            booking: {
-                handler(newVal, oldVal) {
-                    console.log(`bookingmodel been changed!`);
-                    document.getElementById("raw_booking").textContent = JSON.stringify(this.booking, undefined, 2);
-                },
-                deep: true
-            },
-        },
-        computed: {
-
-        }
-    });
-
-    Vue.component('datepicker', {
-        template: `<input type="text" class="form-control datepicker" ref="input" v-bind:value="value" v-on:input="updateValue($event.target.value)" />`,
-        props: {
-            value: {
-                type: String,
-            //    default: moment().format('YYYY-MM-DD')
-            }
-        },
-        mounted: function () {
-            let self = this;
-            this.$nextTick(function () {
-                $(this.$el).datepicker({
-                    language: '@locale',
-                    todayHighlight: true,
-                    todayBtn: "linked",
-                    autoclose: true,
-                    format: "yyyy-mm-dd"
-                })
-                    .on('changeDate', function (e) {
-                        var date = e.format('yyyy-mm-dd');
-                        self.updateValue(date);
-                    });
-            });
-        },
-        methods: {
-            updateValue: function (value) {
-                this.$emit('input', value);
-            },
-        }
-    });
-</script>

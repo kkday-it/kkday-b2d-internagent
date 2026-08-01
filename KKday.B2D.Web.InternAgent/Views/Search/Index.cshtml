@@ -132,266 +132,6 @@
     <script src="~/js/moment-with-locales.js"></script>
     <script src="~/lib/jquery-daterangepicker/daterangepicker.js"></script>
     <script src="~/js/mitt.umd.min.js"></script>
-}
-
-
-<div id="App">
-    <div class="container">
-        <!-- Keywords -->
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Where do you want to go?" aria-label="Username" aria-describedby="basic-addon1"
-                           v-model="search_key" v-on:keyup.enter="currentPage=1; Query();">
-                </div>
-            </div>
-        </div>
-
-        <!-- Search Result -->
-        <div class="row">
-
-            <div class="col-12 m-2 d-block d-sm-none sm-filter">
-
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
-                    <i class="fa fa-filter" aria-hidden="true"></i> Filter
-                </button>
-
-                <!-- Modal -->
-                <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" style="font-size:18px; font-weight:bold;">Filter Condition</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body"></div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                @*<button type="button" class="btn btn-primary" onclick="UpdateFilter();"> OK </button>*@
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- filter -->
-            <div class="col-3 d-none d-sm-block filter">
-                <div class="filter-container">
-                    <div class="filter-group">
-                        <!-- destination filter -->
-                        <div class="filter-box">
-                            <h4 @@click.stop="show_destination=!show_destination">
-                                @Localizer["Destination"]
-                                <i class="fa fa-caret-up pull-right" v-if="show_destination"></i>
-                                <i class="fa fa-caret-down pull-right" v-if="!show_destination"></i>
-                            </h4>
-                            
-
-                            <div v-for="dest in facets.destination" v-show="show_destination">
-                                <div :value="dest.code" class="drop-title">
-                                    <div>
-                                        <i class="ri-lg" :class="{'ri-checkbox-blank-line': !dest.checked, 'ri-checkbox-fill': dest.checked}" @@click.stop="destinationCheck(dest)"></i>
-                                        {{ dest.name }}
-                                        <div class="pull-right" v-if="dest?.children" @@click.stop="destinationToggle(dest)">
-                                            <i :class="{'ri-arrow-down-s-line': !dest.open, 'ri-arrow-up-s-line': dest.open }"></i>
-                                        </div>
-
-                                        <div v-show="dest.open" style="margin-left: 20px;">
-                                            <!-- Select/Unselect all sub destination -->
-                                            <div class="drop-item">
-                                                <i class="ri-lg" :class="{'ri-checkbox-blank-line': !dest.select_all, 'ri-checkbox-fill': dest.select_all}" @@click.stop="destinationCheckAll(dest)"></i>
-                                                <span class="checkbox-title">@Localizer["All"]</span>
-                                            </div>
-
-                                            <div class="drop-item" v-for="sub_dest in dest?.children">
-                                                <div>
-                                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_dest.checked, 'ri-checkbox-fill': sub_dest.checked}" @@click="destinationCheck(sub_dest)"></i>
-                                                    <span>{{ sub_dest.name }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- category filter -->
-                        <div class="filter-box">
-                            <h4 @@click.stop="show_category=!show_category">
-                                @Localizer["All_Categories"]
-                                <i class="fa fa-caret-up pull-right" v-if="show_category"></i>
-                                <i class="fa fa-caret-down pull-right" v-if="!show_category"></i>
-                            </h4>
-                             
-                            <div v-for="cate in facets.category" v-show="show_category">
-                                <div :value="cate.code" class="drop-title">
-                                    <div>
-                                        <i class="ri-lg" :class="{'ri-checkbox-blank-line': !cate.checked, 'ri-checkbox-fill': cate.checked}" @@click.stop="categoryCheck(cate)"></i>
-                                        {{ cate.name }}
-                                        <div class="pull-right" v-if="cate?.children" @@click.stop="categoryToggle(cate)">
-                                            <i :class="{'ri-arrow-down-s-line': !cate.open, 'ri-arrow-up-s-line': cate.open }"></i>
-                                        </div>
-
-                                        <div v-show="cate.open" style="margin-left: 15px;">
-                                            <!-- Select/Unselect all sub categories -->
-                                            <div class="drop-item">
-                                                <i class="ri-lg" :class="{'ri-checkbox-blank-line': !cate.select_all, 'ri-checkbox-fill': cate.select_all}" @@click.stop="categoryCheckAll(cate)"></i>
-                                                <span class="checkbox-title">@Localizer["All"]</span>
-                                            </div>
-
-                                            <template v-for="sub_cate in cate?.children">
-                                                <div class="drop-item">
-                                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_cate.checked, 'ri-checkbox-fill': sub_cate.checked}" @@click.stop="categoryCheck(sub_cate)"></i>
-                                                    <span v-html="sub_cate.name"></span>
-                                                    <div class="pull-right" v-if="sub_cate?.children" @@click.stop="categoryToggle(sub_cate)">
-                                                        <i :class="{'ri-arrow-down-s-line': !sub_cate.open, 'ri-arrow-up-s-line': sub_cate.open }"></i>
-                                                    </div>
-                                                    <div class="clearfix"></div>
-
-                                                    <div v-show="sub_cate.open" style="margin-left: 15px;">
-                                                        <div class="sub-drop-item">
-                                                            <!-- Select/Unselect all next-level sub categories -->
-                                                            <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_cate.select_all, 'ri-checkbox-fill': sub_cate.select_all}" @@click.stop="categoryCheckAll(sub_cate)"></i>
-                                                            <span class="checkbox-title">@Localizer["All"]</span>
-                                                        </div>
-
-                                                        <div v-for="sub3_cate in sub_cate?.children" class="sub-drop-item">
-                                                            <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub3_cate.checked, 'ri-checkbox-fill': sub3_cate.checked}" @@click="categoryCheck(sub3_cate)"></i>
-                                                            <span>{{ sub3_cate.name }}</span>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                            </template>
-                                        </div>
-
-                                    </div>
-                                    <div class="clearfix"></div>
-
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="filter-box">
-                            <h4 v-cloak>@Localizer["Price_Range"] ({{currency}})</h4>
-                            <div>
-                                <input v-cloak type="text" id="js-range-slider" name="range" data-min="{{stats.price.min}}"
-                                       data-max="{{stats.price.max}}" data-from="{{stats.price.min}}"
-                                       data-to="{{stats.price.max}}" @@change="rangeChanged"/>
-                            </div>
-                        </div>
-
-                        <div class="filter-box">
-                            <h4 class="collapsable" @@click.stop="show_duration=!show_duration">
-                                @Localizer["Journey_Time"]
-                                <i class="fa fa-caret-up pull-right" v-if="show_duration"></i>
-                                <i class="fa fa-caret-down pull-right" v-if="!show_duration"></i>
-                            </h4>
-                            <ul class="filter-list collapse in" v-if="show_duration">
-                                <template v-for="(duration, idx) in durations">
-                                    <li class="checkbox" @@click.stop="clickDuration(idx)">
-                                        <i class="ri-lg" :class="{'ri-checkbox-blank-circle-line': !duration.checked, 'ri-checkbox-circle-line': duration.checked }"></i>
-                                        <span class="checkbox-title">{{duration.name}}</span>
-                                    </li>
-                                    @* <li class="checkbox" @@click.stop="durations[idx].checked=!durations[idx].checked; Query();"> *@
-                                    @*     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[idx].checked, 'ri-checkbox-fill': durations[idx].checked }"></i> *@
-                                    @*     <span class="checkbox-title">{{duration.name}}</span> *@
-                                    @* </li> *@
-                                </template>
-                            </ul>
-                             
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- product-list -->
-            <div class="col-md-9 product-list">
-                <div class="board product-result mb-0 result-board">
-                    <tag-section></tag-section>
-                    <div class="d-flex flex-row">
-                        <h4>
-                            <span class="text-primary">
-                                {{ totalRows }}
-                            </span>
-                            @Localizer["ExperienceFound"]
-                        </h4>
-                        <div class="ms-auto">
-                            <b-form-select v-model="sorting" :options="sort_options" @@change="sortChanged" class="form-control"></b-form-select>
-                        </div>
-                    </div>
-                </div>
-                <template v-for="pd in prods">
-                    <div class="product-listview search-info">
-                        <a :id="`product-card-${pd.prd_no}`" :href="`${_root_path}Product/${pd.prod_no}`" target="_blank" rel="noopener">
-                            <div class="row">
-                                <div class="col-sm-5 col-lg-4">
-                                    <div class="img-bg" lazy="loaded" :style="{ backgroundImage: 'url(' + pd.prod_img_url + ')' }"></div>
-                                </div>
-                                <div class="col-sm-7 col-lg-8">
-                                    <div class="product-detail">
-                                        <div class="card-point">
-                                            <span class="label label-warning mr-5" v-if="pd.instant_booking"> @Localizer["Instant_Confirm"] </span>
-                                        </div>
-                                        <h3 v-html="pd.prod_name"></h3>
-                                        <p class="description" v-html="pd.introduction"></p>
-                                        <div class="product-place">
-                                            <i class="fa fa-map-marker"></i>
-
-                                        </div>
-                                        <div class="product-footer">
-                                            <div class="product-star"></div>
-                                            <span class="divider"></span>
-                                            <div class="product-pricing">
-                                                <div class="origin-price"> @Localizer["Original_Price"] {{ pd.b2c_price }}</div>
-                                                <span v-html="currency"></span> <h4 class="text-primary" v-html="pd.b2b_price"></h4>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </template>
-                <div class="product-listview search-info" v-if="prods.length < 1">
-                    <div class="row">
-                        <div class="col-12 p-5">
-                            @Localizer["No_Matched_Product"]
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                <div class="overflow-auto" v-if="prods.length > 0">
-                    <b-pagination v-model="currentPage" @@change="Query()"
-                                  :total-rows="totalRows"
-                                  :per-page="perPage"
-                                  :limit="limit"
-                                  align="center" size="lg"></b-pagination>
-                    <p class="mt-3" v-html="`@Localizer["Current_Page"]: ${currentPage}`"></p>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Loading Popup -->
-    <div class="popup-msg" id="popup1" v-show="isLoading">
-        <div class="row align-items-center h-100">
-            <div class="col-6 mx-auto">
-                <img id="loading" src="@Url.Content("~/images/loading-spin.gif")" style="width: 32px;" />
-                @Localizer["Search_Loading"]
-            </div>
-        </div>
-    </div>
-</div>
-
-
 <script type="text/javascript">
     const emitter = mitt();
 
@@ -810,3 +550,263 @@
         }
     });
 </script>
+}
+
+
+<div id="App">
+    <div class="container">
+        <!-- Keywords -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Where do you want to go?" aria-label="Username" aria-describedby="basic-addon1"
+                           v-model="search_key" v-on:keyup.enter="currentPage=1; Query();">
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Result -->
+        <div class="row">
+
+            <div class="col-12 m-2 d-block d-sm-none sm-filter">
+
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+                    <i class="fa fa-filter" aria-hidden="true"></i> Filter
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" style="font-size:18px; font-weight:bold;">Filter Condition</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body"></div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                @*<button type="button" class="btn btn-primary" onclick="UpdateFilter();"> OK </button>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- filter -->
+            <div class="col-3 d-none d-sm-block filter">
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <!-- destination filter -->
+                        <div class="filter-box">
+                            <h4 @@click.stop="show_destination=!show_destination">
+                                @Localizer["Destination"]
+                                <i class="fa fa-caret-up pull-right" v-if="show_destination"></i>
+                                <i class="fa fa-caret-down pull-right" v-if="!show_destination"></i>
+                            </h4>
+                            
+
+                            <div v-for="dest in facets.destination" v-show="show_destination">
+                                <div :value="dest.code" class="drop-title">
+                                    <div>
+                                        <i class="ri-lg" :class="{'ri-checkbox-blank-line': !dest.checked, 'ri-checkbox-fill': dest.checked}" @@click.stop="destinationCheck(dest)"></i>
+                                        {{ dest.name }}
+                                        <div class="pull-right" v-if="dest?.children" @@click.stop="destinationToggle(dest)">
+                                            <i :class="{'ri-arrow-down-s-line': !dest.open, 'ri-arrow-up-s-line': dest.open }"></i>
+                                        </div>
+
+                                        <div v-show="dest.open" style="margin-left: 20px;">
+                                            <!-- Select/Unselect all sub destination -->
+                                            <div class="drop-item">
+                                                <i class="ri-lg" :class="{'ri-checkbox-blank-line': !dest.select_all, 'ri-checkbox-fill': dest.select_all}" @@click.stop="destinationCheckAll(dest)"></i>
+                                                <span class="checkbox-title">@Localizer["All"]</span>
+                                            </div>
+
+                                            <div class="drop-item" v-for="sub_dest in dest?.children">
+                                                <div>
+                                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_dest.checked, 'ri-checkbox-fill': sub_dest.checked}" @@click="destinationCheck(sub_dest)"></i>
+                                                    <span>{{ sub_dest.name }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- category filter -->
+                        <div class="filter-box">
+                            <h4 @@click.stop="show_category=!show_category">
+                                @Localizer["All_Categories"]
+                                <i class="fa fa-caret-up pull-right" v-if="show_category"></i>
+                                <i class="fa fa-caret-down pull-right" v-if="!show_category"></i>
+                            </h4>
+                             
+                            <div v-for="cate in facets.category" v-show="show_category">
+                                <div :value="cate.code" class="drop-title">
+                                    <div>
+                                        <i class="ri-lg" :class="{'ri-checkbox-blank-line': !cate.checked, 'ri-checkbox-fill': cate.checked}" @@click.stop="categoryCheck(cate)"></i>
+                                        {{ cate.name }}
+                                        <div class="pull-right" v-if="cate?.children" @@click.stop="categoryToggle(cate)">
+                                            <i :class="{'ri-arrow-down-s-line': !cate.open, 'ri-arrow-up-s-line': cate.open }"></i>
+                                        </div>
+
+                                        <div v-show="cate.open" style="margin-left: 15px;">
+                                            <!-- Select/Unselect all sub categories -->
+                                            <div class="drop-item">
+                                                <i class="ri-lg" :class="{'ri-checkbox-blank-line': !cate.select_all, 'ri-checkbox-fill': cate.select_all}" @@click.stop="categoryCheckAll(cate)"></i>
+                                                <span class="checkbox-title">@Localizer["All"]</span>
+                                            </div>
+
+                                            <template v-for="sub_cate in cate?.children">
+                                                <div class="drop-item">
+                                                    <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_cate.checked, 'ri-checkbox-fill': sub_cate.checked}" @@click.stop="categoryCheck(sub_cate)"></i>
+                                                    <span v-html="sub_cate.name"></span>
+                                                    <div class="pull-right" v-if="sub_cate?.children" @@click.stop="categoryToggle(sub_cate)">
+                                                        <i :class="{'ri-arrow-down-s-line': !sub_cate.open, 'ri-arrow-up-s-line': sub_cate.open }"></i>
+                                                    </div>
+                                                    <div class="clearfix"></div>
+
+                                                    <div v-show="sub_cate.open" style="margin-left: 15px;">
+                                                        <div class="sub-drop-item">
+                                                            <!-- Select/Unselect all next-level sub categories -->
+                                                            <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub_cate.select_all, 'ri-checkbox-fill': sub_cate.select_all}" @@click.stop="categoryCheckAll(sub_cate)"></i>
+                                                            <span class="checkbox-title">@Localizer["All"]</span>
+                                                        </div>
+
+                                                        <div v-for="sub3_cate in sub_cate?.children" class="sub-drop-item">
+                                                            <i class="ri-lg" :class="{'ri-checkbox-blank-line': !sub3_cate.checked, 'ri-checkbox-fill': sub3_cate.checked}" @@click="categoryCheck(sub3_cate)"></i>
+                                                            <span>{{ sub3_cate.name }}</span>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </template>
+                                        </div>
+
+                                    </div>
+                                    <div class="clearfix"></div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="filter-box">
+                            <h4 v-cloak>@Localizer["Price_Range"] ({{currency}})</h4>
+                            <div>
+                                <input v-cloak type="text" id="js-range-slider" name="range" data-min="{{stats.price.min}}"
+                                       data-max="{{stats.price.max}}" data-from="{{stats.price.min}}"
+                                       data-to="{{stats.price.max}}" @@change="rangeChanged"/>
+                            </div>
+                        </div>
+
+                        <div class="filter-box">
+                            <h4 class="collapsable" @@click.stop="show_duration=!show_duration">
+                                @Localizer["Journey_Time"]
+                                <i class="fa fa-caret-up pull-right" v-if="show_duration"></i>
+                                <i class="fa fa-caret-down pull-right" v-if="!show_duration"></i>
+                            </h4>
+                            <ul class="filter-list collapse in" v-if="show_duration">
+                                <template v-for="(duration, idx) in durations">
+                                    <li class="checkbox" @@click.stop="clickDuration(idx)">
+                                        <i class="ri-lg" :class="{'ri-checkbox-blank-circle-line': !duration.checked, 'ri-checkbox-circle-line': duration.checked }"></i>
+                                        <span class="checkbox-title">{{duration.name}}</span>
+                                    </li>
+                                    @* <li class="checkbox" @@click.stop="durations[idx].checked=!durations[idx].checked; Query();"> *@
+                                    @*     <i class="ri-lg" :class="{'ri-checkbox-blank-line': !durations[idx].checked, 'ri-checkbox-fill': durations[idx].checked }"></i> *@
+                                    @*     <span class="checkbox-title">{{duration.name}}</span> *@
+                                    @* </li> *@
+                                </template>
+                            </ul>
+                             
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- product-list -->
+            <div class="col-md-9 product-list">
+                <div class="board product-result mb-0 result-board">
+                    <tag-section></tag-section>
+                    <div class="d-flex flex-row">
+                        <h4>
+                            <span class="text-primary">
+                                {{ totalRows }}
+                            </span>
+                            @Localizer["ExperienceFound"]
+                        </h4>
+                        <div class="ms-auto">
+                            <b-form-select v-model="sorting" :options="sort_options" @@change="sortChanged" class="form-control"></b-form-select>
+                        </div>
+                    </div>
+                </div>
+                <template v-for="pd in prods">
+                    <div class="product-listview search-info">
+                        <a :id="`product-card-${pd.prd_no}`" :href="`${_root_path}Product/${pd.prod_no}`" target="_blank" rel="noopener">
+                            <div class="row">
+                                <div class="col-sm-5 col-lg-4">
+                                    <div class="img-bg" lazy="loaded" :style="{ backgroundImage: 'url(' + pd.prod_img_url + ')' }"></div>
+                                </div>
+                                <div class="col-sm-7 col-lg-8">
+                                    <div class="product-detail">
+                                        <div class="card-point">
+                                            <span class="label label-warning mr-5" v-if="pd.instant_booking"> @Localizer["Instant_Confirm"] </span>
+                                        </div>
+                                        <h3 v-html="pd.prod_name"></h3>
+                                        <p class="description" v-html="pd.introduction"></p>
+                                        <div class="product-place">
+                                            <i class="fa fa-map-marker"></i>
+
+                                        </div>
+                                        <div class="product-footer">
+                                            <div class="product-star"></div>
+                                            <span class="divider"></span>
+                                            <div class="product-pricing">
+                                                <div class="origin-price"> @Localizer["Original_Price"] {{ pd.b2c_price }}</div>
+                                                <span v-html="currency"></span> <h4 class="text-primary" v-html="pd.b2b_price"></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </template>
+                <div class="product-listview search-info" v-if="prods.length < 1">
+                    <div class="row">
+                        <div class="col-12 p-5">
+                            @Localizer["No_Matched_Product"]
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="overflow-auto" v-if="prods.length > 0">
+                    <b-pagination v-model="currentPage" @@change="Query()"
+                                  :total-rows="totalRows"
+                                  :per-page="perPage"
+                                  :limit="limit"
+                                  align="center" size="lg"></b-pagination>
+                    <p class="mt-3" v-html="`@Localizer["Current_Page"]: ${currentPage}`"></p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Loading Popup -->
+    <div class="popup-msg" id="popup1" v-show="isLoading">
+        <div class="row align-items-center h-100">
+            <div class="col-6 mx-auto">
+                <img id="loading" src="@Url.Content("~/images/loading-spin.gif")" style="width: 32px;" />
+                @Localizer["Search_Loading"]
+            </div>
+        </div>
+    </div>
+</div>
+
+
