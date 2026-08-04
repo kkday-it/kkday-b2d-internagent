@@ -139,10 +139,54 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public List<int> allowed_passenger_counts { get; set; }
     }
 
+    public class JrTranClassDto
+    {
+        public string title { get; set; }
+        public string description { get; set; }
+    }
+
+    public class JrSeatInfoDto
+    {
+        public string title { get; set; }
+        public string description { get; set; }
+    }
+
+    public class JrTicketRuleItemDto
+    {
+        public string key { get; set; }
+        public string name { get; set; }
+        public string spec_ticket { get; set; }
+        public string description { get; set; }
+        public JrTranClassDto tran_class { get; set; }
+        public JrSeatInfoDto seat { get; set; }
+        public string image { get; set; }
+    }
+
     public class JrTicketRuleDto
     {
         public int max_quantity { get; set; }
         public int min_quantity { get; set; }
+        public List<JrTicketRuleItemDto> rule_list { get; set; }
+    }
+
+    public class JrInfoContentDto
+    {
+        public string title { get; set; }
+        public List<string> items { get; set; }
+    }
+
+    public class JrInfoBlockDto
+    {
+        public string title { get; set; }
+        public string description { get; set; }
+        public List<JrInfoContentDto> contents { get; set; }
+    }
+
+    public class JrGuestConfigDto
+    {
+        public string spec { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
     }
 
     public class JrStepDetailDto
@@ -160,6 +204,12 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public List<JrSeatOptionDto> seat_options { get; set; }
         public JrTicketRuleDto ticket_rule { get; set; }
         public List<JrSchdDto> schd_list { get; set; }
+        public List<JrRouteLabelDto> labels { get; set; }
+        public JrInfoBlockDto specific_case_explanation { get; set; }
+        public JrInfoBlockDto pre_caution { get; set; }
+        public List<JrGuestConfigDto> guests_config { get; set; }
+        public JrInfoBlockDto how_to_use { get; set; }
+        public JrInfoBlockDto purchase_information { get; set; }
     }
 
     public class JrRouteDetailData

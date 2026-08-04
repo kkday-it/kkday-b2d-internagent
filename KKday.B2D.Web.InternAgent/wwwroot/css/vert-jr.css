@@ -688,6 +688,15 @@
 .jr-tag--promo     { color: #c0392b; background: #fdf0ef; }
 .jr-tag--sold-out  { color: #fff;    background: #999; }
 
+.train-class-card-info__check {
+    font-size: 2rem;
+    color: var(--jr-primary);
+}
+
+.train-class-card-info__check--empty {
+    color: var(--jr-border);
+}
+
 .train-class-card.is-sold-out { opacity: .6; }
 
 .jr-seat-types {
@@ -1243,6 +1252,13 @@
     overflow: hidden;
 }
 
+/* This card's jr-booking-trip__schd dropdown-menu must not be clipped when it opens,
+   so overflow can't stay hidden here — the title bar rounds its own top corners
+   instead, since it can no longer rely on the card clipping its edge-to-edge background. */
+.jr-booking-card--trip {
+    overflow: visible;
+}
+
 .jr-booking-card__title {
     display: flex;
     align-items: center;
@@ -1253,6 +1269,7 @@
     color: var(--jr-text);
     border-bottom: 1px solid var(--jr-border);
     background: #fafbfb;
+    border-radius: var(--jr-radius) var(--jr-radius) 0 0;
 }
 
 .jr-booking-card__title .fa {
@@ -1291,6 +1308,11 @@
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
+}
+
+.jr-booking-trip__date {
+    font-size: 1.2rem;
+    color: var(--jr-text-sub);
 }
 
 .jr-booking-trip__time {
@@ -1334,6 +1356,28 @@
 
 .jr-booking-trip__train {
     font-weight: 500;
+}
+
+.jr-booking-trip__schd-toggle {
+    font-size: 1.2rem;
+    padding: 2px 10px;
+}
+
+.jr-booking-trip__schd-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.3rem;
+    white-space: nowrap;
+}
+
+.jr-booking-trip__schd-time {
+    color: var(--jr-text-sub);
+    min-width: 44px;
+}
+
+.jr-booking-trip__schd-name {
+    color: var(--jr-text);
 }
 
 /* ── Trip Issuance Notice ───────────────────────────────────── */
@@ -1744,6 +1788,17 @@
     font-size: 2.6rem;
     font-weight: 700;
     line-height: 1;
+}
+
+.jr-price-total-row--b2b {
+    margin-top: 6px;
+}
+
+.jr-price-total-row--b2b .jr-price-total-row__label,
+.jr-price-total-row--b2b .jr-price-total-row__val {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--jr-text-light);
 }
 
 .jr-price-summary__notice {
@@ -2499,8 +2554,126 @@
     overflow-y: auto;
 }
 
-/* ── Cancel Policy List (Modal) ─────────────────────────────── */
-.jr-cancel-list {
+/* ── Ticket Detail Modal ────────────────────────────────────── */
+.jr-car-detail-modal__dialog {
+    max-width: 640px;
+}
+
+.jr-car-detail-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--jr-border);
+}
+
+.jr-car-detail-modal__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    overflow-x: auto;
+}
+
+.jr-car-detail-modal__tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 14px 10px;
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.jr-car-detail-modal__tab.is-active {
+    color: var(--jr-primary);
+    border-bottom-color: var(--jr-primary);
+    font-weight: 600;
+}
+
+.jr-car-detail-modal__close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--jr-text-sub);
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.jr-car-detail-modal__body {
+    padding: 20px;
+    max-height: 65vh;
+    overflow-y: auto;
+}
+
+.jr-car-detail-modal__section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    margin: 0 0 12px;
+}
+
+.jr-car-detail-modal__sub-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    margin: 20px 0 10px;
+}
+
+.jr-car-detail-modal__plan-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    margin-bottom: 4px;
+}
+
+.jr-car-detail-modal__plan-desc {
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+    line-height: 1.6;
+    margin: 0 0 12px;
+}
+
+.jr-car-detail-modal__image {
+    max-width: 100%;
+    border-radius: var(--jr-radius);
+    margin-bottom: 12px;
+}
+
+.jr-car-detail-modal__divider {
+    border-top: 1px dashed var(--jr-border);
+    margin: 20px 0;
+}
+
+.jr-car-detail-modal__list li {
+    font-size: 1.3rem;
+    color: var(--jr-text);
+    line-height: 1.7;
+    margin-bottom: 6px;
+}
+
+.jr-car-detail-modal__info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 12px 14px;
+    background: #f7f7f8;
+    border-radius: var(--jr-radius);
+    font-size: 1.2rem;
+    color: var(--jr-text-sub);
+    line-height: 1.6;
+}
+
+.jr-car-detail-modal__info-box .fa {
+    color: var(--jr-primary);
+    margin-top: 2px;
+}
+
+/* ── Cancel Table (Ticket Detail Modal) ─────────────────────── */
+.jr-cancel-table {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0;
@@ -2509,32 +2682,47 @@
     overflow: hidden;
 }
 
-.jr-cancel-list__item {
+.jr-cancel-table__head {
     display: contents;
 }
 
-.jr-cancel-list__title,
-.jr-cancel-list__value {
+.jr-cancel-table__head span {
     padding: 10px 14px;
-    font-size: 1.4rem;
-    border-bottom: 1px solid #dee2e6;
-    line-height: 1.5;
-}
-
-.jr-cancel-list__item:last-child .jr-cancel-list__title,
-.jr-cancel-list__item:last-child .jr-cancel-list__value {
-    border-bottom: none;
-}
-
-.jr-cancel-list__title {
+    font-size: 1.3rem;
     font-weight: 600;
     color: var(--jr-text);
     background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.jr-cancel-table__head span:first-child {
     border-right: 1px solid #dee2e6;
 }
 
-.jr-cancel-list__value {
+.jr-cancel-table__row {
+    display: contents;
+}
+
+.jr-cancel-table__time,
+.jr-cancel-table__fee {
+    padding: 10px 14px;
+    font-size: 1.3rem;
+    line-height: 1.5;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.jr-cancel-table__time {
+    border-right: 1px solid #dee2e6;
+    color: var(--jr-text);
+}
+
+.jr-cancel-table__fee {
     color: var(--jr-text-sub);
+}
+
+.jr-cancel-table__row:last-child .jr-cancel-table__time,
+.jr-cancel-table__row:last-child .jr-cancel-table__fee {
+    border-bottom: none;
 }
 
 /* ── Modal ──────────────────────────────────────────────── */
@@ -2870,6 +3058,27 @@
     flex-shrink: 0;
 }
 
+.train-class-card-info__price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    white-space: nowrap;
+}
+
+.train-class-card-detail-link {
+    padding: 0 16px 12px;
+    font-size: 1.2rem;
+}
+
+.train-class-card-detail-link__text {
+    color: var(--jr-primary);
+    cursor: pointer;
+}
+
+.train-class-card-detail-link__text:hover {
+    text-decoration: underline;
+}
+
 .train-class-card-info .title {
     font-size: 1.4rem;
     font-weight: 600;
@@ -2968,12 +3177,6 @@
     fill: var(--jr-text-sub);
 }
 
-.select-passenger-desc {
-    font-size: 1.3rem;
-    color: var(--jr-text-light);
-    margin: 0 0 12px;
-}
-
 .select-custom-item {
     display: flex;
     align-items: center;
@@ -3008,6 +3211,12 @@
     font-size: 1.4rem;
     font-weight: 500;
     color: var(--jr-text);
+}
+
+.item-title__price {
+    font-weight: 700;
+    color: var(--jr-text);
+    white-space: nowrap;
 }
 
 .item-desc {
@@ -3112,6 +3321,12 @@
     height: 22px;
     flex-shrink: 0;
     fill: var(--jr-primary-dark);
+}
+
+.how-to-use-section .hint .fa {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    color: var(--jr-primary-dark);
 }
 
 .how-to-use-section .hint__text {

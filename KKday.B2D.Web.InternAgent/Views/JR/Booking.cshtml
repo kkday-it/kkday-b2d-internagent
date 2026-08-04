@@ -37,6 +37,7 @@
 
 @section Styles {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/vue-select@latest/dist/vue-select.css">
     <link rel="stylesheet" href="@Url.Content("~/css/vert-jr.css")" asp-append-version="true" />
     <style>
@@ -76,13 +77,17 @@
                     </nav>
 
                     {{/* ① Confirm selected train number */}}
-                    <div class="jr-booking-card">
+                    <div class="jr-booking-card jr-booking-card--trip">
                         <div class="jr-booking-card__title">
                             <i class="fa fa-train"></i>@Localizer["JR_Booking_ConfirmTrain"]
                         </div>
                         <div class="jr-booking-trip">
                             <div class="jr-booking-trip__route">
                                 <div class="jr-booking-trip__station">
+                                    <div class="jr-label-badges" v-if="ticket.step.labels && ticket.step.labels.length">
+                                        <span v-for="label in ticket.step.labels" :key="label.name" class="badge jr-badge-primary">{{ label.name }}</span>
+                                    </div>
+                                    <span class="jr-booking-trip__date">{{ formatDate(query.depDate) }}</span>
                                     <span class="jr-booking-trip__time">{{ formatTime(ticket.depTime) }}</span>
                                     <span class="jr-booking-trip__name">{{ ticket.depName }}</span>
                                 </div>
@@ -93,12 +98,25 @@
                                     </div>
                                 </div>
                                 <div class="jr-booking-trip__station">
+                                    <span class="jr-booking-trip__date">{{ formatDate(query.arrDate || query.depDate) }}</span>
                                     <span class="jr-booking-trip__time">{{ formatTime(ticket.arrTime) }}</span>
                                     <span class="jr-booking-trip__name">{{ ticket.arrName }}</span>
                                 </div>
                             </div>
                             <div class="jr-booking-trip__meta" v-if="ticket.trainName">
                                 <span class="jr-booking-trip__train">{{ ticket.trainName }}</span>
+                                <div class="dropdown jr-booking-trip__schd" v-if="ticket.step.schdList && ticket.step.schdList.length">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle jr-booking-trip__schd-toggle"
+                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        @Localizer["JR_Booking_ViewStops"]
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li v-for="schd in ticket.step.schdList" :key="schd.schdName + schd.time" class="dropdown-item jr-booking-trip__schd-item">
+                                            <span class="jr-booking-trip__schd-time">{{ formatTime(schd.time) }}</span>
+                                            <span class="jr-booking-trip__schd-name">{{ schd.schdName }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -121,17 +139,15 @@
                                         </div>
                                     </div>
                                     <div class="train-class-card-info__right">
-                                        <div class="kk-price-text">
-                                            <div class="kk-price-local kk-price-local--lg">
-                                                <div class="kk-price-base">
-                                                    <div class="kk-price-base__origin kk-price-origin kk-price-origin--symbol">
-                                                        <div class="kk-price-local__currency--symbol">@displayCurrency</div>
-                                                        <div class="kk-price-local__normal">{{ formatPrice(ticketType.b2bPrice) }}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <span class="train-class-card-info__price">@displayCurrency{{ formatPrice(ticketType.mspPrice) }}</span>
+                                        <i class="bi bi-check2-circle train-class-card-info__check" v-if="selectedTicketType === ticketType.key"></i>
+                                        <i class="bi bi-circle train-class-card-info__check train-class-card-info__check--empty" v-else></i>
                                     </div>
+                                </div>
+                                <div class="train-class-card-detail-link">
+                                    <span class="train-class-card-detail-link__text" v-on:click.stop="openTicketDetail(ticketType)">
+                                        @Localizer["JR_Booking_ViewDetail"] <i class="fa fa-chevron-right"></i>
+                                    </span>
                                 </div>
                             </div>
                             <span class="jr-buyer-form__error" v-if="errors.ticket" style="display:block;margin-top:8px;">
@@ -143,25 +159,26 @@
                     {{/* ③ Select the number of tickets */}}
                     <div class="jr-booking-card">
                         <div class="select-passenger-section">
-                            <div class="section-title layout-u-mb-250">{{ qtyLabels.selectQty }}</div>
-                            <p class="select-passenger-desc">{{ minMaxHint }}</p>
-                            <div class="select-custom-item">
+                            <div class="section-title layout-u-mb-250">@Localizer["JR_Booking_SelectPassenger"]</div>
+                            <div class="select-custom-item" v-for="guest in (ticket.step.guestsConfig || [])" :key="guest.spec">
                                 <div class="item-title-block">
-                                    <div class="item-title">{{ selectedTicketTypeName || qtyLabels.selectQty }}</div>
+                                    <div class="item-title">{{ guest.name }}</div>
+                                    <div class="item-desc" v-if="guest.description">{{ guest.description }}</div>
                                 </div>
                                 <div class="pax-right">
+                                    <span class="item-title__price">@displayCurrency{{ formatPrice(guestPrice(guest.spec)) }}</span>
                                     <div class="number-select">
                                         <button type="button" class="counter-btn minus"
-                                                :class="{ disabled: passengerCount <= ticketRule.minQuantity }"
-                                                v-on:click="decrementQty">
+                                                :class="{ disabled: !canDecrementGuest(guest.spec) }"
+                                                v-on:click="decrementGuestQty(guest.spec)">
                                             <svg viewBox="0 0 24 24" class="kk-icon kk-icon--xs">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M3.25 12a1 1 0 011-1h16.5a1 1 0 110 2H4.25a1 1 0 01-1-1z"></path>
                                             </svg>
                                         </button>
-                                        <span class="counter-result">{{ passengerCount }}</span>
+                                        <span class="counter-result">{{ passengerCounts[guest.spec] || 0 }}</span>
                                         <button type="button" class="counter-btn plus"
-                                                :class="{ disabled: passengerCount >= ticketRule.maxQuantity }"
-                                                v-on:click="incrementQty">
+                                                :class="{ disabled: !canIncrementGuest(guest.spec) }"
+                                                v-on:click="incrementGuestQty(guest.spec)">
                                             <svg viewBox="0 0 24 24" class="kk-icon kk-icon--xs">
                                                 <path d="M13.5 4a1 1 0 10-2 0v7H4a1 1 0 100 2h7.5v7.5a1 1 0 102 0V13h7a1 1 0 100-2h-7V4z"></path>
                                             </svg>
@@ -290,19 +307,37 @@
                         </div>
                     </div>
 
-                    {{/* ⑥ 取消政策 */}}
-                    <div class="jr-booking-card">
+                    {{/* ⑥ How to Use */}}
+                    <div class="jr-booking-card" v-if="ticket.step.howToUse">
                         <div class="jr-booking-card__title">
-                            <i class="fa fa-question-circle"></i>@Localizer["JR_Booking_CancelPolicy"]
+                            <i class="fa fa-info-circle"></i>@Localizer["JR_Booking_HowToUse"]
                         </div>
-                        <div class="jr-notes-list" style="padding:14px 20px 16px;">
-                            <div class="jr-cancel-list" v-if="ticket.cancelDescription && ticket.cancelDescription.length">
-                                <div class="jr-cancel-list__item" v-for="item in ticket.cancelDescription" :key="item.title">
-                                    <div class="jr-cancel-list__title">{{ item.title }}</div>
-                                    <div class="jr-cancel-list__value">{{ item.value }}</div>
-                                </div>
+                        <div class="how-to-use-section">
+                            <div class="hint" v-if="ticket.step.howToUse.description">
+                                <i class="fa fa-lightbulb-o"></i>
+                                <span class="hint__text">{{ ticket.step.howToUse.description }}</span>
                             </div>
-                            <p class="text-muted" v-else>@Localizer["JR_Booking_NoCancelPolicy"]</p>
+                            <div v-for="(content, idx) in ticket.step.howToUse.contents" :key="idx">
+                                <div class="info-item-title" v-if="content.title">{{ content.title }}</div>
+                                <ul class="disc-list how-to-use-list">
+                                    <li v-for="(item, i) in content.items" :key="i">{{ item }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{/* ⑦ Purchase Information */}}
+                    <div class="jr-booking-card" v-if="ticket.step.purchaseInformation">
+                        <div class="jr-booking-card__title">
+                            <i class="fa fa-file-text-o"></i>@Localizer["JR_Booking_PurchaseInfo"]
+                        </div>
+                        <div class="booking-info-section">
+                            <div class="booking-info-item" v-for="(content, idx) in ticket.step.purchaseInformation.contents" :key="idx">
+                                <div class="info-item-title" v-if="content.title">{{ content.title }}</div>
+                                <ul class="disc-list info-item-list">
+                                    <li v-for="(item, i) in content.items" :key="i">{{ item }}</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
 
@@ -313,15 +348,25 @@
                     <div class="jr-price-summary">
                         <div class="jr-price-summary__title">@Localizer["JR_Booking_CostBreakdown"]</div>
                         <div class="jr-price-summary__block">
-                            <div class="jr-price-row" v-if="selectedTicketTypeName">
-                                <span class="jr-price-row__label">{{ selectedTicketTypeName }} × {{ passengerCount }}</span>
-                                <span class="jr-price-row__val">@displayCurrency{{ formatPrice(unitPrice * passengerCount) }}</span>
-                            </div>
+                            <template v-for="row in priceBreakdownRows">
+                                <div class="jr-price-row" :key="row.spec + '-price'">
+                                    <span class="jr-price-row__label">{{ row.label }} × {{ row.qty }}</span>
+                                    <span class="jr-price-row__val">@displayCurrency{{ formatPrice(row.subtotal) }}</span>
+                                </div>
+                                <div class="jr-price-row" :key="row.spec + '-fee'">
+                                    <span class="jr-price-row__label">@Localizer["JR_Booking_BookingFee"]</span>
+                                    <span class="jr-price-row__val">@displayCurrency{{ formatPrice(row.feeSubtotal) }}</span>
+                                </div>
+                            </template>
                         </div>
                         <div class="jr-price-summary__divider"></div>
                         <div class="jr-price-total-row">
                             <span class="jr-price-total-row__label">@Localizer["JR_Booking_Total"]</span>
                             <span class="jr-price-total-row__val">@displayCurrency<strong>{{ formatPrice(totalPrice) }}</strong></span>
+                        </div>
+                        <div class="jr-price-total-row jr-price-total-row--b2b">
+                            <span class="jr-price-total-row__label">@Localizer["JR_Booking_B2BReceived"]</span>
+                            <span class="jr-price-total-row__val">@displayCurrency{{ formatPrice(b2bTotal) }}</span>
                         </div>
                         <button class="jr-btn-confirm" type="button" v-on:click="confirmOrder" :disabled="isSubmitting || !canSubmit">
                             <i class="fa fa-lock"></i>
@@ -334,6 +379,82 @@
                 </div>{{/* end jr-booking-sidebar */}}
 
             </div>{{/* end jr-booking-layout */}}
+        </div>
+    </div>
+
+    {{/* ── Ticket Detail Modal ── */}}
+    <div class="modal" tabindex="-1" role="dialog"
+         v-if="showTicketDetail"
+         v-on:click.self="closeTicketDetail"
+         style="display:block; background:rgba(0,0,0,.5); z-index:2000;">
+        <div role="document" class="modal-dialog modal-dialog-centered jr-car-detail-modal__dialog">
+            <div class="modal-content">
+                <div class="jr-car-detail-modal__header">
+                    <div class="jr-car-detail-modal__tabs">
+                        <button type="button" class="jr-car-detail-modal__tab"
+                                v-for="t in ticketTypes" :key="t.key"
+                                :class="{ 'is-active': activeTicketDetailKey === t.key }"
+                                v-on:click="selectTicketDetailTab(t.key)">
+                            {{ t.name }}
+                        </button>
+                    </div>
+                    <button type="button" class="jr-car-detail-modal__close" v-on:click="closeTicketDetail"><span>&times;</span></button>
+                </div>
+                <div class="modal-body jr-car-detail-modal__body">
+                    <template v-if="ticketDetailRule">
+                        <h4 class="jr-car-detail-modal__section-title">@Localizer["JR_Booking_Tab_Plan"]</h4>
+                        <div class="jr-car-detail-modal__plan-title" v-if="ticketDetailRule.tranClassTitle">{{ ticketDetailRule.tranClassTitle }}</div>
+                        <p class="jr-car-detail-modal__plan-desc" v-if="ticketDetailRule.tranClassDescription">{{ ticketDetailRule.tranClassDescription }}</p>
+                        <img v-if="ticketDetailRule.image" :src="ticketDetailRule.image" alt="" class="jr-car-detail-modal__image">
+                        <div class="jr-car-detail-modal__plan-title" v-if="ticketDetailRule.seatTitle">{{ ticketDetailRule.seatTitle }}</div>
+                        <p class="jr-car-detail-modal__plan-desc" v-if="ticketDetailRule.seatDescription">{{ ticketDetailRule.seatDescription }}</p>
+                    </template>
+
+                    <div class="jr-car-detail-modal__divider"></div>
+
+                    <h4 class="jr-car-detail-modal__section-title">@Localizer["JR_Booking_CancelPolicy"]</h4>
+
+                    <template v-if="ticket.cancelDescription && ticket.cancelDescription.length">
+                        <h5 class="jr-car-detail-modal__sub-title">@Localizer["JR_Booking_CancelConditionTitle"]</h5>
+                        <div class="jr-cancel-table">
+                            <div class="jr-cancel-table__head">
+                                <span>@Localizer["JR_Booking_CancelTimeCol"]</span>
+                                <span>@Localizer["JR_Booking_CancelFeeCol"]</span>
+                            </div>
+                            <div class="jr-cancel-table__row" v-for="item in ticket.cancelDescription" :key="item.title">
+                                <span class="jr-cancel-table__time">{{ item.title }}</span>
+                                <span class="jr-cancel-table__fee">{{ item.value }}</span>
+                            </div>
+                        </div>
+                    </template>
+                    <p class="text-muted" v-else>@Localizer["JR_Booking_NoCancelPolicy"]</p>
+
+                    <template v-if="ticket.step.specificCaseExplanation">
+                        <h5 class="jr-car-detail-modal__sub-title">@Localizer["JR_Booking_Tab_SpecificCase"]</h5>
+                        <div v-for="(content, idx) in ticket.step.specificCaseExplanation.contents" :key="'case'+idx">
+                            <h6 v-if="content.title">{{ content.title }}</h6>
+                            <ul class="disc-list jr-car-detail-modal__list">
+                                <li v-for="(item, i) in content.items" :key="i">{{ item }}</li>
+                            </ul>
+                        </div>
+                    </template>
+
+                    <template v-if="ticket.step.preCaution">
+                        <h5 class="jr-car-detail-modal__sub-title">@Localizer["JR_Booking_Tab_Precaution"]</h5>
+                        <div v-for="(content, idx) in ticket.step.preCaution.contents" :key="'pre'+idx">
+                            <h6 v-if="content.title">{{ content.title }}</h6>
+                            <ul class="disc-list jr-car-detail-modal__list">
+                                <li v-for="(item, i) in content.items" :key="i">{{ item }}</li>
+                            </ul>
+                        </div>
+                    </template>
+
+                    <div class="jr-car-detail-modal__info-box">
+                        <i class="fa fa-info-circle"></i>
+                        <span>@Localizer["common_cancel_policy_explanation"]</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -388,7 +509,7 @@
                 ticketTypes: [],
                 seatOptionFee: [],
                 selectedTicketType: '',
-                passengerCount: 1,
+                passengerCounts: {},
                 ticketRule: { minQuantity: 1, maxQuantity: 9 },
                 selectedSeatPref: 'none',
                 form: {
@@ -405,13 +526,14 @@
                 errors: {},
                 submitError: '',
                 showPriceChanged: false,
+                showTicketDetail: false,
+                activeTicketDetailKey: '',
                 isSubmitting: false,
                 orderNo: '',
                 query: {},
                 countryOptions: [],
                 _root_path: _root_path,
-                bookingI18n: bookingI18n,
-                qtyLabels: { selectQty: bookingI18n.selectQty }
+                bookingI18n: bookingI18n
             },
 
             computed: {
@@ -429,10 +551,6 @@
                     return t ? t.name : '';
                 },
 
-                minMaxHint: function () {
-                    return `${this.ticketRule.minQuantity} - ${this.ticketRule.maxQuantity}`;
-                },
-
                 availableSeatPrefs: function () {
                     const self = this;
                     const baseTicket = this.ticketTypes.find(x => x.key === this.selectedTicketType);
@@ -445,23 +563,46 @@
                     });
                 },
 
-                seatRate: function () {
-                    const fee = this.seatOptionFee.find(f => f.key === this.selectedSeatPref);
-                    return fee ? fee.rate : 1;
-                },
-
-                unitPrice: function () {
-                    const t = this.ticketTypes.find(x => x.key === this.selectedTicketType);
-                    return t ? t.b2bPrice * this.seatRate : 0;
+                priceBreakdownRows: function () {
+                    const self = this;
+                    const plan = this.ticketTypes.find(x => x.key === this.selectedTicketType);
+                    if (!plan) return [];
+                    const guests = (this.ticket && this.ticket.step && this.ticket.step.guestsConfig) || [];
+                    return guests.map(function (g) {
+                        const qty = self.passengerCounts[g.spec] || 0;
+                        const priceInfo = plan.prices[g.spec] || {};
+                        return {
+                            spec: g.spec,
+                            label: `${plan.name} (${g.name})`,
+                            qty: qty,
+                            subtotal: (priceInfo.mspPrice || 0) * qty,
+                            feeSubtotal: (priceInfo.bookingFee || 0) * qty,
+                            b2bSubtotal: (priceInfo.b2bPrice || 0) * qty
+                        };
+                    }).filter(function (row) { return row.qty > 0; });
                 },
 
                 totalPrice: function () {
-                    return this.unitPrice * this.passengerCount;
+                    return this.priceBreakdownRows.reduce((sum, row) => sum + row.subtotal + row.feeSubtotal, 0);
+                },
+
+                b2bTotal: function () {
+                    return this.priceBreakdownRows.reduce((sum, row) => sum + row.b2bSubtotal, 0);
                 },
 
                 canSubmit: function () {
                     return !!(this.form.firstName && this.form.lastName && this.form.email &&
                         this.form.country && this.form.phoneCountryCode && this.form.phone && this.form.clientEmail);
+                },
+
+                activeTicketDetailType: function () {
+                    return this.ticketTypes.find(t => t.key === this.activeTicketDetailKey) || null;
+                },
+
+                ticketDetailRule: function () {
+                    if (!this.activeTicketDetailType) return null;
+                    const ruleList = (this.ticketRule && this.ticketRule.ruleList) || [];
+                    return ruleList.find(r => r.name === this.activeTicketDetailType.name) || null;
                 }
             },
 
@@ -471,12 +612,47 @@
                     this.errors.ticket = '';
                 },
 
-                incrementQty: function () {
-                    if (this.passengerCount < this.ticketRule.maxQuantity) this.passengerCount++;
+                openTicketDetail: function (ticketType) {
+                    this.activeTicketDetailKey = ticketType.key;
+                    this.showTicketDetail = true;
                 },
 
-                decrementQty: function () {
-                    if (this.passengerCount > this.ticketRule.minQuantity) this.passengerCount--;
+                selectTicketDetailTab: function (key) {
+                    this.activeTicketDetailKey = key;
+                },
+
+                closeTicketDetail: function () {
+                    this.showTicketDetail = false;
+                    this.activeTicketDetailKey = '';
+                },
+
+                totalPassengerCount: function () {
+                    const counts = this.passengerCounts || {};
+                    return Object.keys(counts).reduce((sum, k) => sum + (counts[k] || 0), 0);
+                },
+
+                canIncrementGuest: function (spec) {
+                    return this.totalPassengerCount() < this.ticketRule.maxQuantity;
+                },
+
+                canDecrementGuest: function (spec) {
+                    return (this.passengerCounts[spec] || 0) > 0 && this.totalPassengerCount() > this.ticketRule.minQuantity;
+                },
+
+                incrementGuestQty: function (spec) {
+                    if (!this.canIncrementGuest(spec)) return;
+                    this.$set(this.passengerCounts, spec, (this.passengerCounts[spec] || 0) + 1);
+                },
+
+                decrementGuestQty: function (spec) {
+                    if (!this.canDecrementGuest(spec)) return;
+                    this.$set(this.passengerCounts, spec, this.passengerCounts[spec] - 1);
+                },
+
+                guestPrice: function (spec) {
+                    const plan = this.ticketTypes.find(t => t.key === this.selectedTicketType);
+                    if (!plan || !plan.prices[spec]) return 0;
+                    return plan.prices[spec].mspPrice;
                 },
 
                 formatTime: function (raw) {
@@ -484,6 +660,13 @@
                     const str = String(raw).replace(/\D/g, '');
                     if (str.length !== 4) return raw;
                     return str.slice(0, 2) + ':' + str.slice(2);
+                },
+
+                formatDate: function (raw) {
+                    if (!raw) return '';
+                    const str = String(raw).replace(/\D/g, '');
+                    if (str.length !== 8) return raw;
+                    return str.slice(0, 4) + '-' + str.slice(4, 6) + '-' + str.slice(6, 8);
                 },
 
                 formatDuration: function (raw) {
@@ -505,7 +688,7 @@
 
                 validate: function () {
                     const errors = {};
-                    if (!this.selectedTicketType) errors.ticket = bookingI18n.selectTicket;
+                    if (!this.selectedTicketType || this.totalPassengerCount() < 1) errors.ticket = bookingI18n.selectTicket;
                     if (!this.form.firstName) errors.firstName = bookingI18n.required;
                     if (!this.form.lastName) errors.lastName = bookingI18n.required;
                     if (!this.form.email) errors.email = bookingI18n.required;
@@ -519,10 +702,20 @@
 
                 buildPayload: function () {
                     const step = this.ticket.step;
+                    const guests = step.guestsConfig || [];
+                    const plan = this.ticketTypes.find(x => x.key === this.selectedTicketType);
                     const seats = [];
-                    for (let i = 0; i < this.passengerCount; i++) {
-                        seats.push({ stepKey: step.stepKey, seatType: this.selectedSeatPref || 'none' });
-                    }
+                    const ticketQty = [];
+                    guests.forEach(g => {
+                        const qty = this.passengerCounts[g.spec] || 0;
+                        if (qty <= 0) return;
+                        const priceInfo = plan && plan.prices[g.spec];
+                        const fullKey = priceInfo ? priceInfo.key : `${g.spec}:${this.selectedTicketType}`;
+                        ticketQty.push({ key: fullKey, qty: qty, name: `${this.selectedTicketTypeName} (${g.name})` });
+                        for (let i = 0; i < qty; i++) {
+                            seats.push({ stepKey: step.stepKey, seatType: this.selectedSeatPref || 'none' });
+                        }
+                    });
                     return {
                         locale: this.query.locale,
                         state: this.query.state,
@@ -545,8 +738,8 @@
                             key: o.key, name: o.name, allowedSeatType: o.allowedSeatType, allowedPassengerCounts: o.allowedPassengerCounts
                         })),
                         seats: seats,
-                        ticketQty: [{ key: this.selectedTicketType, qty: this.passengerCount, name: this.selectedTicketTypeName }],
-                        totalPrice: this.totalPrice,
+                        ticketQty: ticketQty,
+                        totalPrice: this.b2bTotal,
                         buyerFirstName: this.form.firstName,
                         buyerLastName: this.form.lastName,
                         buyerEmail: this.form.email,
@@ -606,12 +799,39 @@
                         });
                         const data = response.data;
                         this.seatOptionFee = data.seatOptionFee || [];
-                        this.ticketTypes = (data.ticketList || []).map(t => ({
-                            key: t.key,
-                            name: t.name,
-                            b2bPrice: t.b2bPrice,
-                            isSoldOut: (t.sellableStatus || '').toLowerCase() !== 'sellable' && !!t.sellableStatus
-                        }));
+
+                        // ticket_list has one row per guest spec (adult/child/...) of the same plan,
+                        // sharing the same "name". Group by name so the ticket list shows one row per
+                        // plan (avoiding duplicate rows), keeping each spec's own key/price around for
+                        // the passenger-count section — matched to guests_config via specTicket <-> spec.
+                        const plans = {};
+                        (data.ticketList || []).forEach(function (t) {
+                            const groupKey = t.name;
+                            if (!plans[groupKey]) plans[groupKey] = { key: groupKey, name: t.name, prices: {} };
+                            plans[groupKey].prices[t.specTicket] = {
+                                key: t.key,
+                                mspPrice: t.mspPrice,
+                                b2bPrice: t.b2bPrice,
+                                bookingFee: t.bookingFee,
+                                isSoldOut: (t.sellableStatus || '').toUpperCase() !== 'AVAILABLE'
+                            };
+                        });
+
+                        this.ticketTypes = Object.keys(plans).map(function (groupKey) {
+                            const plan = plans[groupKey];
+                            const specs = Object.keys(plan.prices);
+                            const primarySpec = specs.indexOf('adult') !== -1 ? 'adult' : specs[0];
+                            const primary = plan.prices[primarySpec] || { mspPrice: 0, b2bPrice: 0, isSoldOut: true };
+                            return {
+                                key: plan.key,
+                                name: plan.name,
+                                prices: plan.prices,
+                                mspPrice: primary.mspPrice,
+                                b2bPrice: primary.b2bPrice,
+                                isSoldOut: specs.every(function (s) { return plan.prices[s].isSoldOut; })
+                            };
+                        });
+
                         if (!this.ticketTypes.find(t => t.key === this.selectedTicketType)) {
                             const firstAvailable = this.ticketTypes.find(t => !t.isSoldOut) || this.ticketTypes[0];
                             this.selectedTicketType = firstAvailable ? firstAvailable.key : '';
@@ -686,7 +906,15 @@
                     }
 
                     this.ticketRule = step.ticketRule || { minQuantity: 1, maxQuantity: 9 };
-                    this.passengerCount = this.ticketRule.minQuantity || 1;
+
+                    const guests = (step.guestsConfig && step.guestsConfig.length)
+                        ? step.guestsConfig
+                        : [{ spec: 'adult', name: '', description: '' }];
+                    const passengerCounts = {};
+                    guests.forEach((g, idx) => {
+                        passengerCounts[g.spec] = idx === 0 ? (this.ticketRule.minQuantity || 1) : 0;
+                    });
+                    this.passengerCounts = passengerCounts;
 
                     this.ticket = {
                         step: step,

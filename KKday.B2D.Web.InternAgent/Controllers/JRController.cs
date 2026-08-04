@@ -176,17 +176,53 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 ticketRule = new
                 {
                     minQuantity = s.ticket_rule?.min_quantity ?? 1,
-                    maxQuantity = s.ticket_rule?.max_quantity ?? 9
+                    maxQuantity = s.ticket_rule?.max_quantity ?? 9,
+                    ruleList = (s.ticket_rule?.rule_list ?? new List<JrTicketRuleItemDto>()).Select(r => new
+                    {
+                        key = r.key,
+                        name = r.name,
+                        tranClassTitle = r.tran_class?.title,
+                        tranClassDescription = r.tran_class?.description,
+                        seatTitle = r.seat?.title,
+                        seatDescription = r.seat?.description,
+                        image = r.image
+                    })
                 },
                 schdList = (s.schd_list ?? new List<JrSchdDto>()).Select(schd => new
                 {
                     schdName = schd.schd_name,
                     time = schd.time,
                     meetTime = schd.meet_time
-                })
+                }),
+                labels = (s.labels ?? new List<JrRouteLabelDto>()).Select(l => new { name = l.name }),
+                specificCaseExplanation = MapInfoBlock(s.specific_case_explanation),
+                preCaution = MapInfoBlock(s.pre_caution),
+                guestsConfig = (s.guests_config ?? new List<JrGuestConfigDto>()).Select(g => new
+                {
+                    spec = g.spec,
+                    name = g.name,
+                    description = g.description
+                }),
+                howToUse = MapInfoBlock(s.how_to_use),
+                purchaseInformation = MapInfoBlock(s.purchase_information)
             });
 
             return Ok(new { routeKey = resp.data?.route_key, stepDetailList });
+        }
+
+        private static object MapInfoBlock(JrInfoBlockDto block)
+        {
+            if (block == null) return null;
+            return new
+            {
+                title = block.title,
+                description = block.description,
+                contents = (block.contents ?? new List<JrInfoContentDto>()).Select(c => new
+                {
+                    title = c.title,
+                    items = c.items ?? new List<string>()
+                })
+            };
         }
 
         [HttpGet("fare")]
@@ -207,7 +243,8 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                     specTicket = t.spec_ticket,
                     sellableStatus = t.sellable_status,
                     mspPrice = t.price_detail?.msp_price ?? 0,
-                    b2bPrice = t.price_detail?.b2b_price ?? 0
+                    b2bPrice = t.price_detail?.b2b_price ?? 0,
+                    bookingFee = t.price_detail?.b2c_booking_fee ?? 0
                 })
             });
         }
