@@ -4,11 +4,14 @@ This project is a demonstration based on KKday B2D API version 4.0 (<a href="htt
 
 The PMDL(Product Model Definition Layer) will be presented and composite into whole product page. The purpose of BookingField (Order Model Definition Layer) is a conditon which satisfy to supplier operation, and this project shows you how to transform required fields into BookingModel for booking. We also show you inline BookingModel during you fill in information on Web page. 
 
+The newly launched Vertical series offers a different ordering experience, the main difference being the integration of products and pricing information, providing fully dynamic product and price data, allowing for closer alignment with customer needs and faster responses. Firstly, it's launched by **Japan Railways (JR)**, the only platform in the Asian market offering peer ordering; refer to the new specifications, Vert-JR API (<a href="https://api-b2d.kkday.com/vert/jr/Redoc">link</a>).
+
 You must be approved distributors(agents) on SIT environment fisrt, then to get a token key of API account through B2D website.
 
 Support languages:
 1. zh-TW (https://localhost:5001/zh-tw/) 
 2. en-US (https://localhost:5001/en-us/)
+
 
 Licensing
 ==============
