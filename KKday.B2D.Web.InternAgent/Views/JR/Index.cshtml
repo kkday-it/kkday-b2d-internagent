@@ -619,11 +619,11 @@
 
     {{/* Footer */}}
     <div class="footer-info">
-        <p class="title">JR公認時刻情報</p>
-        <p class="text">換乘指南數據 © 2026 Jorudan Co.,Ltd.<br>基於2022年193-1號<br>數據來源於 KOTSU SHIMBUNSHA CO.,LTD. 在 2026 年 7 月發布的 JR 時刻表。未經許可，禁止將這些數據重印、複製或轉移到紙張、電子產品或任何其他形式的媒體上</p>
+        <p class="title">@Localizer["JR_Footer_Title"]</p>
+        <p class="text">@Html.Raw(Localizer["JR_Footer_Notice"].Value)</p>
     </div>
 
-    @* 查無列車資訊 *@
+    @* No train infomation *@
     <div id="jr-no-detail-modal" class="modal fade" tabindex="-1" role="dialog" style="top:50px">
         <div class="modal-dialog" role="document" style="width:400px">
             <div class="modal-content">

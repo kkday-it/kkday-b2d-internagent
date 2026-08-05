@@ -33,6 +33,46 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public double refund_price { get; set; }
         public string? unit { get; set; }
         public string? guide_lang { get; set; }
+        public VerticalJrModel? vertical_jr { get; set; }
+    }
+
+    public class VerticalJrModel
+    {
+        public VerticalJrRouteModel? route { get; set; }
+        public List<VerticalJrTicketModel>? tickets { get; set; }
+        public List<VerticalJrCancelModel>? cancel { get; set; }
+    }
+
+    public class VerticalJrRouteModel
+    {
+        public string? dep_name { get; set; }
+        public string? dep_date { get; set; }
+        public string? dep_time { get; set; }
+        public string? arr_name { get; set; }
+        public string? arr_date { get; set; }
+        public string? arr_time { get; set; }
+    }
+
+    public class VerticalJrTicketModel
+    {
+        public string? name { get; set; }
+        public int qty { get; set; }
+    }
+
+    public class VerticalJrCancelModel
+    {
+        public VerticalJrCancelDescriptionModel? description { get; set; }
+    }
+
+    public class VerticalJrCancelDescriptionModel
+    {
+        public List<VerticalJrCancelItemModel>? list { get; set; }
+    }
+
+    public class VerticalJrCancelItemModel
+    {
+        public string? title { get; set; }
+        public string? value { get; set; }
     }
 
     public class OrderCustom

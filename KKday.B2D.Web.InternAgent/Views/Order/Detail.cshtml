@@ -126,7 +126,7 @@
                                         <div class="critical-info">
                                             <i class="icons icon-user"></i>
                                             @Localizer["Buyer_Name"]：
-                                            <span>{{ order.buyer_first_name }}{{ order.buyer_last_name }}</span>
+                                            <span>{{ order.buyer_first_name }} {{ order.buyer_last_name }}</span>
                                         </div>
                                         <div class="critical-info">
                                             <i class="icons icon-envelope"></i>
@@ -183,6 +183,11 @@
                                         <li class="nav-item">
                                             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#order-tab" type="button" role="tab" aria-controls="order-tab" aria-selected="false">
                                                 @Localizer["Tab_Order_Detail"]
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" v-if="order.vertical_jr">
+                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#jr-tab" type="button" role="tab" aria-controls="jr-tab" aria-selected="false">
+                                                @Localizer["Tab_JR_Notice"]
                                             </button>
                                         </li>
                                     </ul>
@@ -510,6 +515,59 @@
                                                     {{ order.order_note }}
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tab: JR Notice -->
+                                    <div class="tab-pane fade" id="jr-tab" v-if="order.vertical_jr">
+                                        <div class="info-section" v-if="order.vertical_jr.route">
+                                            <h4 class="sub-title">@Localizer["JR_Route_Info"]</h4>
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="fill-group">
+                                                        <label>@Localizer["JR_From"]</label>
+                                                        {{ order.vertical_jr.route.dep_name }} ({{ order.vertical_jr.route.dep_date }} {{ order.vertical_jr.route.dep_time }})
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="fill-group">
+                                                        <label>@Localizer["JR_To"]</label>
+                                                        {{ order.vertical_jr.route.arr_name }} ({{ order.vertical_jr.route.arr_date }} {{ order.vertical_jr.route.arr_time }})
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="info-section" v-if="order.vertical_jr.tickets && order.vertical_jr.tickets.length">
+                                            <h4 class="sub-title">@Localizer["JR_Tickets_Seats"]</h4>
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>@Localizer["JR_Seat"]</th>
+                                                        <th>@Localizer["JR_Qty"]</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="(ticket, idx) in order.vertical_jr.tickets" :key="idx">
+                                                        <td>{{ ticket.name }}</td>
+                                                        <td>{{ ticket.qty }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="info-section" v-if="order.vertical_jr.cancel && order.vertical_jr.cancel.length">
+                                            <h4 class="sub-title">@Localizer["Cancellation_Policy"]</h4>
+                                            <template v-for="(c, idx) in order.vertical_jr.cancel">
+                                                <table class="table" :key="idx" v-if="c.description && c.description.list">
+                                                    <tbody>
+                                                        <tr v-for="(item, i) in c.description.list" :key="i">
+                                                            <td>{{ item.title }}</td>
+                                                            <td>{{ item.value }}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </template>
                                         </div>
                                     </div>
 
