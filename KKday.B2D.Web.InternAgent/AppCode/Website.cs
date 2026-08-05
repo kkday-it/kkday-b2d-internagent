@@ -11,6 +11,9 @@ namespace KKday.B2D.Web.InternAgent.AppCode
         public string KKdayApiUrl { get; private set; }
         public string KKdayApiAuthorizeToken { get; private set; }
 
+        public string VertJrApiUrl { get; private set; }
+        public string VertJrApiAuthorizeToken { get; private set; }
+
         public string Currency  { get; private set; }
         public string Marketing  { get; private set; }
      
@@ -25,6 +28,8 @@ namespace KKday.B2D.Web.InternAgent.AppCode
         {
             this.KKdayApiUrl = config["KKdayApi:Url"];
             this.KKdayApiAuthorizeToken = config["KKdayApi:AuthorToken"];
+            this.VertJrApiUrl = config["VertJrApi:Url"];
+            this.VertJrApiAuthorizeToken = config["VertJrApi:AuthorToken"];
             this.Currency = config["Currency"];
             this.Marketing = config["Marketing"];
         }

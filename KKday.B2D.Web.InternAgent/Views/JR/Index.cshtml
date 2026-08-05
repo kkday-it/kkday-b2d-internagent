@@ -1,0 +1,1417 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using KKday.B2D.Web.InternAgent.AppCode
+
+@inject IViewLocalizer Localizer
+@{
+    Layout = "_KKdayLayout";
+    ViewData["Title"] = Localizer["Title_JapanRailway"].Value;
+    var rawCurrency = Website.Instance.Currency ?? "NT$";
+    var displayCurrency = rawCurrency == "TWD" ? "NT$" : rawCurrency;
+    // The SIT vert/jr account behind Website.Instance.VertJrApiAuthorizeToken is provisioned for state=VN only,
+    var vertJrLocale = LocaleMapHelper.RfcToKKday(CultureInfo.CurrentCulture.Name);
+    var vertJrState = Website.Instance.Marketing;
+    // Serialize as JSON (not string-interpolated) so translations containing quotes
+    // can't break out of the JS string literal below. Restrict the encoder to Basic
+    // Latin so non-ASCII text is \uXXXX-escaped too, alongside quotes/</>/&.
+    var jrI18nOptions = new System.Text.Json.JsonSerializerOptions
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.BasicLatin)
+    };
+    var jrI18nJson = System.Text.Json.JsonSerializer.Serialize(new
+    {
+        noStationFound = Localizer["JR_NoStationFound"].Value,
+        loading = Localizer["JR_Loading"].Value,
+        noRouteInfo = Localizer["JR_NoRouteInfo"].Value,
+        loadFailed = Localizer["JR_LoadFailed"].Value,
+        weekDays = Localizer["JR_WeekDays"].Value.Split(','),
+        hourSuffix = Localizer["JR_HourSuffix"].Value,
+        minuteSuffix = Localizer["JR_MinuteSuffix"].Value
+    }, jrI18nOptions).Replace("<", "\\u003c");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="@Url.Content("~/css/vert-jr.css")" asp-append-version="true" />
+    <style>
+        #jr-app [v-cloak] { display: none; }
+
+        /* kkday_app.css forces a fixed header height (57px / 50px on mobile) that Home/Index.cshtml
+           never loads, so its header sizes itself naturally. Reset back to that here. */
+        header {
+            height: auto;
+        }
+
+        .jr-pre-sell-badge {
+            font-size: 10px;
+            line-height: 1;
+            color: #fff;
+            background: var(--jr-primary);
+            border-radius: 3px;
+            padding: 1px 4px;
+            margin-top: 3px;
+            display: inline-block;
+        }
+
+        .day-block.is-beyond-max-date {
+            cursor: not-allowed !important;
+            opacity: .4;
+        }
+
+        .search-result-card .train-card-item .station-info-block {
+            gap: 12px;
+        }
+
+        /* override fixed widths so jr-booking-trip__middle fits between dep/arr */
+        .search-result-card .train-card-item .station-info {
+            align-items: center;
+        }
+
+        .search-result-card .train-card-item .dep-section {
+            width: auto;
+            flex: 1;
+        }
+
+        .search-result-card .train-card-item .arr-block {
+            width: auto;
+            flex: 1;
+            text-align: right;
+        }
+
+        .jr-label-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .jr-popover-stop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .jr-popover-stop__time {
+            min-width: 40px;
+            color: #6b6c72;
+            flex-shrink: 0;
+        }
+
+        .jr-popover-stop__name {
+            color: #1a1b1e;
+        }
+
+        .jr-scroll-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 9997;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--jr-primary);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s, background .15s;
+        }
+
+        .jr-scroll-top.is-visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .jr-scroll-top:hover {
+            background: var(--jr-primary-dark);
+        }
+
+        .kk-button--primary:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .jr-badge-primary {
+            background-color: var(--jr-primary);
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .jr-time {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a1b1e;
+        }
+
+        .jr-loading-more {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--jr-primary);
+            font-size: 1.4rem;
+        }
+
+        .jr-booking-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .jr-booking-overlay .fa {
+            font-size: 3.2rem;
+            color: #fff;
+        }
+
+        .jr-booking-overlay p {
+            font-size: 1.6rem;
+            color: #fff;
+            margin: 0;
+        }
+
+        @@keyframes jr-shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .jr-skeleton-wrap {
+            position: relative;
+        }
+
+        .jr-skeleton-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(225,225,225,0.82) 25%, rgba(248,248,248,0.55) 50%, rgba(225,225,225,0.82) 75%);
+            background-size: 200% 100%;
+            animation: jr-shimmer 1.5s infinite linear;
+            border-radius: 6px;
+            cursor: not-allowed;
+        }
+
+        .jr-station-group-header {
+            padding: 6px 12px 4px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #9c9da0;
+            letter-spacing: 0.4px;
+            background: #f7f7f8;
+            border-top: 1px solid #ebebeb;
+            cursor: pointer;
+        }
+
+        .jr-station-group-header:hover {
+            background: #efefef;
+        }
+
+        .jr-station-group-header:first-child {
+            border-top: none;
+        }
+
+        .jr-station-option {
+            padding-left: 20px;
+        }
+    </style>
+}
+
+<div id="jr-app" v-cloak>
+
+    {{/* ── Search Block ── */}}
+    <div class="search-block">
+        <div class="container">
+            <div id="search-form" class="search-form-desktop">
+                <div class="search-input-section">
+
+                    {{/* Departure Station */}}
+                    <div class="form-group dep-location">
+                        <label>@Localizer["JR_Label_Departure"]<span style="color:#e65f50;margin-left:2px;">*</span></label>
+                        <div class="jr-skeleton-wrap">
+                        <div class="search-input-item">
+                            <div class="jr-station-dropdown" :class="{ 'is-open': stationDropdown.departure.open }">
+                                <div class="jr-station-trigger" v-on:click="openStationDropdown('departure')">
+                                    <span class="jr-station-trigger__text" v-if="departureStationName">{{ departureStationName }}</span>
+                                    <span class="jr-station-trigger__placeholder" v-else>@Localizer["JR_Placeholder_SelectDeparture"]</span>
+                                    <i class="fa fa-chevron-down jr-station-trigger__arrow"></i>
+                                </div>
+                                <div class="jr-station-panel" v-show="stationDropdown.departure.open">
+                                    <div class="jr-station-search">
+                                        <i class="fa fa-search"></i>
+                                        <input type="text"
+                                               ref="departureSearchInput"
+                                               v-model="stationDropdown.departure.query"
+                                               v-on:blur="scheduleCloseStationDropdown('departure')"
+                                               placeholder="@Localizer["JR_Placeholder_SearchStation"]"
+                                               autocomplete="off" />
+                                        <button class="jr-station-search-clear" type="button"
+                                                v-if="stationDropdown.departure.query"
+                                                v-on:mousedown.prevent="stationDropdown.departure.query = ''">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="jr-station-list" ref="departureStationList"
+                                         v-on:scroll="onStationListScroll('departure')">
+                                        <template v-for="item in groupedStationList('departure')">
+                                            <div class="jr-station-group-header"
+                                                 v-if="item.isGroup"
+                                                 :key="'g-' + item.locationCode"
+                                                 :class="{ 'is-selected': item.station.locationCode === searchForm.departureCode }"
+                                                 v-on:mousedown.prevent="selectStation('departure', item.station)">
+                                                {{ item.name }}
+                                                <i class="fa fa-check"
+                                                   v-if="item.station.locationCode === searchForm.departureCode"></i>
+                                            </div>
+                                            <div class="jr-station-option"
+                                                 v-else
+                                                 :key="item.station.locationCode"
+                                                 :class="{ 'is-selected': item.station.locationCode === searchForm.departureCode }"
+                                                 v-on:mousedown.prevent="selectStation('departure', item.station)">
+                                                {{ item.station.name }}
+                                                <i class="fa fa-check"
+                                                   v-if="item.station.locationCode === searchForm.departureCode"></i>
+                                            </div>
+                                        </template>
+                                        <div class="jr-station-empty"
+                                             v-if="!stationDropdown.departure.loading && !stationDropdown.departure.stations.length">
+                                            @Localizer["JR_NoStationFound"]
+                                        </div>
+                                        <div class="jr-station-loading" v-if="stationDropdown.departure.loading">
+                                            <i class="fa fa-circle-o-notch fa-spin"></i> @Localizer["JR_Loading"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="jr-skeleton-overlay" v-if="isLoading"></div>
+                        </div>
+                    </div>
+
+                    {{/* Swap */}}
+                    <div class="switch-location">
+                        <div class="blank-label">&nbsp;</div>
+                        <div class="switch-icon" :style="isLoading ? 'visibility:hidden' : ''">
+                            <button type="button" title="@Localizer["JR_Btn_Swap"]" v-on:click="swapStations">
+                                <i class="fa fa-exchange"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{/* Arrival Station */}}
+                    <div class="form-group arr-location">
+                        <label>@Localizer["JR_Label_Arrival"]<span style="color:#e65f50;margin-left:2px;">*</span></label>
+                        <div class="jr-skeleton-wrap">
+                        <div class="search-input-item">
+                            <div class="jr-station-dropdown" :class="{ 'is-open': stationDropdown.arrival.open }">
+                                <div class="jr-station-trigger" v-on:click="openStationDropdown('arrival')">
+                                    <span class="jr-station-trigger__text" v-if="arrivalStationName">{{ arrivalStationName }}</span>
+                                    <span class="jr-station-trigger__placeholder" v-else>@Localizer["JR_Placeholder_SelectArrival"]</span>
+                                    <i class="fa fa-chevron-down jr-station-trigger__arrow"></i>
+                                </div>
+                                <div class="jr-station-panel" v-show="stationDropdown.arrival.open">
+                                    <div class="jr-station-search">
+                                        <i class="fa fa-search"></i>
+                                        <input type="text"
+                                               ref="arrivalSearchInput"
+                                               v-model="stationDropdown.arrival.query"
+                                               v-on:blur="scheduleCloseStationDropdown('arrival')"
+                                               placeholder="@Localizer["JR_Placeholder_SearchStation"]"
+                                               autocomplete="off" />
+                                        <button class="jr-station-search-clear" type="button"
+                                                v-if="stationDropdown.arrival.query"
+                                                v-on:mousedown.prevent="stationDropdown.arrival.query = ''">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="jr-station-list" ref="arrivalStationList"
+                                         v-on:scroll="onStationListScroll('arrival')">
+                                        <template v-for="item in groupedStationList('arrival')">
+                                            <div class="jr-station-group-header"
+                                                 v-if="item.isGroup"
+                                                 :key="'g-' + item.locationCode"
+                                                 :class="{ 'is-selected': item.station.locationCode === searchForm.arrivalCode }"
+                                                 v-on:mousedown.prevent="selectStation('arrival', item.station)">
+                                                {{ item.name }}
+                                                <i class="fa fa-check"
+                                                   v-if="item.station.locationCode === searchForm.arrivalCode"></i>
+                                            </div>
+                                            <div class="jr-station-option"
+                                                 v-else
+                                                 :key="item.station.locationCode"
+                                                 :class="{ 'is-selected': item.station.locationCode === searchForm.arrivalCode }"
+                                                 v-on:mousedown.prevent="selectStation('arrival', item.station)">
+                                                {{ item.station.name }}
+                                                <i class="fa fa-check"
+                                                   v-if="item.station.locationCode === searchForm.arrivalCode"></i>
+                                            </div>
+                                        </template>
+                                        <div class="jr-station-empty"
+                                             v-if="!stationDropdown.arrival.loading && !stationDropdown.arrival.stations.length">
+                                            @Localizer["JR_NoStationFound"]
+                                        </div>
+                                        <div class="jr-station-loading" v-if="stationDropdown.arrival.loading">
+                                            <i class="fa fa-circle-o-notch fa-spin"></i> @Localizer["JR_Loading"]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="jr-skeleton-overlay" v-if="isLoading"></div>
+                        </div>
+                    </div>
+
+                    {{/* Date */}}
+                    <div class="form-group date-calendar">
+                        <label><i class="fa fa-calendar" style="margin-right:4px;"></i>@Localizer["JR_Label_DepartureDate"]</label>
+                        <div class="jr-skeleton-wrap">
+                            <input type="date" class="form-control" v-model="searchForm.departureDate"
+                                   :min="todayDate"
+                                   :max="maxSellableDate || null"
+                                   v-on:click="$event.target.showPicker && $event.target.showPicker()"/>
+                            <div class="jr-skeleton-overlay" v-if="isLoading"></div>
+                        </div>
+                    </div>
+
+                    {{/* Search button */}}
+                    <div class="search-btn">
+                        <div class="blank-label">&nbsp;</div>
+                        <button class="kk-button-base kk-button-base--enabled kk-button kk-button--lg kk-button--primary"
+                                type="button"
+                                v-on:click="search"
+                                :disabled="isLoading || !canSearch">
+                            <div class="kk-button-base__body">
+                                <span class="kk-button__label">
+                                    <i class="fa fa-search" style="margin-right:4px;"></i>@Localizer["JR_Btn_Search"]
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{/* ── Date Slider ── */}}
+    <div class="date-slider-board" v-if="hasSearched">
+        <div class="carousel">
+            <button class="carousel__prev" type="button" v-on:click="navigatePreviousWeek" title="@Localizer["JR_PrevWeek"]">
+                <div class="action-button"><i class="fa fa-chevron-left"></i></div>
+            </button>
+            <div class="carousel__viewport">
+                <ol class="carousel__track">
+                    <li class="carousel__slide"
+                        v-for="day in calendarDays"
+                        :key="day.dateString"
+                        style="width:calc(12.5% - 3.5px)">
+                        <div class="day-block"
+                             :class="{
+                                 active:                day.isSelected,
+                                 'is-past':             day.isPast,
+                                 'is-today':            day.isToday,
+                                 'is-beyond-max-date':  day.isBeyondMaxDate
+                             }"
+                             :style="(day.isPast || day.isBeyondMaxDate) ? 'cursor:not-allowed;opacity:.5' : 'cursor:pointer'"
+                             v-on:click="selectCalendarDate(day)">
+                            <div class="date">{{ String(day.month).padStart(2, '0') }}/{{ String(day.date).padStart(2, '0') }}</div>
+                            <div class="week">{{ day.dayOfWeek }}</div>
+                            <div class="jr-pre-sell-badge"
+                                 :style="{ visibility: day.isPreSell ? 'visible' : 'hidden' }">@Localizer["JR_PreSell"]
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+            <button class="carousel__next" type="button" v-on:click="navigateNextWeek" title="@Localizer["JR_NextWeek"]">
+                <div class="action-button"><i class="fa fa-chevron-right"></i></div>
+            </button>
+        </div>
+    </div>
+
+    {{/* ── Results + Sidebar ── */}}
+    <div class="container" style="padding-top:20px;padding-bottom:48px;">
+
+        {{/* Loading */}}
+        <div class="jr-loading" v-if="isLoading">
+            <div><i class="fa fa-circle-o-notch fa-spin"></i></div>
+            <p>@Localizer["JR_Searching"]</p>
+        </div>
+
+        <div class="layout-grid layout-grid--gap-x-300 layout-grid--vertical-align-default list-border" style="--column-count:12" v-else>
+
+            {{/* LEFT: main content — 9 cols */}}
+            <div class="layout-grid__cell" style="--span:9">
+                <div class="layout-list layout-list--gap-200 layout-list--horizontal-align-default">
+
+                    <template>
+
+                        {{/* Results count */}}
+                        <div class="count layout-u-mb-250" v-if="hasSearched">
+                            @Localizer["JR_SearchResultPrefix"] <span class="kk-u-text-primary-dark">{{ totalCount || filteredRoutes.length }}</span>
+                            @Localizer["JR_SearchResultSuffix"]
+                        </div>
+
+                        {{/* Ticket list */}}
+                        <div class="search-result-card" v-if="filteredRoutes.length > 0">
+
+                            <div class="card-wrap train-card-item"
+                                 v-for="route in filteredRoutes"
+                                 :key="route.id">
+
+                                <div class="layout-grid layout-grid--vertical-align-default main" style="--column-count:12">
+
+                                    {{/* Station info — 8 cols */}}
+                                    <div class="layout-grid__cell" style="--span:8">
+                                        <div class="station-info-block">
+                                            <div v-if="route.labels && route.labels.length" class="jr-label-badges">
+                                                <span v-for="label in route.labels"
+                                                      :key="label"
+                                                      class="badge jr-badge-primary">{{ label }}</span>
+                                            </div>
+                                            <div class="station-info">
+                                                <div class="dep-section">
+                                                    <b class="jr-time">{{ formatTime(route.departureTime) }}</b>
+                                                    <p class="station-text">{{ searchedDepartureName }}</p>
+                                                </div>
+                                                <div class="jr-booking-trip__middle">
+                                                    <span class="jr-booking-trip__duration">{{ formatDuration(route.duration) }}</span>
+                                                    <div class="jr-time-arrow">
+                                                        <i class="fa fa-arrow-right"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="arr-block">
+                                                    <b class="jr-time">{{ formatTime(route.arrivalTime) }}</b>
+                                                    <p class="station-text">{{ searchedArrivalName }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="route-map-btn is-expandable"
+                                                 v-on:click="openRouteDetail(route, $event)">
+                                                {{ route.trainName }}
+                                                <i class="fa jr-train-expand-icon"
+                                                   :class="activePopoverRouteId === route.id ? 'fa-angle-up' : 'fa-angle-down'"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{/* Price / Action — 4 cols */}}
+                                    <div class="layout-grid__cell" style="--span:4">
+                                        <div class="booking-block">
+                                            <template v-if="route.available">
+                                                <div class="price-block">
+                                                    <div class="kk-price-text">
+                                                        <div class="kk-price-local kk-price-local--xxl">
+                                                            <div class="kk-price-base">
+                                                                <div class="kk-price-base__origin kk-price-origin kk-price-origin--symbol">
+                                                                    <div class="kk-price-local__currency--symbol">{{ lowestSeat(route).currency }}</div>
+                                                                    <div class="kk-price-local__normal">{{ lowestSeat(route).price }}</div>
+                                                                </div>
+                                                                <div class="kk-price-local__from kk-price-local__align--end kk-price-local__align--spacing">@Localizer["JR_Price_From"]</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button"
+                                                            class="kk-button-base kk-button-base--enabled kk-button kk-button--lg kk-button--primary booking-cta"
+                                                            v-on:click="goBooking(route)">
+                                                        <div class="kk-button-base__body">
+                                                            <span class="kk-button__label">@Localizer["JR_Btn_Book"]</span>
+                                                        </div>
+                                                        <div class="kk-button-base__spinner" style="display:none">
+                                                            <svg viewBox="0 0 24 24" class="kk-icon kk-icon--md kk-button__spinner">
+                                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 4a8 8 0 107.503 5.218 1 1 0 111.875-.696A9.98 9.98 0 0122 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2a1 1 0 110 2z"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                                <div></div>
+                                            </template>
+                                            <template v-else>
+                                                <div class="price-block">
+                                                    <div class="jr-sold-out">
+                                                        <i class="fa fa-times-circle" style="font-size:2rem;display:block;margin-bottom:6px;color:#ccc;"></i>
+                                                        @Localizer["JR_SoldOut"]
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="jr-loading-more" v-if="isLoadingMore">
+                                <i class="fa fa-circle-o-notch fa-spin"></i>
+                            </div>
+                            <div class="is-last-page-hint" v-if="!isLoadingMore && currentPage >= totalPages">
+                                @Localizer["JR_NoMoreResults"]
+                            </div>
+                        </div>
+
+                        {{/* Empty state */}}
+                        <div class="jr-empty" v-else-if="hasSearched">
+                            <div><i class="fa fa-train"></i></div>
+                            <p>@Localizer["JR_NoTrainFound"]</p>
+                        </div>
+
+                    </template>
+
+                </div>
+            </div>
+
+            {{/* RIGHT: filter sidebar — 3 cols */}}
+            <div class="layout-grid__cell" style="--span:3" v-if="hasSearched && factorTypes.length > 0">
+                <div class="detail-search-wrap-v2">
+                    <div class="detail-block"
+                         v-for="factorType in factorTypes"
+                         :key="factorType.key">
+                        <div class="detail-type-title kk-u-text-subtitle-lg">{{ factorType.name }}</div>
+                        <div class="detail-type-option">
+                            <div class="detail-option"
+                                 v-for="factor in factorItemsByType(factorType.key)"
+                                 :key="factor.key">
+                                <div class="kk-option-item-layout kk-option-item-layout--left kk-option-item">
+                                    <div class="kk-option-item-layout__input">
+                                        <label class="kk-checkbox kk-checkbox-item__checkbox kk-checkbox-item__checkbox--lg kk-checkbox-item__checkbox--left">
+                                            <input class="kk-checkbox__input"
+                                                   type="checkbox"
+                                                   :value="factor.key"
+                                                   v-model="factorFilter"
+                                                   v-on:change="applyFactorFilter"/>
+                                            <span class="kk-checkbox__selector"></span>
+                                        </label>
+                                    </div>
+                                    <div class="kk-option-item-layout__input-label">
+                                        <label class="kk-option-item__label">
+                                            <div class="kk-option-item-icon-layout kk-option-item-icon-layout--top-right">
+                                                <div class="kk-option-item-icon-layout__label">
+                                                    <div class="kk-option-item-label kk-option-item-label--lg">{{ factor.name }}</div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {{/* Scroll to top */}}
+    <button class="jr-scroll-top" id="jr-scroll-top" type="button" title="@Localizer["JR_ScrollToTop"]" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i class="fa fa-chevron-up"></i>
+    </button>
+
+    {{/* Booking loading overlay */}}
+    <div class="jr-booking-overlay" v-if="isBookingLoading">
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <p>@Localizer["JR_Processing"]</p>
+    </div>
+
+    {{/* Footer */}}
+    <div class="footer-info">
+        <p class="title">@Localizer["JR_Footer_Title"]</p>
+        <p class="text">@Html.Raw(Localizer["JR_Footer_Notice"].Value)</p>
+    </div>
+
+    @* No train infomation *@
+    <div id="jr-no-detail-modal" class="modal fade" tabindex="-1" role="dialog" style="top:50px">
+        <div class="modal-dialog" role="document" style="width:400px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">@Localizer["JR_NoRouteDetail_Title"]</h4>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>@Localizer["JR_NoRouteDetail_Message"]</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary"
+                            data-dismiss="modal">@Localizer["JR_NoRouteDetail_Confirm"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script type="text/javascript">
+        const JR_I18N = @Html.Raw(jrI18nJson);
+
+        const STATION_PAGE_SIZE = 20;
+
+        const app = new Vue({
+        el: '#jr-app',
+        data: {
+            isLoading: false,
+            isLoadingMore: false,
+            isBookingLoading: false,
+            hasSearched: false,
+            currentPage: 1,
+            totalPages: 1,
+            totalCount: 0,
+            calendarStart: 0,
+            calendarSelectedDate: '',
+            expandedRoutes: {},
+            detailCache: {},
+            selectedStations: {},
+            maxSellableDate: '',
+            preSellDates: [],
+            activePopoverRouteId: null,
+            factorTypes: [],
+            factorItems: [],
+            factorFilter: [],
+
+            stationDropdown: {
+                departure: {open: false, query: '', stations: [], loading: false, hasMore: true, start: 0},
+                arrival: {open: false, query: '', stations: [], loading: false, hasMore: true, start: 0}
+            },
+
+            searchForm: {
+                departureCode: '',
+                departureLocationType: 0,
+                arrivalCode: '',
+                arrivalLocationType: 0,
+                departureDate: (function () {
+                    var date = new Date();
+                    date.setDate(date.getDate() + 7);
+                    var monthNumber = date.getMonth() + 1;
+                    var dayNumber = date.getDate();
+                    return date.getFullYear() + '-' +
+                        (monthNumber < 10 ? '0' + monthNumber : monthNumber) + '-' +
+                        (dayNumber < 10 ? '0' + dayNumber : dayNumber);
+                })()
+            },
+
+            routes: [],
+
+            searchedDepartureName: '',
+            searchedArrivalName: '',
+            searchedDepCode: '',
+            searchedArrCode: ''
+        },
+
+        computed: {
+            canSearch: function () {
+                return this.searchForm.departureCode &&
+                    this.searchForm.arrivalCode &&
+                    this.searchForm.departureDate &&
+                    this.searchForm.departureCode !== this.searchForm.arrivalCode;
+            },
+
+            filteredRoutes: function () {
+                return this.routes.filter(function (route) { return route.available; });
+            },
+
+            departureStationName: function () {
+                return this.selectedStations[this.searchForm.departureCode] || '';
+            },
+
+            arrivalStationName: function () {
+                return this.selectedStations[this.searchForm.arrivalCode] || '';
+            },
+
+            todayDate: function () {
+                var today = new Date();
+                var m = today.getMonth() + 1;
+                var d = today.getDate();
+                return today.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d);
+            },
+
+            calendarDays: function () {
+                const DAY_MS = 86400000;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const WEEK = JR_I18N.weekDays;
+                const days = [];
+                for (let i = 0; i < 8; i++) {
+                    const currentDate = new Date(this.calendarStart + i * DAY_MS);
+                    const dateString = this.formatDate(currentDate);
+                    days.push({
+                        dateString: dateString,
+                        dayOfWeek: WEEK[currentDate.getDay()],
+                        date: currentDate.getDate(),
+                        month: currentDate.getMonth() + 1,
+                        isSelected: dateString === this.calendarSelectedDate,
+                        isToday: currentDate.getTime() === today.getTime(),
+                        isPast: currentDate.getTime() < today.getTime(),
+                        isPreSell: this.preSellDates.indexOf(dateString) !== -1,
+                        isBeyondMaxDate: this.maxSellableDate ? dateString > this.maxSellableDate : false
+                    });
+                }
+                return days.filter(function (day) {
+                    return !day.isPast;
+                });
+            }
+        },
+
+        methods: {
+            openRouteDetail: function (route, event) {
+                const self    = this;
+                const element = event.currentTarget;
+
+                if (self._activePopoverEl === element) {
+                    self._closeRoutePopover();
+                    return;
+                }
+
+                const buildContent = function (stops) {
+                    if (!stops || !stops.length) {
+                        return '<p style="color:#999;margin:0;font-size:13px;">' + JR_I18N.noRouteInfo + '</p>';
+                    }
+                    return stops.map(function (stop) {
+                        return '<div class="jr-popover-stop">'
+                            + '<span class="jr-popover-stop__time">' + stop.time + '</span>'
+                            + '<span class="jr-popover-stop__name">' + stop.name + '</span>'
+                            + '</div>';
+                    }).join('');
+                };
+
+                const openPopover = function (initialContent) {
+                    self._closeRoutePopover();
+
+                    const rect   = element.getBoundingClientRect();
+                    const pop    = document.createElement('div');
+                    pop.className = 'jr-route-popover-custom';
+
+                    const left = Math.min(rect.left, window.innerWidth - 292);
+                    const spaceBelow = window.innerHeight - rect.bottom;
+                    const spaceAbove = rect.top;
+                    const placeAbove = spaceBelow < 160 && spaceAbove > spaceBelow;
+
+                    pop.style.cssText = 'position:fixed;z-index:9998;background:#fff;'
+                        + 'border:1px solid #ddd;border-radius:8px;padding:12px 16px;'
+                        + 'box-shadow:0 4px 20px rgba(0,0,0,.15);'
+                        + 'min-width:180px;max-width:280px;max-height:300px;overflow-y:auto;'
+                        + 'left:' + Math.max(8, left) + 'px;'
+                        + (placeAbove
+                            ? 'bottom:' + (window.innerHeight - rect.top + 8) + 'px;'
+                            : 'top:'    + (rect.bottom + 8) + 'px;');
+
+                    pop.innerHTML = initialContent;
+                    document.body.appendChild(pop);
+
+                    self._activePopoverEl  = element;
+                    self._activePopoverDom = pop;
+
+                    setTimeout(function () {
+                        document.addEventListener('click', self._popoverOutsideClick);
+                        window.addEventListener('scroll', self._repositionPopover, { passive: true });
+                    }, 0);
+                };
+
+                if (self.detailCache[route.id]) {
+                    openPopover(buildContent(self.detailCache[route.id]));
+                    self.activePopoverRouteId = route.id;
+                    return;
+                }
+
+                openPopover('<div style="text-align:center;padding:8px 0;color:#9c9da0;">'
+                    + '<i class="fa fa-circle-o-notch fa-spin"></i>'
+                    + '</div>');
+                self.activePopoverRouteId = route.id;
+
+                axios.get(`${_root_path}Vert/JR/detail`, {
+                    params: {
+                        serviceName: route.serviceName,
+                        locale:      '@vertJrLocale',
+                        routeKey:    route.id
+                    }
+                }).then(function (response) {
+                    const data = response.data;
+                    const stepDetailList = data.stepDetailList || data.StepDetailList || [];
+                    const stops = stepDetailList.flatMap(function (step) {
+                        return (step.schdList || step.SchdList || []).map(function (schd) {
+                            return {
+                                name: schd.schdName || schd.SchdName || '',
+                                time: self.formatTime(schd.time || schd.Time || schd.meetTime || schd.MeetTime || '')
+                            };
+                        });
+                    });
+                    self.$set(self.detailCache, route.id, stops);
+                    if (self._activePopoverDom) {
+                        self._activePopoverDom.innerHTML = buildContent(stops);
+                    }
+                }).catch(function (error) {
+                    console.error('[JR] detail error', error);
+                    if (self._activePopoverDom) {
+                        self._activePopoverDom.innerHTML = '<p style="color:#e65f50;margin:0;font-size:13px;">' + JR_I18N.loadFailed + '</p>';
+                    }
+                });
+            },
+
+            swapStations: function () {
+                const tmpCode = this.searchForm.departureCode;
+                const tmpType = this.searchForm.departureLocationType;
+                this.searchForm.departureCode         = this.searchForm.arrivalCode;
+                this.searchForm.departureLocationType = this.searchForm.arrivalLocationType;
+                this.searchForm.arrivalCode           = tmpCode;
+                this.searchForm.arrivalLocationType   = tmpType;
+                this.stationDropdown.departure.open = false;
+                this.stationDropdown.arrival.open   = false;
+            },
+
+            fetchStations: async function (type, reset, count) {
+                const dropdown = this.stationDropdown[type];
+                if (reset) {
+                    dropdown.stations = [];
+                    dropdown.start = 0;
+                    dropdown.hasMore = true;
+                }
+                if (!dropdown.hasMore || dropdown.loading) return;
+                dropdown.loading = true;
+
+                const listElement = this.$refs[type + 'StationList'];
+
+                const requestParams = {
+                    query: dropdown.query || '',
+                    start: dropdown.start,
+                    count: count || STATION_PAGE_SIZE,
+                    locale: '@vertJrLocale',
+                    state: '@vertJrState'
+                };
+
+                if (type === 'arrival' && this.searchForm.departureCode) {
+                    requestParams['departure_location_codes'] = this.searchForm.departureCode;
+                } else if (type === 'departure' && this.searchForm.arrivalCode) {
+                    requestParams['arrival_location_codes'] = this.searchForm.arrivalCode;
+                }
+
+                try {
+                    const response = await axios.get(`${_root_path}Vert/JR/Search`, { params: requestParams });
+                    const data = response.data;
+                    const newItems = data.locations || [];
+                    dropdown.stations = dropdown.stations.concat(newItems);
+                    dropdown.start += newItems.length;
+                    dropdown.hasMore = dropdown.stations.length < data.totalCount;
+                } catch (error) {
+                    console.error('[JR] fetchStations error', error);
+                } finally {
+                    dropdown.loading = false;
+                    if (!reset && listElement) {
+                        await this.$nextTick();
+                        const distanceFromBottom = listElement.scrollHeight - listElement.scrollTop - listElement.clientHeight;
+                        if (distanceFromBottom < 100) {
+                            listElement.scrollTop = listElement.scrollHeight - listElement.clientHeight - 100;
+                        }
+                    }
+                }
+            },
+
+            onStationListScroll: function (type) {
+                const self = this;
+                const listElement = self.$refs[type + 'StationList'];
+                if (!listElement) return;
+                if (listElement.scrollHeight - listElement.scrollTop <= listElement.clientHeight + 60) {
+                    self.fetchStations(type, false);
+                }
+            },
+
+            openStationDropdown: function (type) {
+                const self = this;
+                const otherType = type === 'departure' ? 'arrival' : 'departure';
+                self.stationDropdown[otherType].open = false;
+                self.stationDropdown[otherType].query = '';
+                self.stationDropdown[type].open = true;
+                self.stationDropdown[type].query = '';
+                self.fetchStations(type, true, 200);
+                self.$nextTick(function () {
+                    const inputReference = self.$refs[type + 'SearchInput'];
+                    if (inputReference) inputReference.focus();
+                });
+            },
+
+            scheduleCloseStationDropdown: function (type) {
+                const self = this;
+                setTimeout(function () {
+                    self.stationDropdown[type].open = false;
+                    self.stationDropdown[type].query = '';
+                }, 200);
+            },
+
+            selectStation: function (type, station) {
+                const code = station.locationCode;
+                const name = station.name;
+                const locationType = station.locationLevel || 0;
+                const otherType = type === 'departure' ? 'arrival' : 'departure';
+                this.$set(this.selectedStations, code, name);
+                if (type === 'departure') {
+                    this.searchForm.departureCode = code;
+                    this.searchForm.departureLocationType = locationType;
+                } else {
+                    this.searchForm.arrivalCode = code;
+                    this.searchForm.arrivalLocationType = locationType;
+                }
+                this.stationDropdown[type].open = false;
+                this.stationDropdown[type].query = '';
+                this.stationDropdown[otherType].stations = [];
+                this.stationDropdown[otherType].start = 0;
+                this.stationDropdown[otherType].hasMore = true;
+            },
+
+            normalizeDateString: function (raw) {
+                if (!raw) return '';
+                const normalized = String(raw).replace(/-/g, '');
+                if (normalized.length !== 8) return raw;
+                return normalized.slice(0, 4) + '-' + normalized.slice(4, 6) + '-' + normalized.slice(6, 8);
+            },
+
+            fetchSellableDate: async function () {
+                try {
+                    const response = await axios.get(`${_root_path}Vert/JR/sellableDate`, {
+                        params: { locale: '@vertJrLocale' }
+                    });
+                    const data = response.data;
+                    console.log(`fetchSellableDate ---> ${JSON.stringify(data)}`)
+                    const rawMax = data.maxSellableDate || data.MaxSellableDate || '';
+                    const rawPreSells = data.preSellDates || data.PreSellDates || [];
+                    this.maxSellableDate = this.normalizeDateString(rawMax);
+                    this.preSellDates = rawPreSells.map(d => this.normalizeDateString(d));
+                    if (this.maxSellableDate && this.searchForm.departureDate > this.maxSellableDate) {
+                        this.searchForm.departureDate = this.maxSellableDate;
+                    }
+                } catch (error) {
+                    console.error('[JR] fetchSellableDate error', error);
+                }
+            },
+
+            mapRoute: function (route) {
+                const minPrice = route.routeB2bMinPrice || route.RouteB2bMinPrice || 0;
+                return {
+                    id: route.routeKey || route.RouteKey || '',
+                    trainName: route.routeName || route.RouteName || '',
+                    departureTime: route.depTime || route.DepTime || '',
+                    arrivalTime: route.arrTime || route.ArrTime || '',
+                    depDate: route.depDate || route.DepDate || '',
+                    arrDate: route.arrDate || route.ArrDate || '',
+                    duration: route.duration || route.Duration || '',
+                    available: route.isSellable != null ? route.isSellable : (route.IsSellable != null ? route.IsSellable : true),
+                    seatTypes: [{ type: 'price', label: '起', price: minPrice, currency: '@displayCurrency' }],
+                    serviceName: route.serviceName || route.ServiceName || '',
+                    labels: (route.labels || route.Labels || []).map(function (l) { return l.name || l.Name || ''; }).filter(Boolean)
+                };
+            },
+
+            buildRouteParams: function (searchDate, filterKeys, page) {
+                const params = new URLSearchParams();
+                params.append('locale',     '@vertJrLocale');
+                params.append('state',      '@vertJrState');
+                params.append('depType',    this.searchForm.departureLocationType);
+                params.append('depCode',    this.searchForm.departureCode);
+                params.append('depDate',    searchDate.replace(/-/g, ''));
+                params.append('arrType',    this.searchForm.arrivalLocationType);
+                params.append('arrCode',    this.searchForm.arrivalCode);
+                params.append('page', String(page || 1));
+                params.append('perPage', '200');
+                (filterKeys || []).forEach(function (k) { params.append('filterParam', String(k)); });
+                return params;
+            },
+
+            search: async function (dateForSearch) {
+                if (!this.canSearch) return;
+                const searchDate = (typeof dateForSearch === 'string' && dateForSearch)
+                    ? dateForSearch
+                    : this.searchForm.departureDate;
+                this.isLoading = true;
+                this.hasSearched = false;
+                this.routes = [];
+                this.currentPage = 1;
+                this.totalPages = 1;
+                this.totalCount = 0;
+                this.searchedDepartureName = this.departureStationName;
+                this.searchedArrivalName   = this.arrivalStationName;
+                this.searchedDepCode       = this.searchForm.departureCode;
+                this.searchedArrCode       = this.searchForm.arrivalCode;
+                try {
+                    const response = await axios.get(`${_root_path}Vert/JR/route?` + this.buildRouteParams(searchDate, null, 1).toString());
+                    const resp = response.data;
+                    const pagination = (resp.metadata || {}).pagination || {};
+                    this.totalPages = pagination.totalPages || 1;
+                    this.totalCount = pagination.total || 0;
+                    this.currentPage = 1;
+                    const routeList = (resp.data || {}).routeList || [];
+                    this.routes = routeList.map(r => this.mapRoute(r));
+                } catch (error) {
+                    console.error('[JR] route error', error);
+                } finally {
+                    this.isLoading   = false;
+                    this.hasSearched = true;
+                    this.factorFilter = [];
+                    const serviceNames = [];
+                    this.routes.forEach(t => {
+                        if (t.serviceName && serviceNames.indexOf(t.serviceName) === -1) serviceNames.push(t.serviceName);
+                    });
+                    this.fetchFactorList(serviceNames);
+                }
+            },
+
+            applyFactorFilter: async function () {
+                if (!this.canSearch || !this.hasSearched) return;
+                const searchDate = this.calendarSelectedDate || this.searchForm.departureDate;
+                this.isLoading = true;
+                this.currentPage = 1;
+                this.totalPages = 1;
+                this.totalCount = 0;
+                this.searchedDepartureName = this.departureStationName;
+                this.searchedArrivalName   = this.arrivalStationName;
+                this.searchedDepCode       = this.searchForm.departureCode;
+                this.searchedArrCode       = this.searchForm.arrivalCode;
+                try {
+                    const response = await axios.get(`${_root_path}Vert/JR/route?` + this.buildRouteParams(searchDate, this.factorFilter, 1).toString());
+                    const resp = response.data;
+                    const pagination = (resp.metadata || {}).pagination || {};
+                    this.totalPages = pagination.totalPages || 1;
+                    this.totalCount = pagination.total || 0;
+                    this.currentPage = 1;
+                    const routeList = (resp.data || {}).routeList || [];
+                    this.routes = routeList.map(r => this.mapRoute(r));
+                } catch (error) {
+                    console.error('[JR] route filter error', error);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+
+            loadMoreRoutes: async function () {
+                if (this.isLoadingMore || this.isLoading || !this.hasSearched) return;
+                if (this.currentPage >= this.totalPages) return;
+                const nextPage = this.currentPage + 1;
+                const searchDate = this.calendarSelectedDate || this.searchForm.departureDate;
+                this.isLoadingMore = true;
+                try {
+                    const response = await axios.get(`${_root_path}Vert/JR/route?` + this.buildRouteParams(searchDate, this.factorFilter, nextPage).toString());
+                    const resp = response.data;
+                    const pagination = (resp.metadata || {}).pagination || {};
+                    this.currentPage = pagination.currentPage || nextPage;
+                    this.totalPages = pagination.totalPages || this.totalPages;
+                    this.totalCount = pagination.total || this.totalCount;
+                    const routeList = (resp.data || {}).routeList || [];
+                    this.routes = this.routes.concat(routeList.map(r => this.mapRoute(r)));
+                } catch (error) {
+                    console.error('[JR] loadMore error', error);
+                } finally {
+                    this.isLoadingMore = false;
+                }
+            },
+
+            formatTime: function (raw) {
+                if (!raw) return '';
+                const str = String(raw).replace(/\D/g, '');
+                if (str.length !== 4) return raw;
+                return str.slice(0, 2) + ':' + str.slice(2);
+            },
+
+            formatDuration: function (raw) {
+                if (!raw) return '';
+                const str = String(raw).replace(/\D/g, '');
+                if (str.length < 3) return raw;
+                const hours = parseInt(str.slice(0, str.length - 2), 10);
+                const minutes = parseInt(str.slice(-2), 10);
+                if (hours === 0) return minutes + JR_I18N.minuteSuffix;
+                if (minutes === 0) return hours + JR_I18N.hourSuffix;
+                return hours + JR_I18N.hourSuffix + minutes + JR_I18N.minuteSuffix;
+            },
+
+            lowestSeat: function (route) {
+                if (!route.seatTypes || !route.seatTypes.length) return { price: '—', currency: '' };
+                return route.seatTypes.reduce(function (currentSeat, candidateSeat) {
+                    return currentSeat.price <= candidateSeat.price ? currentSeat : candidateSeat;
+                });
+            },
+
+            fetchFactorList: async function (serviceNames) {
+                if (!serviceNames || !serviceNames.length) {
+                    this.factorTypes = [];
+                    this.factorItems = [];
+                    return;
+                }
+                const factorParams = new URLSearchParams();
+                factorParams.append('locale', '@vertJrLocale');
+                serviceNames.forEach(name => factorParams.append('serviceNameList', name));
+                try {
+                    const response = await axios.get(`${_root_path}Vert/JR/factorList?` + factorParams.toString());
+                    const data = response.data;
+                    this.factorTypes = (data.factorTypeList || data.FactorTypeList || []).map(t => ({ key: t.key || t.Key, name: t.name || t.Name }));
+                    this.factorItems = (data.factorList || data.FactorList || []).map(f => ({ key: f.key || f.Key, type: f.type || f.Type, name: f.name || f.Name }));
+                } catch (error) {
+                    console.error('[JR] factorList error', error);
+                }
+            },
+
+            factorItemsByType: function (typeKey) {
+                return this.factorItems.filter(function (f) { return f.type === typeKey; });
+            },
+
+            groupedStationList: function (type) {
+                var stations = this.stationDropdown[type].stations;
+                if (!stations.length) return [];
+
+                var parents = [];
+                var children = [];
+                var parentCodeSet = {};
+
+                stations.forEach(function (s) {
+                    if (!s.ancestorLocationCodes || !s.ancestorLocationCodes.length) {
+                        parents.push(s);
+                        parentCodeSet[s.locationCode] = true;
+                    } else {
+                        children.push(s);
+                    }
+                });
+
+                if (!parents.length) {
+                    return stations.map(function (s) { return { isGroup: false, station: s }; });
+                }
+
+                var grouped = [];
+                var claimedChildCodes = {};
+
+                parents.forEach(function (parent) {
+                    grouped.push({ isGroup: true, name: parent.name, locationCode: parent.locationCode, station: parent });
+                    children.forEach(function (child) {
+                        if ((child.ancestorLocationCodes || []).indexOf(parent.locationCode) !== -1) {
+                            grouped.push({ isGroup: false, station: child });
+                            claimedChildCodes[child.locationCode] = true;
+                        }
+                    });
+                });
+
+                children.forEach(function (child) {
+                    if (!claimedChildCodes[child.locationCode]) {
+                        grouped.push({ isGroup: false, station: child });
+                    }
+                });
+
+                return grouped;
+            },
+
+            goBooking: function (route) {
+                this.isBookingLoading = true;
+
+                var urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('depCode', this.searchedDepCode || '');
+                urlParams.set('arrCode', this.searchedArrCode || '');
+                urlParams.set('depDate', route.depDate || this.searchForm.departureDate || '');
+                var state = { depCode: this.searchedDepCode, arrCode: this.searchedArrCode, depDate: route.depDate };
+                var url = window.location.pathname + '?' + urlParams.toString();
+                history.pushState(state, '', url);
+
+                var bookingUrl = `${_root_path}Vert/JR/Booking`;
+                var fields = {
+                    routeKey: route.id,
+                    serviceName: route.serviceName || '',
+                    depCode: this.searchedDepCode || '',
+                    arrCode: this.searchedArrCode || '',
+                    depName: this.searchedDepartureName || '',
+                    arrName: this.searchedArrivalName || '',
+                    depDate: route.depDate || '',
+                    arrDate: route.arrDate || ''
+                };
+                console.log('bookingUrl => ' + bookingUrl, fields);
+
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = bookingUrl;
+                Object.keys(fields).forEach(function (key) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = fields[key];
+                    form.appendChild(input);
+                });
+                document.body.appendChild(form);
+                form.submit();
+            },
+
+            formatDate: function (inputDate) {
+                const monthNumber = inputDate.getMonth() + 1;
+                const dayNumber = inputDate.getDate();
+                return inputDate.getFullYear() + '-' +
+                    (monthNumber < 10 ? '0' + monthNumber : monthNumber) + '-' +
+                    (dayNumber < 10 ? '0' + dayNumber : dayNumber);
+            },
+
+            initializeCalendar: function () {
+                const base = this.searchForm.departureDate
+                    ? new Date(this.searchForm.departureDate + 'T00:00:00')
+                    : new Date();
+                base.setHours(0, 0, 0, 0);
+                this.calendarStart = base.getTime() - 3 * 86400000;
+            },
+
+            navigatePreviousWeek: function () {
+                const DAY_MS = 86400000;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                this.calendarStart = Math.max(this.calendarStart - 7 * DAY_MS, today.getTime());
+            },
+            navigateNextWeek: function () {
+                this.calendarStart += 7 * 86400000;
+            },
+
+            selectCalendarDate: function (day) {
+                if (day.isPast || day.isBeyondMaxDate) return;
+                this.calendarSelectedDate = day.dateString;
+                this.searchForm.departureDate = day.dateString;
+                this.search(day.dateString);
+            }
+        },
+
+        watch: {
+            'searchForm.departureDate': function (newDate) {
+                if (!newDate) return;
+                if (this.maxSellableDate && newDate > this.maxSellableDate) {
+                    this.searchForm.departureDate = this.maxSellableDate;
+                    return;
+                }
+                if (this.calendarSelectedDate !== newDate) {
+                    this.calendarSelectedDate = newDate;
+                    this.initializeCalendar();
+                }
+            },
+
+            maxSellableDate: function (newMaxDate) {
+                if (!newMaxDate) return;
+                if (this.searchForm.departureDate > newMaxDate) {
+                    this.searchForm.departureDate = newMaxDate;
+                }
+                if (this.calendarSelectedDate > newMaxDate) {
+                    this.calendarSelectedDate = newMaxDate;
+                }
+            },
+
+            'stationDropdown.departure.query': _.debounce(function () {
+                if (this.stationDropdown.departure.open) this.fetchStations('departure', true);
+            }, 300),
+
+            'stationDropdown.arrival.query': _.debounce(function () {
+                if (this.stationDropdown.arrival.open) this.fetchStations('arrival', true);
+            }, 300)
+        },
+
+        created: function () {
+            const self = this;
+            this._activePopoverEl  = null;
+            this._activePopoverDom = null;
+
+            this._repositionPopover = function () {
+                if (!self._activePopoverDom || !self._activePopoverEl) return;
+                const rect      = self._activePopoverEl.getBoundingClientRect();
+                const left      = Math.max(8, Math.min(rect.left, window.innerWidth - 292));
+                const placeAbove = (window.innerHeight - rect.bottom) < 160
+                    && rect.top > (window.innerHeight - rect.bottom);
+                self._activePopoverDom.style.left   = left + 'px';
+                if (placeAbove) {
+                    self._activePopoverDom.style.top    = '';
+                    self._activePopoverDom.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+                } else {
+                    self._activePopoverDom.style.bottom = '';
+                    self._activePopoverDom.style.top    = (rect.bottom + 8) + 'px';
+                }
+            };
+
+            this._closeRoutePopover = function () {
+                if (self._activePopoverDom) {
+                    document.body.removeChild(self._activePopoverDom);
+                    self._activePopoverDom = null;
+                }
+                self._activePopoverEl = null;
+                self.activePopoverRouteId = null;
+                document.removeEventListener('click', self._popoverOutsideClick);
+                window.removeEventListener('scroll', self._repositionPopover);
+            };
+
+            this._popoverOutsideClick = function (e) {
+                if (self._activePopoverDom
+                    && !self._activePopoverDom.contains(e.target)
+                    && self._activePopoverEl
+                    && !self._activePopoverEl.contains(e.target)) {
+                    self._closeRoutePopover();
+                }
+            };
+
+            this.calendarSelectedDate = this.searchForm.departureDate;
+            this.initializeCalendar();
+            this.fetchSellableDate();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const depCode = urlParams.get('depCode');
+            const arrCode = urlParams.get('arrCode');
+            const rawDepDate = urlParams.get('depDate');
+            const notFound = urlParams.get('notFound');
+            // 統一轉為 YYYY-MM-DD（API 回傳可能是 YYYYMMDD）
+            const depDate = rawDepDate && /^\d{8}$/.test(rawDepDate)
+                ? rawDepDate.slice(0, 4) + '-' + rawDepDate.slice(4, 6) + '-' + rawDepDate.slice(6, 8)
+                : rawDepDate;
+            if (depCode) this.searchForm.departureCode = depCode;
+            if (arrCode) this.searchForm.arrivalCode = arrCode;
+            if (depDate) {
+                this.searchForm.departureDate = depDate;
+                this.calendarSelectedDate = depDate;
+                this.initializeCalendar();
+            }
+            if (depCode && arrCode && depDate) {
+                (async () => {
+                    const loadUntilFound = async (type, code) => {
+                        const found = self.stationDropdown[type].stations.find(s => s.locationCode === code);
+                        if (found) return found;
+                        if (!self.stationDropdown[type].hasMore) return null;
+                        await self.fetchStations(type, false);
+                        return loadUntilFound(type, code);
+                    };
+                    const [dep, arr] = await Promise.all([
+                        (async () => { await self.fetchStations('departure', true, 200); return loadUntilFound('departure', depCode); })(),
+                        (async () => { await self.fetchStations('arrival', true, 200); return loadUntilFound('arrival', arrCode); })()
+                    ]);
+                    if (dep) self.$set(self.selectedStations, depCode, dep.name);
+                    if (arr) self.$set(self.selectedStations, arrCode, arr.name);
+                    self.search();
+                })();
+            }
+        },
+            mounted: function () {
+                if (new URLSearchParams(window.location.search).get('notFound')) {
+                    $('#jr-no-detail-modal').modal('show');
+                    $('#jr-no-detail-modal').one('hidden.bs.modal', function () {
+                        var params = new URLSearchParams(window.location.search);
+                        params.delete('notFound');
+                        var newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                        history.replaceState(null, '', newUrl);
+                    });
+                }
+
+                // Clicking "back" from Booking can restore this page from the browser's
+                // bfcache with isBookingLoading still true from before navigating away.
+                window.addEventListener('pageshow', function (event) {
+                    if (event.persisted) app.isBookingLoading = false;
+                });
+            }
+    });
+
+    $(function () {
+        var $scrollTop = document.getElementById('jr-scroll-top');
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 300) {
+                $scrollTop.classList.add('is-visible');
+            } else {
+                $scrollTop.classList.remove('is-visible');
+            }
+            if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 300) {
+                app.loadMoreRoutes();
+            }
+        }, { passive: true });
+    });
+    </script>
+}
