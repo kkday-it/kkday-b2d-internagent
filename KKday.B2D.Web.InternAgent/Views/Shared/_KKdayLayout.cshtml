@@ -40,8 +40,6 @@
     <!-- Load the following for BootstrapVueIcons support -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-vue/2.23.1/bootstrap-vue-icons.min.js"></script>
 
-    @await RenderSectionAsync("Scripts", required: false)
-
     <script type="text/javascript">
         var _root_path = '@Url.Content("~/")@(locale)/';
     </script>
@@ -63,17 +61,28 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                             </li>*@
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @Localizer["Services"]
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="@Url.Content($"~/{locale}/Vert/JR")">
+                                    <img src="~/images/japan-railways-logo.png" style="width:32px;" /> @Localizer["JapanRailway"]
+                                </a></li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="Index">@Localizer["Orders"]</a>
                         </li>
                         <li class="nav-item dropdown">
+                            <!-- Languages -->
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                               @(locale?.ToString() == "zh-TW" ? "繁體中文" : (locale?.ToString() == "en-US" ? "English" :  @Localizer["Select_Language"]))
+                                @(locale?.ToString() == "zh-TW" ? "繁體中文" : (locale?.ToString() == "en-US" ? "English" : @Localizer["Select_Language"]))
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="@Url.Content($"~/{locale}/Language/zh-TW")">繁體中文</a></li>
                                 <li><a class="dropdown-item" href="@Url.Content($"~/{locale}/Language/en-US")">English</a></li>
-                              @*<li><hr class="dropdown-divider"></li>
+                                @*<li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="#">Something else here</a></li>*@
                             </ul>
                         </li>
@@ -94,6 +103,7 @@
         </div>
     </footer>
 
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
 

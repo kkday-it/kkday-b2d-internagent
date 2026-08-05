@@ -13,6 +13,10 @@
     "Url": "https://api-b2d-10.sit.kkday.com/v4",
     "Url-QA": "https://api-b2d-214.sit.kkday.com/v4",
     "AuthorToken": "YOUR_B2D_API_TOKEN"
+  },
+  "VertJrApi": {
+    "Url": "https://api-b2d-10.sit.kkday.com/vert/jr",
+    "AuthorToken": "YOUR_VERT_JR_API_TOKEN"
   }
 }
 

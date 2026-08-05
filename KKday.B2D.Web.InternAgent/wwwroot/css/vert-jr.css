@@ -1,0 +1,4680 @@
+/* ============================================================
+   JR Search Page — vert-jr.css
+   ============================================================ */
+
+/* ── Variables ─────────────────────────────────────────────── */
+:root {
+    --jr-primary:       #26bec9;
+    --jr-primary-dark:  #138184;
+    --jr-primary-light: #e8f8fa;
+    --jr-accent:        #ff6b35;
+    --jr-text:          #333;
+    --jr-text-sub:      #666;
+    --jr-text-light:    #999;
+    --jr-border:        #e8e8e8;
+    --jr-bg:            #f5f5f5;
+    --jr-white:         #fff;
+    --jr-radius:        8px;
+    --jr-shadow:        0 2px 8px rgba(0,0,0,.08);
+    --jr-shadow-hover:  0 4px 16px rgba(0,0,0,.14);
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────────── */
+.jr-breadcrumb {
+    background: var(--jr-primary-dark);
+    padding: 10px 0;
+}
+
+.jr-breadcrumb ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    font-size: 1.2rem;
+}
+
+.jr-breadcrumb li {
+    display: flex;
+    align-items: center;
+    color: rgba(255,255,255,.7);
+}
+
+.jr-breadcrumb li + li::before {
+    content: '›';
+    margin-right: 4px;
+    opacity: .6;
+}
+
+.jr-breadcrumb a {
+    color: rgba(255,255,255,.8);
+    text-decoration: none;
+}
+
+.jr-breadcrumb a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.jr-breadcrumb li:last-child {
+    color: #fff;
+    font-weight: 500;
+}
+
+/* ── Search Panel ───────────────────────────────────────────── */
+.jr-search-panel {
+    background: var(--jr-primary-dark);
+    padding: 20px 0 28px;
+}
+
+.jr-search-panel h1 {
+    color: var(--jr-white);
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 0 16px;
+}
+
+.jr-search-form {
+    background: var(--jr-white);
+    border-radius: var(--jr-radius);
+    padding: 14px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+.jr-search-form .form-group {
+    margin-bottom: 0;
+    flex: 1 1 160px;
+    position: relative;
+}
+
+.jr-search-form label {
+    font-size: 1.1rem;
+    color: var(--jr-text-light);
+    margin-bottom: 4px;
+    display: block;
+    font-weight: 500;
+    letter-spacing: .3px;
+}
+
+.jr-search-form .form-control {
+    height: 42px;
+    border: 1px solid var(--jr-border);
+    border-radius: 6px;
+    font-size: 1.4rem;
+    color: var(--jr-text);
+    background: #fafafa;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.jr-search-form .form-control:focus {
+    border-color: var(--jr-primary);
+    box-shadow: 0 0 0 3px rgba(38,190,201,.15);
+    background: var(--jr-white);
+    outline: none;
+}
+
+.jr-search-form-divider {
+    width: 1px;
+    background: var(--jr-border);
+    align-self: stretch;
+    margin: 4px 0;
+    flex-shrink: 0;
+}
+
+.jr-station-swap {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 1px;
+    flex-shrink: 0;
+}
+
+.jr-station-swap button {
+    background: none;
+    border: 1px solid var(--jr-border);
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    color: var(--jr-primary);
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, border-color .15s;
+    margin-bottom: 4px;
+}
+
+.jr-station-swap button:hover {
+    background: var(--jr-primary-light);
+    border-color: var(--jr-primary);
+}
+
+.jr-search-btn {
+    height: 42px;
+    padding: 0 28px;
+    background: var(--jr-primary);
+    border: none;
+    border-radius: 6px;
+    color: var(--jr-white);
+    font-size: 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s, transform .1s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-end;
+    margin-bottom: 0;
+}
+
+.jr-search-btn:hover:not(:disabled) {
+    background: var(--jr-primary-dark);
+}
+
+.jr-search-btn:active:not(:disabled) {
+    transform: scale(.97);
+}
+
+.jr-search-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+/* ── Promo Banner ───────────────────────────────────────────── */
+.jr-promo-banner {
+    background: #fff9e6;
+    border-bottom: 1px solid #ffd166;
+    padding: 10px 0;
+}
+
+.jr-promo-banner .container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.3rem;
+    color: #7a5c00;
+}
+
+.jr-promo-banner .fa {
+    color: #f5a623;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.jr-promo-banner strong {
+    color: #c8520a;
+}
+
+/* ── Date Calendar Bar ──────────────────────────────────────── */
+.jr-calendar-bar {
+    background: var(--jr-white);
+    border-bottom: 2px solid var(--jr-border);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+}
+
+.jr-calendar {
+    display: flex;
+    align-items: stretch;
+    height: 76px;
+}
+
+.jr-cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.jr-cal-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--jr-border);
+    background: var(--jr-white);
+    color: var(--jr-text-sub);
+    font-size: 1.2rem;
+    transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
+    pointer-events: none;
+}
+
+.jr-cal-nav:hover .jr-cal-nav-btn {
+    background: var(--jr-primary-light);
+    border-color: var(--jr-primary);
+    color: var(--jr-primary-dark);
+    box-shadow: 0 2px 6px rgba(38,190,201,.2);
+}
+
+.jr-cal-nav:active .jr-cal-nav-btn {
+    background: var(--jr-primary);
+    border-color: var(--jr-primary);
+    color: var(--jr-white);
+    box-shadow: none;
+}
+
+.jr-cal-days {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    border-left: 1px solid var(--jr-border);
+    border-right: 1px solid var(--jr-border);
+}
+
+.jr-cal-day {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    background: none;
+    border: none;
+    border-right: 1px solid var(--jr-border);
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    padding: 8px 4px 5px;
+    transition: background .15s, border-color .15s;
+    min-width: 0;
+    position: relative;
+}
+
+.jr-cal-day:last-child {
+    border-right: none;
+}
+
+.jr-cal-day:hover:not(:disabled):not(.is-selected) {
+    background: #f7fdfe;
+    border-bottom-color: #b2e5ea;
+}
+
+.jr-cal-day.is-selected {
+    border-bottom-color: var(--jr-primary);
+    background: var(--jr-primary-light);
+}
+
+.jr-cal-day:disabled {
+    cursor: not-allowed;
+}
+
+.jr-cal-day__date {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.jr-cal-day.is-selected .jr-cal-day__date {
+    color: var(--jr-primary-dark);
+}
+
+.jr-cal-day__week {
+    font-size: 1.1rem;
+    color: var(--jr-text-light);
+    font-weight: 500;
+    line-height: 1;
+}
+
+.jr-cal-day.is-weekend .jr-cal-day__week {
+    color: #e05c5c;
+}
+
+.jr-cal-day.is-selected .jr-cal-day__week {
+    color: var(--jr-primary-dark);
+}
+
+.jr-cal-day.is-past .jr-cal-day__date,
+.jr-cal-day.is-past .jr-cal-day__week {
+    color: #ccc !important;
+}
+
+.jr-cal-day.is-today .jr-cal-day__date::after {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--jr-primary);
+    margin: 3px auto 0;
+}
+
+/* ── Results Container ──────────────────────────────────────── */
+.jr-results-container {
+    padding: 20px 0 48px;
+}
+
+.jr-results-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 0 2px;
+}
+
+.jr-results-count {
+    font-size: 1.4rem;
+    color: var(--jr-text-sub);
+}
+
+.jr-results-count strong {
+    color: var(--jr-text);
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.jr-results-route {
+    font-size: 1.3rem;
+    color: var(--jr-text-light);
+    margin-top: 2px;
+}
+
+/* ── Loading / Empty ────────────────────────────────────────── */
+.jr-loading,
+.jr-empty {
+    text-align: center;
+    padding: 64px 0;
+    color: var(--jr-text-light);
+}
+
+.jr-loading .fa {
+    font-size: 3.2rem;
+    color: var(--jr-primary);
+    margin-bottom: 14px;
+}
+
+.jr-empty .fa {
+    font-size: 4rem;
+    opacity: .3;
+    margin-bottom: 16px;
+}
+
+.jr-loading p,
+.jr-empty p {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+/* ── Ticket Card ────────────────────────────────────────────── */
+.jr-ticket-card {
+    background: var(--jr-white);
+    border-radius: var(--jr-radius);
+    box-shadow: var(--jr-shadow);
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    overflow: hidden;
+    border: 1px solid var(--jr-border);
+    transition: box-shadow .2s, border-color .2s;
+}
+
+.jr-ticket-card:hover {
+    box-shadow: var(--jr-shadow-hover);
+    border-color: #d0d0d0;
+}
+
+.jr-ticket-card.is-unavailable {
+    opacity: .5;
+}
+
+/* Left accent stripe */
+.jr-ticket-card__stripe {
+    width: 4px;
+    background: var(--jr-primary);
+    flex-shrink: 0;
+}
+
+.jr-ticket-card.is-unavailable .jr-ticket-card__stripe {
+    background: #ccc;
+}
+
+/* ── Time Section ───────────────────────────────────────────── */
+.jr-ticket-card__time {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 18px 28px 18px 20px;
+    gap: 10px;
+    flex: 2;
+    min-width: 0;
+}
+
+.jr-ticket-card__time-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.jr-time-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.jr-time {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.jr-station-name {
+    font-size: 1.2rem;
+    color: var(--jr-text-sub);
+    white-space: nowrap;
+}
+
+.jr-time-middle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.jr-duration-text {
+    font-size: 1.15rem;
+    color: var(--jr-text-light);
+    white-space: nowrap;
+}
+
+.jr-time-arrow {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 4px;
+    color: #ccc;
+}
+
+.jr-time-arrow::before,
+.jr-time-arrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+}
+
+.jr-time-arrow .fa {
+    font-size: 1.2rem;
+    color: var(--jr-text-light);
+    flex-shrink: 0;
+}
+
+/* ── Info Section ───────────────────────────────────────────── */
+.jr-ticket-card__info {
+    flex: 1;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    border-left: 1px solid var(--jr-border);
+    border-right: 1px solid var(--jr-border);
+    min-width: 0;
+}
+
+.jr-train-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--jr-text-sub);
+    border-top: 1px dashed var(--jr-border);
+    padding-top: 8px;
+    gap: 0;
+}
+
+.jr-train-name-row.is-expandable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.jr-train-name-row.is-expandable:hover {
+    color: var(--jr-primary-dark);
+}
+
+.jr-train-expand-icon {
+    margin-left: 6px;
+    font-size: 1.2rem;
+    color: var(--jr-text-light);
+    transition: color .15s;
+}
+
+.jr-train-name-row.is-expandable:hover .jr-train-expand-icon {
+    color: var(--jr-primary-dark);
+}
+
+/* ── Route Panel ────────────────────────────────────────────── */
+.jr-ticket-card__route-panel {
+    flex-basis: 100%;
+    border-top: 1px solid var(--jr-border);
+    background: #fafcfc;
+    overflow-x: auto;
+}
+
+.jr-route-timeline {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px 24px 20px;
+    min-width: max-content;
+}
+
+/* DOT_H = 12px → half = 6px → lines sit at top: 6px within each stop */
+.jr-route-stop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 72px;
+    position: relative;
+}
+
+/* left half-line (hidden on first stop) */
+.jr-route-stop::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 0;
+    width: 50%;
+    height: 2px;
+    background: #c8e9ec;
+    transform: translateY(-50%);
+    z-index: 0;
+}
+
+/* right half-line (hidden on last stop) */
+.jr-route-stop::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 0;
+    width: 50%;
+    height: 2px;
+    background: #c8e9ec;
+    transform: translateY(-50%);
+    z-index: 0;
+}
+
+.jr-route-stop.is-first::after { display: none; }
+.jr-route-stop.is-last::before  { display: none; }
+
+.jr-route-stop__dot {
+    width: 12px;
+    height: 12px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: var(--jr-primary);
+    border: 2px solid var(--jr-white);
+    box-shadow: 0 0 0 2px var(--jr-primary);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.jr-route-stop.is-first .jr-route-stop__dot,
+.jr-route-stop.is-last  .jr-route-stop__dot {
+    background: var(--jr-primary-dark);
+    box-shadow: 0 0 0 2px var(--jr-primary-dark);
+}
+
+.jr-route-stop__time {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    margin-top: 8px;
+    line-height: 1;
+}
+
+.jr-route-stop.is-first .jr-route-stop__time,
+.jr-route-stop.is-last  .jr-route-stop__time {
+    color: var(--jr-primary-dark);
+}
+
+.jr-route-stop__name {
+    font-size: 1.1rem;
+    color: var(--jr-text-sub);
+    margin-top: 4px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.jr-train-name {
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.jr-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.jr-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 1.15rem;
+    font-weight: 500;
+}
+
+.jr-tag--express   { color: #b36b00; background: #fff3de; }
+.jr-tag--direct    { color: #1a7a4a; background: #e8f8ef; }
+.jr-tag--transfer  { color: #5c40b2; background: #f2eeff; }
+.jr-tag--promo     { color: #c0392b; background: #fdf0ef; }
+.jr-tag--sold-out  { color: #fff;    background: #999; }
+
+.train-class-card-info__check {
+    font-size: 2rem;
+    color: var(--jr-primary);
+}
+
+.train-class-card-info__check--empty {
+    color: var(--jr-border);
+}
+
+.train-class-card.is-sold-out { opacity: .6; }
+
+.jr-seat-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.jr-seat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.jr-seat-item__label {
+    font-size: 1.1rem;
+    color: var(--jr-text-light);
+}
+
+.jr-seat-item__price {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--jr-text-sub);
+}
+
+/* ── Price / Action Section ─────────────────────────────────── */
+.jr-ticket-card__spacer {
+    flex: 0 0 24px;
+}
+
+.jr-ticket-card__action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 18px 24px;
+    flex: 1;
+    min-width: 0;
+    gap: 10px;
+    border-left: 1px solid var(--jr-border);
+    text-align: right;
+}
+
+.jr-price-from {
+    font-size: 1.1rem;
+    color: var(--jr-text-light);
+    margin-bottom: -4px;
+}
+
+.jr-price {
+    display: flex;
+    align-items: center;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    line-height: 1;
+}
+
+.jr-price-currency {
+    font-size: 1.4rem;
+    font-weight: 600;
+    align-self: center;
+    margin-right: 2px;
+}
+
+.jr-price-unit {
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--jr-text-light);
+    align-self: center;
+    margin-left: 2px;
+}
+
+.jr-btn-book {
+    display: inline-block;
+    width: auto;
+    padding: 9px 24px;
+    background: var(--jr-primary);
+    color: var(--jr-white);
+    border: none;
+    border-radius: 6px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: background .2s;
+    text-decoration: none;
+}
+
+.jr-btn-book:hover {
+    background: var(--jr-primary-dark);
+    color: var(--jr-white);
+    text-decoration: none;
+}
+
+.jr-ticket-card.is-unavailable .jr-btn-book,
+.jr-btn-book:disabled {
+    background: var(--jr-border);
+    color: var(--jr-text-light);
+    cursor: not-allowed;
+}
+
+.jr-sold-out {
+    font-size: 1.2rem;
+    color: var(--jr-text-light);
+}
+
+/* ── Station Dropdown ───────────────────────────────────────── */
+.jr-station-dropdown {
+    position: relative;
+}
+
+.jr-station-trigger {
+    height: 42px;
+    border: 1px solid var(--jr-border);
+    border-radius: 6px;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+    gap: 8px;
+}
+
+.jr-station-trigger:hover {
+    border-color: #bbb;
+    background: var(--jr-white);
+}
+
+.jr-station-dropdown.is-open .jr-station-trigger {
+    border-color: var(--jr-primary);
+    box-shadow: 0 0 0 3px rgba(38,190,201,.15);
+    background: var(--jr-white);
+}
+
+.jr-station-trigger__text {
+    flex: 1;
+    font-size: 1.4rem;
+    color: var(--jr-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.jr-station-trigger__placeholder {
+    flex: 1;
+    font-size: 1.4rem;
+    color: #aaa;
+}
+
+.jr-station-trigger__arrow {
+    color: var(--jr-text-light);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    transition: transform .2s;
+}
+
+.jr-station-dropdown.is-open .jr-station-trigger__arrow {
+    transform: rotate(180deg);
+}
+
+/* Panel */
+.jr-station-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 100%;
+    width: 240px;
+    z-index: 500;
+    background: var(--jr-white);
+    border: 1px solid var(--jr-border);
+    border-radius: var(--jr-radius);
+    box-shadow: 0 6px 24px rgba(0,0,0,.12);
+    display: flex;
+    flex-direction: column;
+    max-height: 300px;
+    overflow: hidden;
+}
+
+/* Search box inside panel */
+.jr-station-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--jr-border);
+    flex-shrink: 0;
+}
+
+.jr-station-search .fa-search {
+    color: var(--jr-text-light);
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.jr-station-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1.35rem;
+    color: var(--jr-text);
+    background: transparent;
+    min-width: 0;
+}
+
+.jr-station-search input::placeholder {
+    color: #bbb;
+}
+
+.jr-station-search-clear {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #bbb;
+    padding: 0;
+    font-size: 1.3rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    transition: color .15s;
+}
+
+.jr-station-search-clear:hover {
+    color: var(--jr-text-sub);
+}
+
+/* Options list */
+.jr-station-list {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.jr-station-group-label {
+    padding: 8px 12px 4px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--jr-text-light);
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    background: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+    position: sticky;
+    top: 0;
+}
+
+.jr-station-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    font-size: 1.4rem;
+    color: var(--jr-text);
+    cursor: pointer;
+    transition: background .12s;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.jr-station-option:last-child {
+    border-bottom: none;
+}
+
+.jr-station-option:hover {
+    background: var(--jr-primary-light);
+}
+
+.jr-station-option.is-selected {
+    background: #e2f6f8;
+    font-weight: 600;
+    color: var(--jr-primary-dark);
+}
+
+.jr-station-option .fa-check {
+    color: var(--jr-primary);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.jr-station-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--jr-text-light);
+    font-size: 1.3rem;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+/* ── Tablet (768–991px) ─────────────────────────────────────── */
+@media (max-width: 991px) {
+    .jr-search-form {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .jr-search-form .form-group {
+        flex: 1 1 calc(50% - 20px);
+    }
+
+    .jr-search-form-divider { display: none; }
+
+    .jr-search-btn {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+}
+
+/* ── Mobile (≤767px) ────────────────────────────────────────── */
+@media (max-width: 767px) {
+
+    /* Search */
+    .jr-search-panel { padding: 20px 0; }
+
+    .jr-search-panel h1 { font-size: 2rem; margin-bottom: 16px; }
+
+    .jr-search-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .jr-search-form .form-group { flex: 1 1 100%; }
+
+    .jr-search-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Station dropdown panel: constrain height */
+    .jr-station-panel { max-height: 240px; }
+
+    /* Swap button */
+    .jr-station-swap { align-self: center; }
+
+    /* Calendar */
+    .jr-calendar-bar { padding: 0; }
+
+    .jr-cal-days {
+        overflow: hidden;
+    }
+
+    .jr-cal-day {
+        flex: 1;
+        min-width: 0;
+        padding: 7px 2px 5px;
+    }
+
+    .jr-cal-day:nth-child(n+5) {
+        display: none;
+    }
+
+    .jr-cal-day__date { font-size: 1.1rem; }
+    .jr-cal-day__week { font-size: 1.0rem; }
+
+    .jr-cal-nav       { width: 36px; flex-shrink: 0; }
+    .jr-cal-nav-btn   { width: 26px; height: 26px; font-size: 1.0rem; }
+
+    /* Results meta */
+    .jr-results-meta  { flex-direction: column; gap: 4px; }
+    .jr-results-count { font-size: 1.3rem; }
+
+    /* Ticket card: stack vertically */
+    .jr-ticket-card__time {
+        flex: none;
+        width: 100%;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--jr-border);
+    }
+
+    .jr-ticket-card__spacer { display: none; }
+
+    .jr-ticket-card__action {
+        flex: none;
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        border-left: none;
+        border-top: 1px solid var(--jr-border);
+        padding: 12px 16px;
+    }
+
+    .jr-btn-book {
+        padding: 8px 20px;
+        font-size: 1.3rem;
+    }
+
+    /* Price in action row */
+    .jr-price { font-size: 2rem; }
+
+    /* Train name row */
+    .jr-train-name-row { font-size: 1.2rem; }
+
+    /* Route panel */
+    .jr-route-timeline { padding: 12px 12px 16px; }
+
+    .jr-route-stop { min-width: 56px; }
+
+    .jr-route-stop__time { font-size: 1.1rem; }
+
+    .jr-route-stop__name { font-size: 1.0rem; }
+
+    /* Footer */
+    .footer-info { margin-top: 24px; }
+}
+
+/* ── Footer Info ────────────────────────────────────────────── */
+.footer-info {
+    background: #f7f8f9;
+    border-top: 1px solid #e4e7ea;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+.footer-info__title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    margin: 0 0 8px;
+}
+
+.footer-info__body {
+    font-size: 1.1rem;
+    color: var(--jr-text-light);
+    line-height: 1.8;
+    margin: 0;
+}
+.is-last-page-hint {
+    color: #9c9da0;
+    text-align: center;
+}
+
+/* ================================================================
+   JR Booking Page
+   ================================================================ */
+
+/* ── Booking Header ─────────────────────────────────────────── */
+.jr-booking-header {
+    background: var(--jr-primary-dark);
+    padding: 16px 0 20px;
+}
+
+.jr-booking-header .container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.jr-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,.75);
+    font-size: 1.3rem;
+    text-decoration: none;
+    transition: color .15s;
+}
+
+.jr-back-link:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+.jr-booking-header h1 {
+    color: var(--jr-white);
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* ── Booking Body ───────────────────────────────────────────── */
+.jr-booking-body {
+    padding: 24px 0 56px;
+}
+
+.jr-booking-loading,
+.jr-booking-not-found {
+    text-align: center;
+    padding: 72px 0;
+    color: var(--jr-text-light);
+}
+
+.jr-booking-loading .fa,
+.jr-booking-not-found .fa {
+    font-size: 3.6rem;
+    color: #ddd;
+    margin-bottom: 14px;
+    display: block;
+}
+
+.jr-booking-loading p,
+.jr-booking-not-found p {
+    font-size: 1.5rem;
+    margin: 0 0 20px;
+}
+
+.jr-booking-loading .fa {
+    color: var(--jr-primary);
+}
+
+/* ── Booking Breadcrumb ─────────────────────────────────────── */
+.jr-booking-breadcrumb {
+    display: flex;
+    align-items: center;
+}
+
+.jr-booking-breadcrumb__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+    text-decoration: none;
+    transition: color .15s;
+}
+
+.jr-booking-breadcrumb__back:hover {
+    color: var(--jr-primary);
+    text-decoration: none;
+}
+
+.jr-booking-breadcrumb__back .fa {
+    font-size: 1.1rem;
+}
+
+/* ── Two-column layout ──────────────────────────────────────── */
+.jr-booking-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.jr-booking-main {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.jr-booking-sidebar {
+    flex: 0 0 300px;
+    width: 300px;
+    position: sticky;
+    top: 16px;
+}
+
+/* ── Booking Card (section container) ──────────────────────── */
+.jr-booking-card {
+    background: var(--jr-white);
+    border: 1px solid var(--jr-border);
+    border-radius: var(--jr-radius);
+    box-shadow: var(--jr-shadow);
+    overflow: hidden;
+}
+
+/* This card's jr-booking-trip__schd dropdown-menu must not be clipped when it opens,
+   so overflow can't stay hidden here — the title bar rounds its own top corners
+   instead, since it can no longer rely on the card clipping its edge-to-edge background. */
+.jr-booking-card--trip {
+    overflow: visible;
+}
+
+.jr-booking-card__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    border-bottom: 1px solid var(--jr-border);
+    background: #fafbfb;
+    border-radius: var(--jr-radius) var(--jr-radius) 0 0;
+}
+
+.jr-booking-card__title .fa {
+    color: var(--jr-primary);
+}
+
+/* ── Trip Info ──────────────────────────────────────────────── */
+.jr-booking-trip {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.jr-booking-trip .date {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.jr-booking-trip .date span {
+    display: inline-block;
+    font-size: 1.6rem;
+    color: var(--jr-text);
+}
+
+.jr-booking-trip__route {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.jr-booking-trip__station {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.jr-booking-trip__date {
+    font-size: 1.2rem;
+    color: var(--jr-text-sub);
+}
+
+.jr-booking-trip__time {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.jr-booking-trip__name {
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+}
+
+.jr-booking-trip__middle {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.jr-booking-trip__duration {
+    font-size: 1.15rem;
+    color: var(--jr-text-light);
+    white-space: nowrap;
+}
+
+.jr-booking-trip__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+    padding-top: 8px;
+    border-top: 1px dashed var(--jr-border);
+}
+
+.jr-booking-trip__train {
+    font-weight: 500;
+}
+
+.jr-booking-trip__schd-toggle {
+    font-size: 1.2rem;
+    padding: 2px 10px;
+}
+
+.jr-booking-trip__schd-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.3rem;
+    white-space: nowrap;
+}
+
+.jr-booking-trip__schd-time {
+    color: var(--jr-text-sub);
+    min-width: 44px;
+}
+
+.jr-booking-trip__schd-name {
+    color: var(--jr-text);
+}
+
+/* ── Trip Issuance Notice ───────────────────────────────────── */
+.jr-trip-issue-notice {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    background: #fffbec;
+    border-top: 1px solid #ffeaa0;
+    border-bottom: 1px solid #ffeaa0;
+    font-size: 1.25rem;
+    color: #7a5c00;
+}
+
+.jr-trip-issue-notice .fa {
+    color: #f5a623;
+    flex-shrink: 0;
+}
+
+/* ── Trip Ticket Type ───────────────────────────────────────── */
+.jr-trip-ticket-type {
+    padding: 14px 20px 16px;
+}
+
+.jr-trip-ticket-type__header {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--jr-text-light);
+    letter-spacing: .3px;
+    margin-bottom: 10px;
+}
+
+.jr-trip-ticket-type__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--jr-primary);
+    border-radius: 8px;
+    background: var(--jr-primary-light);
+}
+
+.jr-trip-ticket-type__info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex-wrap: wrap;
+}
+
+.jr-trip-ticket-type__name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--jr-text);
+}
+
+.jr-trip-ticket-type__detail {
+    font-size: 1.2rem;
+    color: var(--jr-primary-dark);
+    text-decoration: underline;
+    white-space: nowrap;
+}
+
+.jr-trip-ticket-type__detail:hover {
+    color: var(--jr-primary);
+}
+
+.jr-trip-ticket-type__right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.jr-trip-ticket-type__price {
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+}
+
+.jr-trip-ticket-type__price strong {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--jr-text);
+}
+
+.jr-trip-ticket-type__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: var(--jr-primary);
+    color: #fff;
+    border-radius: 20px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+    .jr-trip-ticket-type__row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .jr-trip-ticket-type__right {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* ── Passenger Counter ──────────────────────────────────────── */
+.jr-pax-list {
+    padding: 8px 20px 16px;
+}
+
+.jr-pax-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.jr-pax-row:last-child {
+    border-bottom: none;
+}
+
+.jr-pax-row__label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.jr-pax-row__type {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--jr-text);
+}
+
+.jr-pax-row__desc {
+    font-size: 1.15rem;
+    color: var(--jr-text-light);
+}
+
+.jr-pax-row__price {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    margin-top: 2px;
+}
+
+.jr-pax-counter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.jr-pax-counter__btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--jr-border);
+    background: var(--jr-white);
+    color: var(--jr-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, border-color .15s, color .15s;
+}
+
+.jr-pax-counter__btn:hover:not(:disabled) {
+    background: var(--jr-primary-light);
+    border-color: var(--jr-primary);
+}
+
+.jr-pax-counter__btn:disabled {
+    color: #ccc;
+    border-color: #eee;
+    cursor: not-allowed;
+}
+
+.jr-pax-counter__value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    min-width: 24px;
+    text-align: center;
+    line-height: 1;
+}
+
+/* ── Seat Type ──────────────────────────────────────────────── */
+.jr-seat-type-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 20px;
+}
+
+.jr-seat-type-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--jr-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+    user-select: none;
+    position: relative;
+}
+
+.jr-seat-type-option:hover {
+    border-color: var(--jr-primary);
+    background: var(--jr-primary-light);
+}
+
+.jr-seat-type-option.is-selected {
+    border-color: var(--jr-primary);
+    background: var(--jr-primary-light);
+    box-shadow: 0 0 0 3px rgba(38,190,201,.12);
+}
+
+.jr-seat-type-option__radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.jr-seat-type-option__body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.jr-seat-type-option__label {
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--jr-text);
+}
+
+.jr-seat-type-option__price {
+    font-size: 1.35rem;
+    color: var(--jr-text-sub);
+}
+
+.jr-seat-type-option__price strong {
+    font-size: 1.8rem;
+    color: var(--jr-text);
+}
+
+.jr-seat-type-option__unit {
+    font-size: 1.1rem;
+    color: var(--jr-text-light);
+}
+
+.jr-seat-type-option__check {
+    font-size: 1.6rem;
+    color: var(--jr-primary);
+    opacity: 0;
+    transition: opacity .15s;
+}
+
+.jr-seat-type-option.is-selected .jr-seat-type-option__check {
+    opacity: 1;
+}
+
+/* ── Contact Form ───────────────────────────────────────────── */
+.jr-contact-form {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.jr-contact-form__row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.jr-contact-form__field {
+    flex: 1 1 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.jr-contact-form__field--wide {
+    flex: 1 1 100%;
+}
+
+.jr-contact-form__label {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--jr-text-sub);
+    margin-bottom: 0;
+}
+
+.jr-contact-form .form-control {
+    height: 40px;
+    border: 1px solid var(--jr-border);
+    border-radius: 6px;
+    font-size: 1.4rem;
+    color: var(--jr-text);
+    background: #fafafa;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.jr-contact-form .form-control:focus {
+    border-color: var(--jr-primary);
+    box-shadow: 0 0 0 3px rgba(38,190,201,.15);
+    background: var(--jr-white);
+    outline: none;
+}
+
+.jr-contact-form__textarea {
+    height: auto !important;
+    resize: vertical;
+}
+
+/* ── Price Summary (Sidebar) ────────────────────────────────── */
+.jr-price-summary {
+    background: var(--jr-white);
+    border: 1px solid var(--jr-border);
+    border-radius: var(--jr-radius);
+    box-shadow: var(--jr-shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.jr-price-summary__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--jr-border);
+}
+
+.jr-price-summary__block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.jr-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+    gap: 8px;
+}
+
+.jr-price-row__label {
+    flex: 1;
+}
+
+.jr-price-row__label small {
+    display: block;
+    font-size: 1.05rem;
+    color: var(--jr-text-light);
+}
+
+.jr-price-row__val {
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--jr-text);
+}
+
+.jr-price-row--fee {
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--jr-border);
+    color: var(--jr-text-sub);
+}
+
+.jr-price-summary__divider {
+    height: 1px;
+    background: var(--jr-border);
+}
+
+.jr-price-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.jr-price-total-row__label {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--jr-text);
+}
+
+.jr-price-total-row__val {
+    font-size: 1.4rem;
+    color: var(--jr-text);
+}
+
+.jr-price-total-row__val strong {
+    font-size: 2.6rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.jr-price-total-row--b2b {
+    margin-top: 6px;
+}
+
+.jr-price-total-row--b2b .jr-price-total-row__label,
+.jr-price-total-row--b2b .jr-price-total-row__val {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--jr-text-light);
+}
+
+.jr-price-summary__notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 1.15rem;
+    color: var(--jr-text-light);
+    line-height: 1.5;
+}
+
+.jr-price-summary__notice .fa {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.jr-btn-confirm {
+    width: 100%;
+    padding: 12px 0;
+    background: var(--jr-primary);
+    border: none;
+    border-radius: 8px;
+    color: var(--jr-white);
+    font-size: 1.6rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background .2s, transform .1s;
+}
+
+.jr-btn-confirm:hover:not(:disabled) {
+    background: var(--jr-primary-dark);
+}
+
+.jr-btn-confirm:active:not(:disabled) {
+    transform: scale(.97);
+}
+
+.jr-btn-confirm:disabled {
+    background: #c8c8c8;
+    cursor: not-allowed;
+}
+
+.jr-price-summary__errors {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.jr-price-summary__error {
+    font-size: 1.2rem;
+    color: #c0392b;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.jr-price-summary__error .fa {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ── Seat Preference ────────────────────────────────────────── */
+.jr-seat-pref {
+    padding: 12px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.jr-seat-pref__option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--jr-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+    user-select: none;
+    position: relative;
+}
+
+.jr-seat-pref__option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.jr-seat-pref__option:hover {
+    border-color: var(--jr-primary);
+    background: var(--jr-primary-light);
+}
+
+.jr-seat-pref__option.is-selected {
+    border-color: var(--jr-primary);
+    background: var(--jr-primary-light);
+    box-shadow: 0 0 0 3px rgba(38,190,201,.12);
+}
+
+.jr-seat-pref__option-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.jr-seat-pref__option-name {
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--jr-text);
+}
+
+.jr-seat-pref__option-price {
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+}
+
+.jr-seat-pref__option-price strong {
+    font-size: 1.8rem;
+    color: var(--jr-text);
+}
+
+.jr-seat-pref__option-price--free strong {
+    color: var(--jr-text-light);
+}
+
+.jr-seat-pref__option-check {
+    font-size: 1.6rem;
+    color: var(--jr-primary);
+    opacity: 0;
+    transition: opacity .15s;
+    flex-shrink: 0;
+}
+
+.jr-seat-pref__option.is-selected .jr-seat-pref__option-check {
+    opacity: 1;
+}
+
+/* ── Booking Card Badge ─────────────────────────────────────── */
+.jr-booking-card__title-badge {
+    margin-left: auto;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #f0f0f0;
+    color: var(--jr-text-light);
+    letter-spacing: .3px;
+}
+
+/* ── Add-ons ────────────────────────────────────────────────── */
+.jr-addon-list {
+    padding: 12px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.jr-addon-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--jr-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+    user-select: none;
+    position: relative;
+}
+
+.jr-addon-option:hover {
+    border-color: var(--jr-primary);
+    background: var(--jr-primary-light);
+}
+
+.jr-addon-option.is-selected {
+    border-color: var(--jr-primary);
+    background: var(--jr-primary-light);
+    box-shadow: 0 0 0 3px rgba(38,190,201,.12);
+}
+
+.jr-addon-option__checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.jr-addon-option__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--jr-primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background .15s;
+}
+
+.jr-addon-option__icon .fa {
+    font-size: 1.5rem;
+    color: var(--jr-primary-dark);
+}
+
+.jr-addon-option.is-selected .jr-addon-option__icon {
+    background: var(--jr-primary);
+}
+
+.jr-addon-option.is-selected .jr-addon-option__icon .fa {
+    color: #fff;
+}
+
+.jr-addon-option__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.jr-addon-option__name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.jr-addon-option__tag {
+    font-size: 1.0rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: #fff0e6;
+    color: var(--jr-accent);
+    letter-spacing: .3px;
+}
+
+.jr-addon-option__desc {
+    font-size: 1.2rem;
+    color: var(--jr-text-light);
+    margin-top: 3px;
+    line-height: 1.5;
+}
+
+.jr-addon-option__price {
+    text-align: right;
+    flex-shrink: 0;
+    color: var(--jr-text-sub);
+    font-size: 1.2rem;
+}
+
+.jr-addon-option__price strong {
+    display: block;
+    font-size: 1.8rem;
+    color: var(--jr-text);
+    line-height: 1.1;
+}
+
+.jr-addon-option__currency {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.jr-addon-option__unit {
+    font-size: 1.1rem;
+    color: var(--jr-text-light);
+}
+
+.jr-addon-option__check {
+    font-size: 1.6rem;
+    color: var(--jr-primary);
+    opacity: 0;
+    transition: opacity .15s;
+    flex-shrink: 0;
+}
+
+.jr-addon-option.is-selected .jr-addon-option__check {
+    opacity: 1;
+}
+
+/* ── Phone Row ──────────────────────────────────────────────── */
+.jr-phone-row {
+    display: flex;
+    gap: 8px;
+}
+
+.jr-phone-row__cc {
+    flex: 0 0 120px;
+    width: 120px;
+}
+
+.jr-phone-row__number {
+    flex: 1;
+}
+
+/* ── Auto-fill Button ───────────────────────────────────────── */
+.jr-autofill-btn {
+    margin-left: auto;
+    padding: 4px 12px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--jr-primary);
+    background: transparent;
+    border: 1px solid var(--jr-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background .15s, color .15s;
+}
+
+.jr-autofill-btn:hover {
+    background: var(--jr-primary);
+    color: #fff;
+}
+
+/* ── Buyer Form ─────────────────────────────────────────────── */
+.jr-buyer-form {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.jr-buyer-form__row {
+    display: flex;
+    gap: 16px;
+}
+
+.jr-buyer-form__field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.jr-buyer-form__label {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--jr-text-sub);
+    margin: 0;
+}
+
+.jr-buyer-form__required {
+    color: #ef7a70;
+    margin-left: 2px;
+}
+
+.jr-buyer-form__input {
+    height: 40px;
+    border: 1px solid var(--jr-border);
+    border-radius: 6px;
+    font-size: 1.4rem;
+    color: var(--jr-text);
+    background: #fafafa;
+    padding: 0 12px;
+    transition: border-color .15s, box-shadow .15s;
+    width: 100%;
+}
+
+.jr-buyer-form__input:focus {
+    border-color: var(--jr-primary);
+    box-shadow: 0 0 0 3px rgba(38,190,201,.15);
+    background: var(--jr-white);
+    outline: none;
+}
+
+.jr-buyer-form__input.has-error {
+    border-color: #ef7a70;
+    box-shadow: 0 0 0 2px rgba(239,122,112,.15);
+}
+
+/* append-to-body moves .vs__dropdown-menu to a direct child of <body>, so this can't
+   be scoped to .jr-buyer-form__country/.jr-buyer-form__telcountry — custom property
+   inheritance follows the live DOM tree, and the move breaks that ancestor relationship. */
+:root {
+    --vs-dropdown-z-index: 99999;
+}
+
+.jr-buyer-form__country .vs__dropdown-toggle,
+.jr-buyer-form__telcountry .vs__dropdown-toggle {
+    height: 40px;
+    border: 1px solid var(--jr-border);
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+.jr-buyer-form__country .vs__search,
+.jr-buyer-form__country .vs__selected,
+.jr-buyer-form__telcountry .vs__search,
+.jr-buyer-form__telcountry .vs__selected {
+    font-size: 1.4rem;
+    color: var(--jr-text);
+}
+
+.jr-buyer-form__country.has-error .vs__dropdown-toggle,
+.jr-buyer-form__telcountry.has-error .vs__dropdown-toggle {
+    border-color: #ef7a70;
+    box-shadow: 0 0 0 2px rgba(239,122,112,.15);
+}
+
+.jr-buyer-form__error {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1.1rem;
+    color: #ef7a70;
+}
+
+.jr-buyer-form__sub-hint {
+    font-size: 1.4rem;
+    color: var(--jr-primary);
+    margin: 0;
+}
+
+@media (max-width: 767px) {
+    .jr-buyer-form__row {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+
+/* ── Contact Form Hint ──────────────────────────────────────── */
+.jr-contact-form__hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    font-size: 1.1rem;
+    color: var(--jr-text-light);
+    margin-top: 4px;
+    line-height: 1.5;
+}
+
+.jr-contact-form__hint .fa {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--jr-primary);
+}
+
+/* ── Notes / Info ───────────────────────────────────────────── */
+.jr-booking-card--notes .jr-booking-card__title .fa {
+    color: var(--jr-primary);
+}
+
+.jr-notes-list {
+    list-style: none;
+    margin: 0;
+    padding: 14px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.jr-notes-list li {
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+    line-height: 1.6;
+    padding-left: 18px;
+    position: relative;
+}
+
+.jr-notes-list li::before {
+    content: '·';
+    position: absolute;
+    left: 4px;
+    color: var(--jr-primary);
+    font-size: 1.6rem;
+    line-height: 1.2;
+}
+
+/* ── Price Summary Trip Mini Card ───────────────────────────── */
+.jr-price-summary__trip {
+    background: var(--jr-primary-light);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 4px;
+}
+
+.jr-price-summary__trip-route {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.jr-price-summary__trip-time {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--jr-primary-dark);
+    line-height: 1;
+}
+
+.jr-price-summary__trip-arrow {
+    flex: 1;
+    text-align: center;
+    color: var(--jr-text-light);
+    font-size: 1.1rem;
+}
+
+.jr-price-summary__trip-info {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--jr-text);
+    line-height: 1;
+    margin-bottom: 3px;
+}
+
+.jr-price-summary__trip-date {
+    font-size: 1.1rem;
+    color: var(--jr-text-sub);
+}
+
+/* ── Add-on price row ───────────────────────────────────────── */
+.jr-price-row--addon {
+    color: var(--jr-text-sub);
+}
+
+.jr-price-row--addon .jr-price-row__val {
+    color: var(--jr-primary-dark);
+}
+
+/* ── Security Badge ─────────────────────────────────────────── */
+.jr-price-summary__secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 1.1rem;
+    color: var(--jr-text-light);
+    margin-top: -4px;
+}
+
+.jr-price-summary__secure .fa {
+    color: #5cb85c;
+}
+
+/* ── Mobile Confirm Bar ─────────────────────────────────────── */
+.jr-mobile-confirm-bar {
+    display: none;
+}
+
+/* ── Booking Responsive ─────────────────────────────────────── */
+@media (max-width: 991px) {
+    .jr-booking-layout {
+        flex-direction: column;
+    }
+
+    .jr-booking-sidebar {
+        flex: none;
+        width: 100%;
+        position: static;
+    }
+
+    /* On tablet, hide the sidebar price summary and show only the mobile bar */
+    .jr-price-summary {
+        display: flex;
+    }
+}
+
+@media (max-width: 767px) {
+    .jr-booking-header h1 { font-size: 1.8rem; }
+
+    .jr-booking-trip__time { font-size: 2.2rem; }
+
+    .jr-contact-form__row { flex-direction: column; gap: 10px; }
+
+    .jr-seat-type-option__price strong { font-size: 1.6rem; }
+
+    .jr-addon-option {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .jr-addon-option__icon { display: none; }
+
+    .jr-addon-option__price {
+        flex: 0 0 auto;
+    }
+
+    .jr-phone-row__cc { flex: 0 0 100px; }
+
+    /* Sticky mobile confirm bar */
+    .jr-booking-sidebar .jr-price-summary {
+        display: none;
+    }
+
+    .jr-mobile-confirm-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 300;
+        background: var(--jr-white);
+        border-top: 1px solid var(--jr-border);
+        box-shadow: 0 -4px 16px rgba(0,0,0,.10);
+        padding: 10px 16px;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .jr-mobile-confirm-bar__price {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .jr-mobile-confirm-bar__label {
+        font-size: 1.1rem;
+        color: var(--jr-text-light);
+    }
+
+    .jr-mobile-confirm-bar__val {
+        font-size: 1.4rem;
+        color: var(--jr-text);
+        font-weight: 600;
+    }
+
+    .jr-mobile-confirm-bar__val strong {
+        font-size: 2rem;
+    }
+
+    .jr-btn-confirm--mobile {
+        flex: 0 0 auto;
+        width: auto;
+        padding: 12px 24px;
+        font-size: 1.5rem;
+    }
+
+    /* Extra bottom padding so content isn't hidden behind the sticky bar */
+    .jr-booking-body {
+        padding-bottom: 80px;
+    }
+}
+
+/* ── Cancel Policy Link (sidebar) ─────────────────────────── */
+.jr-cancel-policy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 1.2rem;
+    color: var(--jr-text-light);
+    cursor: pointer;
+    padding: 4px 0;
+    transition: color .15s;
+    user-select: none;
+}
+
+.jr-cancel-policy:hover {
+    color: var(--jr-text-sub);
+    text-decoration: underline;
+}
+
+/* ── Cancel Policy Block (mobile main content) ──────────────── */
+.jr-cancel-policy-block {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .jr-cancel-policy-block {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 20px;
+        font-size: 1.45rem;
+        font-weight: 500;
+        color: var(--jr-text);
+        cursor: pointer;
+        user-select: none;
+        transition: background .15s;
+    }
+
+    .jr-cancel-policy-block:active {
+        background: #f5f5f5;
+    }
+
+    .jr-cancel-policy-block .fa-question-circle {
+        font-size: 1.6rem;
+        color: var(--jr-primary);
+        flex-shrink: 0;
+    }
+
+    .jr-cancel-policy-block__arrow {
+        margin-left: auto;
+        font-size: 1.2rem;
+        color: var(--jr-text-light);
+    }
+
+    /* Bottom sheet modal on mobile
+       position:absolute 脫離 modal-dialog-centered 的 flex 排版，
+       直接釘在 .modal（position:fixed, 100vh）底部 */
+    .jr-cancel-policy-modal .modal-dialog {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0;
+        max-width: 100%;
+        width: 100%;
+        height: 80vh;
+        min-height: unset;
+    }
+
+    .jr-cancel-policy-modal .modal-content {
+        height: 100%;
+        border-radius: 16px 16px 0 0;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .jr-cancel-policy-modal .modal-header {
+        flex-shrink: 0;
+        /* reset Bootstrap 的負 margin，避免叉叉被 overflow:hidden 裁掉 */
+    }
+
+    .jr-cancel-policy-modal .modal-header .close {
+        margin: 0;
+        padding: 0 4px;
+        align-self: center;
+    }
+
+    .jr-cancel-policy-modal .modal-body {
+        flex: 1;
+        overflow-y: auto;
+    }
+}
+
+/* 桌機／平板：內容過長時限制高度，改由 modal-body 捲動
+   （bootstrap .modal 為 overflow:hidden，超出視窗會被裁掉） */
+.jr-cancel-policy-modal .modal-content {
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.jr-cancel-policy-modal .modal-header {
+    flex-shrink: 0;
+}
+
+.jr-cancel-policy-modal .modal-body {
+    overflow-y: auto;
+}
+
+/* ── Ticket Detail Modal ────────────────────────────────────── */
+.jr-car-detail-modal__dialog {
+    max-width: 640px;
+}
+
+.jr-car-detail-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--jr-border);
+}
+
+.jr-car-detail-modal__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    overflow-x: auto;
+}
+
+.jr-car-detail-modal__tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 14px 10px;
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.jr-car-detail-modal__tab.is-active {
+    color: var(--jr-primary);
+    border-bottom-color: var(--jr-primary);
+    font-weight: 600;
+}
+
+.jr-car-detail-modal__close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--jr-text-sub);
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.jr-car-detail-modal__body {
+    padding: 20px;
+    max-height: 65vh;
+    overflow-y: auto;
+}
+
+.jr-car-detail-modal__section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    margin: 0 0 12px;
+}
+
+.jr-car-detail-modal__sub-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    margin: 20px 0 10px;
+}
+
+.jr-car-detail-modal__plan-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    margin-bottom: 4px;
+}
+
+.jr-car-detail-modal__plan-desc {
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+    line-height: 1.6;
+    margin: 0 0 12px;
+}
+
+.jr-car-detail-modal__image {
+    max-width: 100%;
+    border-radius: var(--jr-radius);
+    margin-bottom: 12px;
+}
+
+.jr-car-detail-modal__divider {
+    border-top: 1px dashed var(--jr-border);
+    margin: 20px 0;
+}
+
+.jr-car-detail-modal__list li {
+    font-size: 1.3rem;
+    color: var(--jr-text);
+    line-height: 1.7;
+    margin-bottom: 6px;
+}
+
+.jr-car-detail-modal__info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 12px 14px;
+    background: #f7f7f8;
+    border-radius: var(--jr-radius);
+    font-size: 1.2rem;
+    color: var(--jr-text-sub);
+    line-height: 1.6;
+}
+
+.jr-car-detail-modal__info-box .fa {
+    color: var(--jr-primary);
+    margin-top: 2px;
+}
+
+/* ── Cancel Table (Ticket Detail Modal) ─────────────────────── */
+.jr-cancel-table {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.jr-cancel-table__head {
+    display: contents;
+}
+
+.jr-cancel-table__head span {
+    padding: 10px 14px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.jr-cancel-table__head span:first-child {
+    border-right: 1px solid #dee2e6;
+}
+
+.jr-cancel-table__row {
+    display: contents;
+}
+
+.jr-cancel-table__time,
+.jr-cancel-table__fee {
+    padding: 10px 14px;
+    font-size: 1.3rem;
+    line-height: 1.5;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.jr-cancel-table__time {
+    border-right: 1px solid #dee2e6;
+    color: var(--jr-text);
+}
+
+.jr-cancel-table__fee {
+    color: var(--jr-text-sub);
+}
+
+.jr-cancel-table__row:last-child .jr-cancel-table__time,
+.jr-cancel-table__row:last-child .jr-cancel-table__fee {
+    border-bottom: none;
+}
+
+/* ── Modal ──────────────────────────────────────────────── */
+.jr-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.jr-modal {
+    background: var(--jr-white);
+    border-radius: var(--jr-radius);
+    box-shadow: var(--jr-shadow-hover);
+    width: 100%;
+    max-width: 480px;
+    overflow: hidden;
+}
+
+.jr-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    border-bottom: 1px solid var(--jr-border);
+    background: #fafbfb;
+}
+
+.jr-modal__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--jr-text-light);
+    font-size: 1.4rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color .15s;
+}
+
+.jr-modal__close:hover { color: var(--jr-text); }
+
+.jr-modal__body {
+    padding: 16px 20px 20px;
+}
+
+/* ── Car / Ticket Detail Modal ─────────────────────────────── */
+.jr-car-detail-modal .modal-dialog {
+    max-width: 640px;
+}
+
+.jr-car-detail-modal .modal-content {
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: none;
+    border-radius: var(--jr-radius);
+}
+
+.jr-car-detail-modal__header {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--jr-border);
+    flex-shrink: 0;
+}
+
+.jr-car-detail-modal__tabs {
+    display: flex;
+    overflow-x: auto;
+    flex: 1;
+    min-width: 0;
+    scrollbar-width: none;
+}
+
+.jr-car-detail-modal__tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.jr-car-detail-modal__tab {
+    flex-shrink: 0;
+    padding: 14px 10px;
+    background: none;
+    border: none;
+    font-size: 1.65rem;
+    font-weight: 600;
+    color: var(--jr-text-light);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+}
+
+.jr-car-detail-modal__tab.is-active {
+    color: var(--jr-primary);
+    border-bottom-color: var(--jr-primary);
+}
+
+.jr-car-detail-modal__close {
+    flex-shrink: 0;
+    padding: 0 14px;
+    background: none;
+    border: none;
+    font-size: 2.2rem;
+    line-height: 1;
+    color: var(--jr-text-light);
+    cursor: pointer;
+}
+
+.jr-car-detail-modal__close:hover { color: var(--jr-text); }
+
+.jr-car-detail-modal__body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.jr-car-detail-modal__section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    margin: 0 0 16px;
+}
+
+.jr-car-detail-modal__plan-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    margin-bottom: 6px;
+}
+
+.jr-car-detail-modal__plan-desc {
+    font-size: 1.4rem;
+    color: var(--jr-text-sub);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    white-space: pre-line;
+}
+
+.jr-car-detail-modal__plan-desc--muted {
+    color: var(--jr-text-light);
+}
+
+.jr-car-detail-modal__image {
+    width: 100%;
+    border-radius: var(--jr-radius);
+    margin-bottom: 20px;
+    display: block;
+}
+
+.jr-car-detail-modal__divider {
+    border-top: 1px solid var(--jr-border);
+    margin: 24px 0;
+}
+
+.jr-car-detail-modal__sub-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    margin: 20px 0 10px;
+}
+
+.jr-cancel-table {
+    border: 1px solid var(--jr-border);
+    border-radius: var(--jr-radius);
+    overflow: hidden;
+}
+
+.jr-cancel-table__head,
+.jr-cancel-table__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.jr-cancel-table__head {
+    background: #f8f9fa;
+    font-weight: 600;
+    font-size: 1.35rem;
+    color: var(--jr-text);
+}
+
+.jr-cancel-table__head span,
+.jr-cancel-table__time,
+.jr-cancel-table__fee {
+    padding: 10px 14px;
+    font-size: 1.35rem;
+    border-bottom: 1px solid var(--jr-border);
+    line-height: 1.5;
+}
+
+.jr-cancel-table__fee {
+    color: var(--jr-text-sub);
+    text-align: right;
+}
+
+.jr-cancel-table__row:last-child .jr-cancel-table__time,
+.jr-cancel-table__row:last-child .jr-cancel-table__fee {
+    border-bottom: none;
+}
+
+.jr-car-detail-modal__list {
+    font-size: 1.35rem;
+    color: var(--jr-text-sub);
+    line-height: 1.7;
+    padding-left: 20px;
+    margin-bottom: 8px;
+}
+
+.jr-car-detail-modal__info-box {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    background: var(--jr-primary-light);
+    color: var(--jr-primary-dark);
+    border-radius: var(--jr-radius);
+    padding: 12px 14px;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    margin-top: 16px;
+}
+
+.jr-car-detail-modal__info-box .fa {
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+    .jr-car-detail-modal .modal-dialog {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0;
+        max-width: 100%;
+        width: 100%;
+        height: 88vh;
+        min-height: unset;
+    }
+
+    .jr-car-detail-modal .modal-content {
+        height: 100%;
+        max-height: none;
+        border-radius: 16px 16px 0 0;
+    }
+}
+
+/* ── Booking Header Breadcrumb ──────────────────────────── */
+.jr-booking-header h1 .fa {
+    opacity: .6;
+}
+
+/* ── has-error on select/input ──────────────────────────── */
+.jr-contact-form .form-control.has-error {
+    border-color: #ef7a70;
+    box-shadow: 0 0 0 2px rgba(239,122,112,.15);
+}
+
+/* ── Mobile booking card info ───────────────────────────── */
+@media (max-width: 767px) {
+    .jr-trip-ticket-type__row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .jr-trip-ticket-type__right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .jr-modal {
+        max-width: 100%;
+        margin: 0 4px;
+    }
+}
+
+/* ── 選擇車票 ────────────────────────────────────────────── */
+.ticket-section {
+    padding: 16px 20px 20px;
+    background: #fff;
+}
+
+.ticket-section .section-title,
+.select-passenger-section .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    margin-bottom: 12px;
+}
+
+.layout-u-mb-250 { margin-bottom: 20px; }
+
+.train-class-card {
+    border: 1.5px solid var(--jr-border);
+    border-radius: var(--jr-radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+    transition: border-color .15s;
+    cursor: pointer;
+}
+
+.train-class-card:last-child { margin-bottom: 0; }
+
+.train-class-card.choose {
+    border-color: var(--jr-primary);
+}
+
+.train-class-card-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    gap: 12px;
+}
+
+.train-class-card-info__left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.train-class-card-info__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.train-class-card-info__price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    white-space: nowrap;
+}
+
+.train-class-card-detail-link {
+    padding: 0 16px 12px;
+    font-size: 1.2rem;
+}
+
+.train-class-card-detail-link__text {
+    color: var(--jr-primary);
+    cursor: pointer;
+}
+
+.train-class-card-detail-link__text:hover {
+    text-decoration: underline;
+}
+
+.train-class-card-info .title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.kk-text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 1.3rem;
+    color: var(--jr-primary-dark);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    align-self: flex-start;
+}
+
+.kk-text-link:hover { color: var(--jr-primary); text-decoration: underline; }
+
+.kk-text-link__icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+
+/* kk-button */
+.kk-button-base {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background .15s, opacity .15s;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.kk-button--md { height: 36px; padding: 0 16px; font-size: 1.4rem; }
+
+.kk-button--primary {
+    background: var(--jr-primary);
+    color: #fff;
+}
+.kk-button--primary:hover { background: var(--jr-primary-dark); }
+
+.kk-button--secondary {
+    background: #fff;
+    color: var(--jr-primary);
+    border: 1.5px solid var(--jr-primary);
+}
+.kk-button--secondary:hover { background: var(--jr-primary-light); }
+
+.kk-button-base__leading {
+    display: flex;
+    align-items: center;
+}
+
+.kk-button-base__leading .kk-icon--sm {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+.kk-button-base__body { display: flex; align-items: center; margin: 12px; }
+
+@media (max-width: 767px) {
+    .ticket-section { padding: 14px 16px 18px; }
+    .train-class-card-info { padding: 12px 14px; }
+}
+
+/* ── 選擇人數 ────────────────────────────────────────────── */
+.select-passenger-section {
+    padding: 16px 20px 20px;
+}
+
+.select-passenger-section .section-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.select-passenger-section .kk-icon--sm {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    fill: var(--jr-text-sub);
+}
+
+.select-custom-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border: 1px solid var(--jr-border);
+    border-radius: var(--jr-radius);
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.select-custom-item:last-child {
+    margin-bottom: 0;
+}
+
+.item-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.pax-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.item-title {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--jr-text);
+}
+
+.item-title__price {
+    font-weight: 700;
+    color: var(--jr-text);
+    white-space: nowrap;
+}
+
+.item-desc {
+    font-size: 1.15rem;
+    color: var(--jr-text-light);
+}
+
+/* KKday price display */
+.kk-price-text { display: inline-flex; align-items: baseline; }
+.kk-price-local { display: inline-flex; align-items: baseline; }
+.kk-price-base  { display: inline-flex; align-items: baseline; }
+.kk-price-base__origin { display: inline-flex; align-items: baseline; gap: 1px; }
+.kk-price-origin--symbol { display: inline-flex; align-items: baseline; gap: 2px; }
+.kk-price-local__currency--symbol {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    align-self: flex-end;
+    margin-bottom: 1px;
+}
+.kk-price-local--lg .kk-price-local__normal {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    line-height: 1;
+}
+
+/* Counter */
+.number-select {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.counter-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--jr-border);
+    background: var(--jr-white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, border-color .15s;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.counter-btn .kk-icon--xs {
+    width: 14px;
+    height: 14px;
+    fill: var(--jr-primary);
+}
+
+.counter-btn:hover:not(.disabled) {
+    background: var(--jr-primary-light);
+    border-color: var(--jr-primary);
+}
+
+.counter-btn.disabled {
+    cursor: not-allowed;
+    opacity: .4;
+}
+
+.counter-btn.disabled .kk-icon--xs {
+    fill: #ccc;
+}
+
+.counter-result {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    min-width: 20px;
+    text-align: center;
+    line-height: 1;
+}
+
+@media (max-width: 767px) {
+    .select-passenger-section { padding: 14px 16px 18px; }
+    .pax-right { gap: 8px; }
+}
+
+/* ── 如何使用 ────────────────────────────────────────────── */
+.how-to-use-section {
+    padding: 16px 20px 20px;
+}
+
+.how-to-use-section .hint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--jr-primary-light);
+    border-radius: 8px;
+    margin-bottom: 14px;
+}
+
+.how-to-use-section .hint .kk-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    fill: var(--jr-primary-dark);
+}
+
+.how-to-use-section .hint .fa {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    color: var(--jr-primary-dark);
+}
+
+.how-to-use-section .hint__text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--jr-primary-dark);
+}
+
+.disc-list {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.how-to-use-list li {
+    font-size: 1.4rem;
+    color: var(--jr-text);
+    line-height: 1.7;
+    margin-bottom: 6px;
+}
+
+.how-to-use-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* ── 購買須知 ────────────────────────────────────────────── */
+.booking-info-section {
+    padding: 4px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.booking-info-item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--jr-border);
+}
+
+.booking-info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-item-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--jr-text);
+    margin-bottom: 8px;
+}
+
+.info-item-list li {
+    font-size: 1.35rem;
+    color: var(--jr-text-sub);
+    line-height: 1.7;
+    margin-bottom: 6px;
+}
+
+.info-item-list li:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 767px) {
+    .how-to-use-section {
+        padding: 14px 16px 18px;
+    }
+
+    .booking-info-section {
+        padding: 4px 16px 18px;
+    }
+
+    .how-to-use-list li,
+    .info-item-list li {
+        font-size: 1.3rem;
+    }
+}
+
+/* ── Route stops expanded (Booking) ────────────────────────── */
+.jr-route-stops-expanded {
+    padding: 8px 12px;
+    background: #fafcfc;
+    border-radius: 6px;
+    border: 1px solid var(--jr-border);
+    margin-top: 8px;
+}
+
+.jr-popover-stop {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 1.3rem;
+}
+
+.jr-popover-stop__time {
+    min-width: 40px;
+    color: var(--jr-text-sub);
+    flex-shrink: 0;
+}
+
+.jr-popover-stop__name {
+    color: var(--jr-text);
+}
+
+/* ── Label badges (shared) ──────────────────────────────────── */
+.jr-label-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.jr-badge-primary {
+    background-color: var(--jr-primary);
+    color: #fff;
+    font-size: 1.2rem;
+}
+
+/* ============================================================
+   Index (Search Results) — Production KKday Design
+   ============================================================ */
+
+/* ── KKday icon ── */
+.kk-icon {
+    display: inline-block;
+    vertical-align: middle;
+    fill: currentColor;
+}
+.kk-icon--sm {
+    width: 16px;
+    height: 16px;
+}
+.kk-icon--md {
+    width: 20px;
+    height: 20px;
+}
+
+/* ── Layout Grid (12-column CSS custom-property grid) ── */
+.layout-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--column-count, 12), 1fr);
+    width: 100%;
+}
+.layout-grid--vertical-align-default {
+    align-items: stretch;
+}
+.layout-grid__cell {
+    grid-column: span var(--span, 1);
+}
+
+/* ── Layout utilities ── */
+.layout-u-my-250 { margin-top: 20px; margin-bottom: 20px; }
+.layout-u-mb-250 { margin-bottom: 20px; }
+
+/* ── Body offset for fixed header (60px) ── */
+/*body {*/
+/*    padding-top: 60px;*/
+/*}*/
+
+/* ── Search Block ── */
+.search-block {
+    background-color: #fff;
+    padding: 20px 0;
+    border-bottom: 1px solid #e6e9ed;
+}
+
+/* ── Search Form Desktop ── */
+.japan-rail-list-desktop-index .search-form-desktop .search-input-section {
+    padding: 12px 0;
+    gap: 12px;
+}
+.search-form-desktop {
+    background: #fff;
+}
+.search-form-desktop .search-input-section {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+}
+.search-form-desktop .blank-label {
+    display: none;
+}
+.search-form-desktop .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.search-form-desktop .form-group label {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #4a4b50;
+    white-space: nowrap;
+}
+.search-form-desktop .dep-location,
+.search-form-desktop .arr-location {
+    flex: 1 1 0;
+    min-width: 0;
+}
+.search-form-desktop .date-calendar {
+    flex: 0 0 180px;
+}
+.search-form-desktop .date-calendar input[type="date"] {
+    height: 44px;
+    border-radius: 8px;
+    border: 1px solid #d5d6db;
+    padding: 0 12px;
+    font-size: 1.4rem;
+    cursor: pointer;
+    width: 100%;
+}
+.search-form-desktop .search-btn {
+    flex-shrink: 0;
+}
+.search-form-desktop .search-btn button {
+    height: 44px;
+    white-space: nowrap;
+}
+
+/* ── Switch Location ── */
+.switch-location {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+}
+.switch-location .blank-label {
+    height: 20px;
+}
+.switch-location .switch-icon button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #d5d6db;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--jr-primary, #26bec9);
+    transition: background .15s, color .15s;
+}
+.switch-location .switch-icon button:hover {
+    background: var(--jr-primary, #26bec9);
+    color: #fff;
+}
+
+/* ── Breadcrumbs ── */
+.breadcrumbs-wrap .breadcrumbs {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    max-width: 80%;
+    list-style: none;
+    flex-wrap: wrap;
+}
+.breadcrumbs-wrap .breadcrumbs li {
+    display: flex;
+    align-items: center;
+}
+.breadcrumbs-wrap .breadcrumbs li:before {
+    content: ">";
+    font-size: 14px;
+    line-height: 1;
+    color: #9c9da0;
+    margin: 0 7px;
+    padding: 0;
+}
+.breadcrumbs-wrap .breadcrumbs li:first-child:before {
+    display: none;
+}
+.breadcrumbs-wrap .breadcrumbs li a {
+    color: #13a3b6;
+    text-decoration: none;
+}
+.breadcrumbs-wrap .breadcrumbs li a:hover {
+    text-decoration: underline;
+}
+.breadcrumbs-wrap .breadcrumbs li.active {
+    color: #4a4b50;
+}
+
+/* ── Date Slider Board ── */
+.date-slider-board {
+    padding: 0 40px;
+    position: relative;
+    background: #f5f6fa;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+.date-slider-board .carousel {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+}
+.date-slider-board .carousel .carousel__viewport {
+    flex: 1;
+    overflow: hidden;
+}
+.date-slider-board .carousel .carousel__track {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.date-slider-board .carousel .carousel__slide {
+    flex-shrink: 0;
+}
+.date-slider-board .carousel > .carousel__prev,
+.date-slider-board .carousel > .carousel__next {
+    display: block;
+    width: 32px;
+    height: 32px;
+    background-color: #fff;
+    border-radius: 50%;
+    font-size: 22px;
+    line-height: 32px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid #d5d6db;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4a4b50;
+    transition: background .15s, color .15s;
+}
+.date-slider-board .carousel > .carousel__prev:hover,
+.date-slider-board .carousel > .carousel__next:hover {
+    background: var(--jr-primary, #26bec9);
+    color: #fff;
+    border-color: var(--jr-primary, #26bec9);
+}
+.date-slider-board .carousel .action-button {
+    pointer-events: none;
+    font-size: 1.3rem;
+}
+.date-slider-board .carousel .day-block {
+    width: calc(100% - 4px);
+    padding: 8px;
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px solid #d5d6db;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color .15s, background .15s;
+    user-select: none;
+}
+.date-slider-board .carousel .day-block:hover {
+    border-color: var(--jr-primary, #26bec9);
+    background-color: #e8f9fa;
+}
+.date-slider-board .carousel .day-block.active {
+    border: 1px solid #26bec9;
+    background-color: #e8f9fa;
+}
+.date-slider-board .carousel .day-block .date {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1b1e;
+    white-space: nowrap;
+}
+.date-slider-board .carousel .day-block .week {
+    font-size: 1.1rem;
+    color: #9c9da0;
+    margin-top: 2px;
+}
+.date-slider-board .carousel .day-block.is-weekend .week {
+    color: #e65f50;
+}
+
+/* ── Bulletin Board ── */
+.bulletin-board-wrap {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    min-height: 44px;
+    flex-grow: 0 !important;
+    width: 100%;
+    line-height: 20px;
+}
+.bulletin-board-wrap.warning {
+    background-color: #fff8e1;
+}
+.bulletin-board-wrap .icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+    color: #f9a825;
+}
+.bulletin-board-wrap .bulletin-board-content {
+    font-size: 1.4rem;
+    color: #4a4b50;
+}
+
+/* ── Results Count ── */
+.japan-rail-list-desktop-index .count {
+    font-size: 18px;
+    font-weight: 700;
+}
+.count {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a1b1e;
+    padding-bottom: 12px;
+}
+.count .kk-u-text-primary-dark {
+    color: var(--jr-primary-dark, #138184);
+}
+
+/* ── Card Wrap / Train Card Item ── */
+.card-wrap {
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background-color: #eceef3;
+}
+.card-wrap .main {
+    background: #fff;
+    border-radius: 8px;
+}
+.card-wrap .main .station-info-block {
+    border-right: 1px solid #e6e9ed;
+    display: flex;
+    flex-direction: column;
+}
+.card-wrap .main .booking-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+.card-wrap.is-unavailable {
+    opacity: .7;
+}
+
+/* ── Search Result Card ── */
+.search-result-card .train-card-item .station-info-block {
+    padding: 20px;
+    justify-content: flex-start;
+}
+.search-result-card .train-card-item .station-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex: 1;
+}
+.search-result-card .train-card-item .dep-section {
+    width: 65%;
+}
+.search-result-card .train-card-item .arr-block {
+    width: 35%;
+}
+.search-result-card .train-card-item .booking-block {
+    padding: 20px;
+    position: relative;
+}
+.search-result-card .train-card-item .booking-block .price-block {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.search-result-card .train-card-item .booking-block .price-block .booking-cta {
+    margin: 12px;
+    font-size: 16px;
+    width: fit-content;
+    margin-left: auto;
+}
+
+/* ── Station Info ── */
+.dep-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.dep-block b,
+.arr-block b {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1a1b1e;
+}
+.station-text {
+    font-size: 1.3rem;
+    color: #6b6c72;
+    margin: 4px 0 0;
+}
+.duration-arrow {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    color: #9c9da0;
+}
+.duration-text {
+    font-size: 1.2rem;
+    white-space: nowrap;
+    color: #9c9da0;
+    padding-left: 4px;
+}
+
+/* ── Route Map Button ── */
+.route-map-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1.3rem;
+    color: var(--jr-primary, #26bec9);
+    cursor: default;
+}
+.route-map-btn.is-expandable {
+    cursor: pointer;
+}
+.route-map-btn.is-expandable:hover {
+}
+
+/* ── Price Block ── */
+.kk-price-local--xxl .kk-price-local__normal,
+.kk-price-local--xxl .kk-price-local__currency--symbol {
+    font-size: 22px;
+    line-height: 22px;
+    font-weight: 700;
+    color: #1a1b1e;
+}
+.kk-price-local--xxl .kk-price-local__from {
+    font-size: 16px;
+    line-height: 16px;
+    font-weight: 500;
+    color: #6b6c72;
+}
+.kk-price-base__origin {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+}
+.kk-price-local__align--end {
+    text-align: end;
+}
+.kk-price-local__align--spacing {
+    margin-left: 4px;
+}
+
+/* ── KKday Button (lg override) ── */
+.kk-button--lg {
+    --kk-button-gap: 4px;
+    --kk-button-padding-top: 10px;
+    --kk-button-padding-bottom: 10px;
+    --kk-button-padding-left: 20px;
+    --kk-button-padding-right: 20px;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 700;
+}
+
+/* ── Sold-Out State ── */
+.jr-sold-out {
+    text-align: center;
+    color: #9c9da0;
+    font-size: 1.3rem;
+    padding: 16px 0;
+}
+
+/* ── Is-Last-Page Hint ── */
+.is-last-page-hint {
+    text-align: center;
+    color: #9c9da0;
+    font-size: 1.3rem;
+    padding: 20px 0 8px;
+}
+
+/* ── Footer Info ── */
+.footer-info {
+    text-align: center;
+    padding: 40px 0;
+}
+.footer-info .title {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -1px;
+    line-height: 16px;
+    margin-bottom: 12px;
+}
+.footer-info .text {
+    white-space: pre-line;
+    line-height: 16px;
+    font-size: 12px;
+    color: #9c9da0;
+}
+
+/* ── Route Timeline (expanded panel) ── */
+.jr-ticket-card__route-panel {
+    background: #f5f6fa;
+    border-radius: 0 0 8px 8px;
+    padding: 16px 24px;
+}
+.jr-route-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 20px;
+}
+.jr-route-timeline:before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: #d5d6db;
+}
+.jr-route-stop {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    padding: 6px 0;
+}
+.jr-route-stop__dot {
+    position: absolute;
+    left: -20px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--jr-primary, #26bec9);
+    background: #fff;
+}
+.jr-route-stop.is-first .jr-route-stop__dot,
+.jr-route-stop.is-last  .jr-route-stop__dot {
+    background: var(--jr-primary, #26bec9);
+}
+.jr-route-stop__time {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #1a1b1e;
+    min-width: 44px;
+}
+.jr-route-stop__name {
+    font-size: 1.3rem;
+    color: #4a4b50;
+}
+
+/* ── Loading & Empty State ── */
+.jr-loading {
+    text-align: center;
+    padding: 60px 0;
+    color: #9c9da0;
+}
+.jr-loading i { font-size: 2.4rem; margin-bottom: 8px; display: block; }
+.jr-loading p  { font-size: 1.4rem; }
+.jr-empty {
+    text-align: center;
+    padding: 60px 0;
+    color: #9c9da0;
+}
+.jr-empty i { font-size: 3rem; margin-bottom: 12px; display: block; }
+.jr-empty p  { font-size: 1.4rem; }
+
+/* ── Outer Page Grid spacing tokens ── */
+:root {
+    --layout-spacing-050: 4px;
+    --layout-spacing-200: 16px;
+    --layout-spacing-300: 24px;
+    --layout-grid-gap: 0px;
+    --layout-grid-gap-x: var(--layout-grid-gap);
+    --layout-grid-gap-y: var(--layout-grid-gap);
+}
+
+/* ── Layout Grid (complete override to match reference) ── */
+.layout-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--column-count, 12), 1fr);
+    gap: var(--layout-grid-gap-y, 0px) var(--layout-grid-gap-x, 0px);
+    width: 100%;
+}
+.layout-grid--gap-x-300 { --layout-grid-gap-x: var(--layout-spacing-300); }
+.layout-grid--gap-y-050 { --layout-grid-gap-y: var(--layout-spacing-050); }
+.layout-grid--vertical-align-default { align-items: stretch; }
+.layout-grid--vertical-align-default > .layout-grid__cell {
+    display: flex;
+    flex-direction: column;
+}
+.layout-grid--vertical-align-default > .layout-grid__cell > * {
+    flex: 1 1 auto;
+    height: auto;
+}
+.layout-grid__cell {
+    --span: 1;
+    grid-column: auto / span var(--span);
+}
+
+/* ── Layout List ── */
+.layout-list {
+    --layout-list-gap: 0px;
+    display: grid;
+    grid-template-columns: minmax(0, auto);
+    gap: var(--layout-list-gap);
+}
+.layout-list--gap-200    { --layout-list-gap: var(--layout-spacing-200); }
+.layout-list--horizontal-align-default { justify-items: stretch; }
+
+/* ── List Border (outer grid with sidebar) ── */
+.list-border .layout-list             { flex-grow: 0; }
+.list-border .detail-search-wrap-v2  { border-radius: 8px; flex-grow: 0; }
+
+/* ── Filter Sidebar ── */
+.detail-search-wrap-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0;
+}
+.detail-block {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+}
+.detail-type-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #212121;
+}
+.detail-type-option {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.detail-type-option .detail-option .kk-option-item__label { cursor: pointer; }
+
+/* ── KKday Checkbox ── */
+.kk-option-item-layout {
+    display: grid;
+    grid-template-columns: var(--grid-template-columns, auto 1fr);
+    grid-template-rows: var(--grid-template-rows, auto);
+    gap: 4px 8px;
+    align-items: center;
+}
+.kk-option-item-layout--left {
+    --grid-template-columns: auto 1fr;
+    align-items: start;
+}
+.kk-option-item-layout__input { display: flex; align-items: center; }
+.kk-option-item-layout__input-label { display: flex; align-items: center; }
+
+.kk-checkbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 6px;
+}
+.kk-checkbox__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.kk-checkbox__selector {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #d5d6db;
+    background: #fff;
+    flex-shrink: 0;
+    position: relative;
+    transition: border-color .15s, background .15s;
+}
+.kk-checkbox__input:checked + .kk-checkbox__selector {
+    background: var(--jr-primary, #26bec9);
+    border-color: var(--jr-primary, #26bec9);
+}
+.kk-checkbox__input:checked + .kk-checkbox__selector::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 6px;
+    height: 11px;
+    border: 2px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+}
+.kk-checkbox-item__checkbox--lg .kk-checkbox__selector {
+    width: 20px;
+    height: 20px;
+}
+
+/* ── KKday Option Item Label ── */
+.kk-option-item-label { color: #212121; }
+.kk-option-item-label--lg {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+}
+.kk-option-item-icon-layout { display: flex; }
+.kk-option-item-icon-layout__label { display: flex; align-items: center; }
+
+/* ── KKday Button Spinner ── */
+.kk-button-base__spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.kk-button__spinner {
+    animation: jr-spin 0.8s linear infinite;
+    fill: currentColor;
+    width: 20px;
+    height: 20px;
+}
+@keyframes jr-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   Mobile Responsive — Index (Search Results)
+   Breakpoint: ≤ 575px  (reference: @media max-width:575px)
+   ============================================================ */
+
+@media (max-width: 575px) {
+
+    /* ── Search Block ── */
+    .search-block {
+        padding: 12px 0;
+        border-bottom: 1px solid #e6e9ed;
+    }
+    .search-form-desktop {
+        padding: 12px 16px;
+        border-radius: 0;
+    }
+    .search-form-desktop .search-input-section {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 8px;
+        padding: 0;
+    }
+    /* All inputs full-width stacked */
+    .search-form-desktop .dep-location,
+    .search-form-desktop .arr-location,
+    .search-form-desktop .date-calendar {
+        flex: 1 1 100%;
+        min-width: 0;
+        width: 100%;
+    }
+    .search-form-desktop .date-calendar input[type="date"] {
+        width: 100%;
+    }
+    /* Switch-location: show inline between dep and arr, centred */
+    .search-form-desktop .switch-location {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 2px 0;
+    }
+    .search-form-desktop .switch-location .blank-label {
+        display: none;
+    }
+    .search-form-desktop .switch-location .switch-icon button {
+        width: 40px;
+        height: 40px;
+    }
+    /* Search button: full-width */
+    .search-form-desktop .search-btn {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+    .search-form-desktop .search-btn .blank-label {
+        display: none;
+    }
+    .search-form-desktop .search-btn button {
+        width: 100%;
+        justify-content: center;
+    }
+    /* Station dropdown panel: prevent off-screen */
+    .jr-station-panel {
+        width: 100%;
+        max-height: 50vh;
+        left: 0;
+        right: 0;
+    }
+    .jr-station-trigger {
+        height: 48px;
+        font-size: 1.5rem;
+    }
+
+    /* ── Breadcrumbs ── */
+    .breadcrumbs-wrap {
+        overflow: hidden;
+    }
+    .breadcrumbs-wrap .breadcrumbs {
+        max-width: 100%;
+        font-size: 1.2rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+    }
+    .breadcrumbs-wrap .breadcrumbs::-webkit-scrollbar { display: none; }
+
+    /* ── Date Slider ── */
+    .date-slider-board {
+        padding: 8px 16px;
+        background-color: #fff;
+    }
+    .date-slider-board .carousel > .carousel__prev,
+    .date-slider-board .carousel > .carousel__next {
+        display: flex !important;
+    }
+    .date-slider-board .carousel .carousel__viewport {
+        overflow: hidden;
+    }
+    .date-slider-board .carousel .carousel__track {
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+    /* Show 4 dates on mobile */
+    .date-slider-board .carousel .carousel__slide {
+        width: calc(25% - 4.5px) !important;
+        flex-shrink: 0;
+    }
+    .date-slider-board .carousel .day-block {
+        padding: 6px 4px;
+    }
+    .date-slider-board .carousel .day-block .date {
+        font-size: 1.1rem;
+    }
+    .date-slider-board .carousel .day-block .week {
+        font-size: 1.0rem;
+    }
+
+    /* ── Bulletin Board ── */
+    .bulletin-board-wrap {
+        border-radius: 0;
+        font-size: 1.2rem;
+        padding: 10px 12px;
+    }
+
+    /* ── Container padding ── */
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    /* ── Outer grid: collapse 9+3 → full width, hide sidebar ── */
+    .list-border {
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+    }
+    .list-border > .layout-grid__cell {
+        grid-column: 1 / -1 !important;
+    }
+    /* Hide filter sidebar on mobile */
+    .list-border > .layout-grid__cell:last-child {
+        display: none;
+    }
+
+    /* ── Card layout: stack station-info (top) + booking (bottom) ── */
+    .train-card-item .layout-grid.main {
+        grid-template-columns: 1fr !important;
+    }
+    .train-card-item .layout-grid.main > .layout-grid__cell {
+        grid-column: 1 / -1 !important;
+    }
+    /* Remove right border, add bottom divider */
+    .card-wrap .main .station-info-block {
+        border-right: none;
+        border-bottom: 1px solid #e6e9ed;
+    }
+    .search-result-card .train-card-item .station-info-block {
+        padding: 12px 16px;
+    }
+    .search-result-card .train-card-item .booking-block {
+        padding: 12px 16px;
+    }
+
+    /* ── Station info: responsive font sizes (per reference min-width:576) ── */
+    .station-info b {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+    .station-info .duration-arrow {
+        flex: 0 0 auto;
+        width: auto;
+    }
+    .station-info .duration-text {
+        font-size: 1.1rem;
+    }
+    .station-info .station-text {
+        font-size: 1.2rem;
+        margin-top: 2px;
+    }
+    .route-map-btn {
+        font-size: 1.2rem;
+        margin-top: 8px;
+    }
+
+    /* ── Price: smaller on mobile ── */
+    .kk-price-local--xxl .kk-price-local__normal,
+    .kk-price-local--xxl .kk-price-local__currency--symbol {
+        font-size: 18px;
+        line-height: 18px;
+    }
+    .kk-price-local--xxl .kk-price-local__from {
+        font-size: 13px;
+    }
+
+    /* ── Results count ── */
+    .count {
+        font-size: 1.4rem;
+        padding-bottom: 8px;
+    }
+
+    /* ── Footer ── */
+    .footer-info {
+        padding: 24px 0;
+    }
+    .footer-info .title {
+        font-size: 1.4rem;
+    }
+    .footer-info .text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    /* ── Route Panel ── */
+    .jr-ticket-card__route-panel {
+        padding: 12px 16px;
+    }
+
+    /* ── Detail sidebar (visible if not hidden, per reference) ── */
+    .detail-search-wrap-v2 { gap: 0; }
+    .detail-search-wrap-v2 .detail-block {
+        padding: 0;
+        border-radius: 0;
+    }
+    .detail-search-wrap-v2 .detail-type-title {
+        padding: 12px 24px;
+        margin-bottom: 0;
+        font-size: 16px;
+    }
+    .detail-search-wrap-v2 .detail-type-option {
+        gap: 24px;
+        padding: 12px 24px 20px;
+    }
+}
+
+/* ── Tablet: ≥ 576px station-info size (per reference) ── */
+@media (min-width: 576px) {
+    .station-info b {
+        font-size: 24px;
+    }
+    .station-info .duration-arrow {
+        margin: 0 12px;
+        width: 120px;
+    }
+    .station-info .duration-text {
+        font-size: 14px;
+    }
+    .station-info .station-text {
+        font-size: 16px;
+        margin-top: 4px;
+    }
+}
+
+/* ── Desktop: ≥ 992px wider duration arrow ── */
+@media (min-width: 992px) {
+    .station-info .duration-arrow {
+        width: 200px;
+    }
+}
+
+/* ── Payment Section ──────────────────────────────────────── */
+.jr-payment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.jr-payment-item {
+    border: 1.5px solid var(--jr-border);
+    border-radius: var(--jr-radius);
+    overflow: hidden;
+    transition: border-color .15s;
+}
+
+.jr-payment-item:has(.jr-payment-label.is-selected) {
+    border-color: var(--jr-primary);
+}
+
+.jr-payment-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .12s;
+}
+
+.jr-payment-label:hover {
+    background: var(--jr-primary-light);
+}
+
+.jr-payment-label.is-selected {
+    background: var(--jr-primary-light);
+}
+
+.jr-payment-label--disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.jr-payment-label__radio {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--jr-border);
+    border-radius: 50%;
+    background: #fff;
+    transition: border-color .15s;
+    position: relative;
+}
+
+.jr-payment-label.is-selected .jr-payment-label__radio {
+    border-color: var(--jr-primary);
+    background: var(--jr-primary);
+}
+
+.jr-payment-label.is-selected .jr-payment-label__radio::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.jr-payment-label__text {
+    font-size: 1.45rem;
+    font-weight: 500;
+    color: var(--jr-text);
+    flex: 1;
+}
+
+.jr-card-logos {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.jr-card-logo {
+    height: 22px;
+    width: auto;
+    object-fit: contain;
+}
+
+.jr-payment-label__vnpay {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.jr-payment-label__sub {
+    font-size: 1.2rem;
+    color: var(--jr-text-sub);
+}
+
+.jr-vnpay-logo {
+    height: 20px;
+    width: auto;
+    object-fit: contain;
+    margin-left: auto;
+}
+
+.jr-payment-balance {
+    padding: 6px 16px 10px 44px;
+    font-size: 1.3rem;
+    color: var(--jr-text-sub);
+}
+
+.jr-payment-balance--unavailable {
+    color: #ef7a70;
+}
+
+.jr-payment-disabled-msg {
+    padding: 0 16px 10px 44px;
+    font-size: 1.25rem;
+    color: #ef7a70;
+    margin: 0;
+}
+
+.jr-payment-credit-only {
+    font-size: 1.35rem;
+    color: #ef7a70;
+    font-weight: 500;
+    padding: 8px 0;
+}
+
+/* Card entry form */
+.jr-card-info {
+    padding: 0 16px 16px;
+    border-top: 1px solid var(--jr-border);
+    background: var(--jr-bg);
+}
+
+.jr-card-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 14px;
+}
+
+.jr-card-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1 1 200px;
+}
+
+.jr-card-field--half {
+    flex: 1 1 120px;
+    max-width: 200px;
+}
+
+.jr-card-field label {
+    font-size: 1.25rem;
+    color: var(--jr-text-sub);
+    margin: 0;
+}
+
+.tpfield,
+.jr-card-field .form-control {
+    height: 40px;
+    border: 1.5px solid var(--jr-border);
+    border-radius: 6px;
+    background: #fff;
+    padding: 0 10px;
+}
+
+.jr-stripe-element {
+    padding: 10px 12px;
+    border: 1.5px solid var(--jr-border);
+    border-radius: 6px;
+    background: #fff;
+    min-height: 40px;
+}
+
+.jr-card-error {
+    font-size: 1.2rem;
+    color: #ef7a70;
+    margin-top: 6px;
+}
+
+/* ── Invoice Section ──────────────────────────────────────── */
+.jr-invoice-type {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--jr-text);
+    margin: 0;
+}
+
+.jr-invoice-hint {
+    font-size: 1.25rem;
+    color: #ef7a70;
+    margin: 6px 0 0;
+    line-height: 1.6;
+}
+
+/* ── Ticket Type Info Modal ───────────────────────────────── */
+.jr-ticket-type-modal .modal-dialog {
+    max-width: 520px;
+}
+
+.jr-ticket-type-modal .modal-content {
+    border: none;
+    border-radius: 16px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.jr-ticket-type-modal .modal-header {
+    border-bottom: none;
+    padding: 20px 24px 8px;
+}
+
+.jr-ticket-type-modal .modal-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--jr-text);
+}
+
+.jr-ticket-type-modal .modal-header .close {
+    margin: 0;
+    padding: 0 4px;
+    align-self: center;
+}
+
+.jr-ticket-type-modal .modal-body {
+    padding: 8px 24px 24px;
+    overflow-y: auto;
+}
+
+.jr-ticket-type-modal__intro {
+    font-size: 1.4rem;
+    color: var(--jr-text);
+    line-height: 1.7;
+    margin: 12px 0 6px;
+}
+
+.jr-ticket-type-modal__list {
+    font-size: 1.4rem;
+    color: var(--jr-text);
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+
+.jr-ticket-type-modal__list li {
+    margin-bottom: 4px;
+}
+
+.jr-ticket-type-modal__note {
+    font-size: 1.4rem;
+    color: var(--jr-text);
+    line-height: 1.7;
+    margin: 16px 0 0;
+}
