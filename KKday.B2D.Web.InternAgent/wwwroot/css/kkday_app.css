@@ -262,8 +262,8 @@ td, th {
 @font-face {
     font-family: Glyphicons Halflings;
     font-display: swap;
-    src: url(https://cdn.kkday.com/pc-web/assets/fonts/glyphicons-halflings-regular.eot);
-    src: url(https://cdn.kkday.com/pc-web/assets/fonts/glyphicons-halflings-regular.eot#iefix) format("embedded-opentype"),url(https://cdn.kkday.com/pc-web/assets/fonts/glyphicons-halflings-regular.woff2) format("woff2"),url(https://cdn.kkday.com/pc-web/assets/fonts/glyphicons-halflings-regular.woff) format("woff"),url(https://cdn.kkday.com/pc-web/assets/fonts/glyphicons-halflings-regular.ttf) format("truetype"),url(https://cdn.kkday.com/pc-web/assets/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular) format("svg")
+    src: url(../fonts/glyphicons-halflings-regular.eot);
+    src: url(../fonts/glyphicons-halflings-regular.eot#iefix) format("embedded-opentype"),url(../fonts/glyphicons-halflings-regular.woff2) format("woff2"),url(../fonts/glyphicons-halflings-regular.woff) format("woff"),url(../fonts/glyphicons-halflings-regular.ttf) format("truetype"),url(../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular) format("svg")
 }
 
 .glyphicon {
@@ -6327,8 +6327,8 @@ button.close {
  */ @font-face {
         font-family: FontAwesome;
         font-display: swap;
-        src: url(https://cdn.kkday.com/pc-web/assets/fonts/fontawesome-webfont.eot?v=4.7.0);
-        src: url(https://cdn.kkday.com/pc-web/assets/fonts/fontawesome-webfont.eot#iefix&v=4.7.0) format("embedded-opentype"),url(https://cdn.kkday.com/pc-web/assets/fonts/fontawesome-webfont.woff2?v=4.7.0) format("woff2"),url(https://cdn.kkday.com/pc-web/assets/fonts/fontawesome-webfont.woff?v=4.7.0) format("woff"),url(https://cdn.kkday.com/pc-web/assets/fonts/fontawesome-webfont.ttf?v=4.7.0) format("truetype"),url(https://cdn.kkday.com/pc-web/assets/fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular) format("svg");
+        src: url(../fonts/fontawesome-webfont.eot?v=4.7.0);
+        src: url(../fonts/fontawesome-webfont.eot#iefix&v=4.7.0) format("embedded-opentype"),url(../fonts/fontawesome-webfont.woff2?v=4.7.0) format("woff2"),url(../fonts/fontawesome-webfont.woff?v=4.7.0) format("woff"),url(../fonts/fontawesome-webfont.ttf?v=4.7.0) format("truetype"),url(../fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular) format("svg");
         font-weight: 400;
         font-style: normal
     }
@@ -9253,8 +9253,8 @@ button.close {
 @font-face {
     font-family: simple-line-icons;
     font-display: swap;
-    src: url(https://cdn.kkday.com/pc-web/assets/fonts/Simple-Line-Icons.eot?v=2.4.0);
-    src: url(https://cdn.kkday.com/pc-web/assets/fonts/Simple-Line-Icons.eot?v=2.4.0#iefix) format("embedded-opentype"),url(https://cdn.kkday.com/pc-web/assets/fonts/Simple-Line-Icons.woff2?v=2.4.0) format("woff2"),url(https://cdn.kkday.com/pc-web/assets/fonts/Simple-Line-Icons.ttf?v=2.4.0) format("truetype"),url(https://cdn.kkday.com/pc-web/assets/fonts/Simple-Line-Icons.woff?v=2.4.0) format("woff"),url(https://cdn.kkday.com/pc-web/assets/fonts/Simple-Line-Icons.svg?v=2.4.0#simple-line-icons) format("svg");
+    src: url(../fonts/Simple-Line-Icons.eot?v=2.4.0);
+    src: url(../fonts/Simple-Line-Icons.eot?v=2.4.0#iefix) format("embedded-opentype"),url(../fonts/Simple-Line-Icons.woff2?v=2.4.0) format("woff2"),url(../fonts/Simple-Line-Icons.ttf?v=2.4.0) format("truetype"),url(../fonts/Simple-Line-Icons.woff?v=2.4.0) format("woff"),url(../fonts/Simple-Line-Icons.svg?v=2.4.0#simple-line-icons) format("svg");
     font-weight: 400;
     font-style: normal
 }
