@@ -81,17 +81,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-#region 多語系挖字初始設定 --- start
-
-// Get all options of localization 
-app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
-
-#endregion 多語系挖字初始設定 --- end
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+#region 多語系挖字初始設定 --- start
+
+// Get all options of localization
+// 必須放在 UseRouting() 之後，RouteDataRequestCultureProvider 才能讀取到路由中的 culture 值。
+app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
+
+#endregion 多語系挖字初始設定 --- end
 
 app.UseAuthorization();
 
