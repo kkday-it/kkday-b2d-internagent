@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+.git/
+.gitignore
+.vs/
+.idea/
+node_modules/
+*.md
+*.user
+KKday.B2D.Web.InternAgent/appsettings.json
+KKday.B2D.Web.InternAgent/appsettings.Development.json
