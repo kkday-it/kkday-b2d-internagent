@@ -21,6 +21,35 @@
             z-index: 1;
         }
 
+        /* Filter panel: real modal overlay on mobile, static sidebar from sm breakpoint up */
+        @@media (min-width: 576px) {
+            #filterModal.modal {
+                position: static;
+                display: block !important;
+                opacity: 1 !important;
+                background: none;
+            }
+
+            #filterModal .modal-dialog {
+                transform: none !important;
+                transition: none !important;
+            }
+
+            #filterModal .modal-dialog {
+                max-width: none;
+                margin: 0;
+            }
+
+            #filterModal .modal-content {
+                border: none;
+                background: transparent;
+            }
+
+            #filterModal .modal-body {
+                padding: 0;
+            }
+        }
+
         .input-group2 {
             position: relative;
             display: -webkit-box;
@@ -568,34 +597,23 @@
         <!-- Search Result -->
         <div class="row">
 
-            <div class="col-12 m-2 d-block d-sm-none sm-filter">
+            <div class="col-12 col-sm-3 filter">
 
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
-                    <i class="fa fa-filter" aria-hidden="true"></i> Filter
-                </button>
+                <div class="m-2 d-block d-sm-none sm-filter">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                        <i class="fa fa-filter" aria-hidden="true"></i> Filter
+                    </button>
+                </div>
 
-                <!-- Modal -->
+                <!-- filter: static sidebar on desktop (>=sm), modal overlay on mobile -->
                 <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
-                            <div class="modal-header">
+                            <div class="modal-header d-sm-none">
                                 <h5 class="modal-title" style="font-size:18px; font-weight:bold;">Filter Condition</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body"></div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                @*<button type="button" class="btn btn-primary" onclick="UpdateFilter();"> OK </button>*@
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- filter -->
-            <div class="col-3 d-none d-sm-block filter">
+                            <div class="modal-body">
                 <div class="filter-container">
                     <div class="filter-group">
                         <!-- destination filter -->
@@ -722,6 +740,13 @@
                                 </template>
                             </ul>
                              
+                        </div>
+                    </div>
+                </div>
+                            </div>
+                            <div class="modal-footer d-sm-none">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
