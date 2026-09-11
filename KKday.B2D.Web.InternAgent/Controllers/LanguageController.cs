@@ -30,7 +30,21 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 var header = HttpContext.Request.GetTypedHeaders();
                 Uri referer = header.Referer;
 
-                return Redirect(referer.AbsoluteUri);
+                // 將回跳網址的語系段換成新語系，否則路由中殘留的舊語系會蓋掉剛設定的 cookie。
+                var segments = referer.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                if (segments.Length > 0)
+                {
+                    segments[0] = id;
+                }
+                else
+                {
+                    segments = new[] { id };
+                }
+
+                var newPath = "/" + string.Join("/", segments);
+                var newUri = new UriBuilder(referer) { Path = newPath }.Uri;
+
+                return Redirect(newUri.PathAndQuery);
             }
             catch (Exception ex)
             { 
