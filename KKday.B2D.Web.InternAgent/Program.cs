@@ -11,6 +11,20 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+ 
+// ✨ 檢查 Render 的秘密檔案路徑是否存在
+var renderJsonPath = "/etc/secrets/appsettings.json";
+
+if (File.Exists(renderJsonPath))
+{
+    // 如果在 Render 環境，優先強制載入此路徑的 appsettings.json
+    builder.Configuration.AddJsonFile(renderJsonPath, optional: false, reloadOnChange: true);
+}
+else
+{
+    // 如果在本機環境，則載入原本預設的路徑
+    builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+}
 
 #region Localization --- start
 
