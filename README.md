@@ -9,8 +9,8 @@ In Aug 2026, the newly launched Vertical series offers a different ordering expe
 You must be approved distributors(agents) on SIT environment fisrt, then to get a token key of API account through B2D website.
 
 Support languages:
-1. zh-TW (https://localhost:5001/zh-tw/) 
-2. en-US (https://localhost:5001/en-us/)
+1. zh-TW (https://localhost:5001/zh-tw/) <a href="https://kkday-b2d-internagent.onrender.com/zh-TW/Search/">Demo Site</a>
+2. en-US (https://localhost:5001/en-us/) <a href="https://kkday-b2d-internagent.onrender.com/en-US/Search/">Demo Site</a>
 
 
 Licensing
