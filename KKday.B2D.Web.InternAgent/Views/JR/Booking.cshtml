@@ -1,0 +1,940 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using KKday.B2D.Web.InternAgent.AppCode
+@model KKday.B2D.Web.InternAgent.Models.Model.JrBookingRouteQuery
+
+@inject IViewLocalizer Localizer
+@{
+    Layout = "_KKdayLayout";
+    ViewData["Title"] = Localizer["Title_JapanRailway"].Value;
+    var rawCurrency = Website.Instance.Currency ?? "NT$";
+    var displayCurrency = rawCurrency == "TWD" ? "NT$" : rawCurrency;
+     
+    var vertJrLocale = LocaleMapHelper.RfcToKKday(CultureInfo.CurrentCulture.Name);
+    var vertJrState = Website.Instance.Marketing;
+    
+    // 1. Setting the encoder to "Basic Latin characters not encoded" will automatically convert all other dangerous characters (including single quotes, <, and >) to \uXXXX.
+    var options = new System.Text.Json.JsonSerializerOptions
+    {
+        // Note that it is Encodings (with 's'), and it is directly followed by .JavaScriptEncoder.
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.BasicLatin)
+    }; 
+    // 
+    var bookingI18nJson = System.Text.Json.JsonSerializer.Serialize(new
+    {
+        selectQty = Localizer["JR_Booking_SelectTicket"].Value,
+        processing = Localizer["JR_Booking_Processing"].Value,
+        pay = Localizer["JR_Booking_Pay"].Value,
+        required = Localizer["JR_Booking_Err_Required"].Value,
+        selectTicket = Localizer["JR_Booking_Err_SelectTicket"].Value,
+        minQtyFmt = Localizer["JR_Booking_Err_MinQty"].Value,
+        networkError = Localizer["JR_Booking_Err_NetworkError"].Value,
+        bookingFailed = Localizer["JR_Booking_Err_BookingFailed"].Value,
+        hourSuffix = Localizer["JR_HourSuffix"].Value,
+        minuteSuffix = Localizer["JR_MinuteSuffix"].Value
+    }, options).Replace("<", "\\u003c");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/vue-select@latest/dist/vue-select.css">
+    <link rel="stylesheet" href="@Url.Content("~/css/vert-jr.css")" asp-append-version="true" />
+    <style>
+        #jr-booking-app[v-cloak] { display: none; }
+    </style>
+}
+
+<div id="jr-booking-app" v-cloak>
+
+    <div class="jr-booking-body">
+        <div class="container">
+
+            {{/* Loading */}}
+            <div class="jr-booking-loading" v-if="!loaded">
+                <i class="fa fa-circle-o-notch fa-spin"></i>
+                <p>@Localizer["JR_Booking_Loading"]</p>
+            </div>
+
+            {{/* Not found */}}
+            <div class="jr-booking-not-found" v-if="loaded && !ticket">
+                <i class="fa fa-exclamation-circle"></i>
+                <p>@Localizer["JR_Booking_NotFound"]</p>
+                <a :href="backUrl" class="jr-btn-book">@Localizer["JR_Booking_BackSearch"]</a>
+            </div>
+
+            {{/* Main layout */}}
+            <div class="jr-booking-layout" v-if="loaded && ticket">
+
+                {{/* ── Left: Main Content ── */}}
+                <div class="jr-booking-main">
+
+                    <nav class="jr-booking-breadcrumb">
+                        <a :href="backUrl" class="jr-booking-breadcrumb__back">
+                            <i class="fa fa-chevron-left"></i>
+                            <span>@Localizer["JR_Booking_BackSearchResult"]</span>
+                        </a>
+                    </nav>
+
+                    {{/* ① Confirm selected train number */}}
+                    <div class="jr-booking-card jr-booking-card--trip">
+                        <div class="jr-booking-card__title">
+                            <i class="fa fa-train"></i>@Localizer["JR_Booking_ConfirmTrain"]
+                        </div>
+                        <div class="jr-booking-trip">
+                            <div class="jr-booking-trip__route">
+                                <div class="jr-booking-trip__station">
+                                    <div class="jr-label-badges" v-if="ticket.step.labels && ticket.step.labels.length">
+                                        <span v-for="label in ticket.step.labels" :key="label.name" class="badge jr-badge-primary">{{ label.name }}</span>
+                                    </div>
+                                    <span class="jr-booking-trip__date">{{ formatDate(query.depDate) }}</span>
+                                    <span class="jr-booking-trip__time">{{ formatTime(ticket.depTime) }}</span>
+                                    <span class="jr-booking-trip__name">{{ ticket.depName }}</span>
+                                </div>
+                                <div class="jr-booking-trip__middle">
+                                    <span class="jr-booking-trip__duration">{{ formatDuration(ticket.duration) }}</span>
+                                    <div class="jr-time-arrow">
+                                        <i class="fa fa-arrow-right"></i>
+                                    </div>
+                                </div>
+                                <div class="jr-booking-trip__station">
+                                    <span class="jr-booking-trip__date">{{ formatDate(query.arrDate || query.depDate) }}</span>
+                                    <span class="jr-booking-trip__time">{{ formatTime(ticket.arrTime) }}</span>
+                                    <span class="jr-booking-trip__name">{{ ticket.arrName }}</span>
+                                </div>
+                            </div>
+                            <div class="jr-booking-trip__meta" v-if="ticket.trainName">
+                                <span class="jr-booking-trip__train">{{ ticket.trainName }}</span>
+                                <div class="dropdown jr-booking-trip__schd" v-if="ticket.step.schdList && ticket.step.schdList.length">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle jr-booking-trip__schd-toggle"
+                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        @Localizer["JR_Booking_ViewStops"]
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li v-for="schd in ticket.step.schdList" :key="schd.schdName + schd.time" class="dropdown-item jr-booking-trip__schd-item">
+                                            <span class="jr-booking-trip__schd-time">{{ formatTime(schd.time) }}</span>
+                                            <span class="jr-booking-trip__schd-name">{{ schd.schdName }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{/* ② Choose a ticket */}}
+                    <div class="jr-booking-card">
+                        <div class="ticket-section">
+                            <div class="section-title layout-u-mb-250">@Localizer["JR_Booking_SelectTicket"]</div>
+                            <div class="train-class-card"
+                                 v-for="ticketType in ticketTypes"
+                                 :key="ticketType.key"
+                                 :class="{ choose: selectedTicketType === ticketType.key, 'is-sold-out': ticketType.isSoldOut }"
+                                 v-on:click="!ticketType.isSoldOut && selectTicketType(ticketType.key)">
+                                <div class="train-class-card-info">
+                                    <div class="train-class-card-info__left">
+                                        <div class="title">
+                                            {{ ticketType.name }}
+                                            <span class="jr-tag jr-tag--sold-out"
+                                                  v-if="ticketType.isSoldOut">@Localizer["JR_Booking_SoldOut"]</span>
+                                        </div>
+                                    </div>
+                                    <div class="train-class-card-info__right">
+                                        <span class="train-class-card-info__price">@displayCurrency{{ formatPrice(ticketType.mspPrice) }}</span>
+                                        <i class="bi bi-check2-circle train-class-card-info__check" v-if="selectedTicketType === ticketType.key"></i>
+                                        <i class="bi bi-circle train-class-card-info__check train-class-card-info__check--empty" v-else></i>
+                                    </div>
+                                </div>
+                                <div class="train-class-card-detail-link">
+                                    <span class="train-class-card-detail-link__text" v-on:click.stop="openTicketDetail(ticketType)">
+                                        @Localizer["JR_Booking_ViewDetail"] <i class="fa fa-chevron-right"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <span class="jr-buyer-form__error" v-if="errors.ticket" style="display:block;margin-top:8px;">
+                                <i class="fa fa-exclamation-circle"></i> {{ errors.ticket }}
+                            </span>
+                        </div>
+                    </div>
+
+                    {{/* ③ Select the number of tickets */}}
+                    <div class="jr-booking-card">
+                        <div class="select-passenger-section">
+                            <div class="section-title layout-u-mb-250">@Localizer["JR_Booking_SelectPassenger"]</div>
+                            <div class="select-custom-item" v-for="guest in (ticket.step.guestsConfig || [])" :key="guest.spec">
+                                <div class="item-title-block">
+                                    <div class="item-title">{{ guest.name }}</div>
+                                    <div class="item-desc" v-if="guest.description">{{ guest.description }}</div>
+                                </div>
+                                <div class="pax-right">
+                                    <span class="item-title__price">@displayCurrency{{ formatPrice(guestPrice(guest.spec)) }}</span>
+                                    <div class="number-select">
+                                        <button type="button" class="counter-btn minus"
+                                                :class="{ disabled: !canDecrementGuest(guest.spec) }"
+                                                v-on:click="decrementGuestQty(guest.spec)">
+                                            <svg viewBox="0 0 24 24" class="kk-icon kk-icon--xs">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M3.25 12a1 1 0 011-1h16.5a1 1 0 110 2H4.25a1 1 0 01-1-1z"></path>
+                                            </svg>
+                                        </button>
+                                        <span class="counter-result">{{ passengerCounts[guest.spec] || 0 }}</span>
+                                        <button type="button" class="counter-btn plus"
+                                                :class="{ disabled: !canIncrementGuest(guest.spec) }"
+                                                v-on:click="incrementGuestQty(guest.spec)">
+                                            <svg viewBox="0 0 24 24" class="kk-icon kk-icon--xs">
+                                                <path d="M13.5 4a1 1 0 10-2 0v7H4a1 1 0 100 2h7.5v7.5a1 1 0 102 0V13h7a1 1 0 100-2h-7V4z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{/* ④ Seating preferences */}}
+                    <div class="jr-booking-card" v-if="availableSeatPrefs.length">
+                        <div class="jr-booking-card__title">
+                            <i class="fa fa-th-large"></i>@Localizer["JR_Booking_SeatPref"]
+                        </div>
+                        <div class="jr-seat-pref">
+                            <label class="jr-seat-pref__option"
+                                   v-for="seatPref in availableSeatPrefs"
+                                   :key="seatPref.id"
+                                   :class="{ 'is-selected': selectedSeatPref === seatPref.id }"
+                                   v-on:click="selectedSeatPref = seatPref.id">
+                                <input type="radio" :value="seatPref.id" v-model="selectedSeatPref"/>
+                                <div class="jr-seat-pref__option-body">
+                                    <span class="jr-seat-pref__option-name">{{ seatPref.name }}</span>
+                                    <span class="jr-seat-pref__option-price">
+                                        @displayCurrency<strong>{{ formatPrice(seatPref.price) }}</strong>
+                                    </span>
+                                </div>
+                                <i class="fa fa-check-circle jr-seat-pref__option-check"></i>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{/* ⑤ Buyer Information */}}
+                    <div class="jr-booking-card">
+                        <div class="jr-booking-card__title">
+                            <i class="fa fa-user"></i>@Localizer["JR_Booking_BuyerInfo"]
+                        </div>
+                        <div class="jr-buyer-form">
+                            <div class="jr-buyer-form__row">
+                                <div class="jr-buyer-form__field">
+                                    <label class="jr-buyer-form__label">@Localizer["JR_Booking_FirstName"]<span class="jr-buyer-form__required">*</span></label>
+                                    <input type="text" class="jr-buyer-form__input" v-model="form.firstName"
+                                           :class="{ 'has-error': errors.firstName }"/>
+                                    <span class="jr-buyer-form__error" v-if="errors.firstName">
+                                        <i class="fa fa-exclamation-circle"></i> {{ errors.firstName }}
+                                    </span>
+                                </div>
+                                <div class="jr-buyer-form__field">
+                                    <label class="jr-buyer-form__label">@Localizer["JR_Booking_LastName"]<span class="jr-buyer-form__required">*</span></label>
+                                    <input type="text" class="jr-buyer-form__input" v-model="form.lastName"
+                                           :class="{ 'has-error': errors.lastName }"/>
+                                    <span class="jr-buyer-form__error" v-if="errors.lastName">
+                                        <i class="fa fa-exclamation-circle"></i> {{ errors.lastName }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="jr-buyer-form__row">
+                                <div class="jr-buyer-form__field">
+                                    <label class="jr-buyer-form__label">@Localizer["JR_Booking_PartnerOrderNo"]</label>
+                                    <input type="text" class="jr-buyer-form__input" v-model="form.partnerOrderNo" maxlength="30"/>
+                                </div>
+                                <div class="jr-buyer-form__field">
+                                    <label class="jr-buyer-form__label">@Localizer["JR_Booking_Country"]<span class="jr-buyer-form__required">*</span></label>
+                                    <v-select :options="countryOptions" :clearable="false" :reduce="c => c.code" label="name"
+                                              :get-option-label="getCountryLabel" v-model="form.country" append-to-body
+                                              class="jr-buyer-form__country" :class="{ 'has-error': errors.country }">
+                                        <template #option="option">
+                                            <span>{{ option.name }} {{ option.code }}</span>
+                                        </template>
+                                    </v-select>
+                                    <span class="jr-buyer-form__error" v-if="errors.country">
+                                        <i class="fa fa-exclamation-circle"></i> {{ errors.country }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="jr-buyer-form__row">
+                                <div class="jr-phone-row" style="flex:1;">
+                                    <div class="jr-phone-row__cc jr-buyer-form__field">
+                                        <label class="jr-buyer-form__label">@Localizer["JR_Booking_PhoneCountryCode"]<span class="jr-buyer-form__required">*</span></label>
+                                        <v-select :options="countryOptions" :clearable="false" :reduce="c => c.telArea" label="telArea"
+                                                  :get-option-label="getTelAreaLabel" v-model="form.phoneCountryCode" append-to-body
+                                                  class="jr-buyer-form__telcountry" :class="{ 'has-error': errors.phoneCountryCode }">
+                                            <template #option="option">
+                                                <span>+{{ option.telArea }} {{ option.name }}</span>
+                                            </template>
+                                        </v-select>
+                                    </div>
+                                    <div class="jr-phone-row__number jr-buyer-form__field">
+                                        <label class="jr-buyer-form__label">@Localizer["JR_Booking_Phone"]<span class="jr-buyer-form__required">*</span></label>
+                                        <input type="text" class="jr-buyer-form__input" v-model="form.phone"
+                                               :class="{ 'has-error': errors.phone }"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="jr-buyer-form__error" v-if="errors.phoneCountryCode" style="display:block;">
+                                <i class="fa fa-exclamation-circle"></i> {{ errors.phoneCountryCode }}
+                            </span>
+                            <span class="jr-buyer-form__error" v-if="errors.phone" style="display:block;">
+                                <i class="fa fa-exclamation-circle"></i> {{ errors.phone }}
+                            </span>
+                            <div class="jr-buyer-form__row">
+                                <div class="jr-buyer-form__field">
+                                    <label class="jr-buyer-form__label">@Localizer["JR_Booking_Email"]<span class="jr-buyer-form__required">*</span></label>
+                                    <input type="email" class="jr-buyer-form__input" v-model="form.email"
+                                           :class="{ 'has-error': errors.email }"/>
+                                    <span class="jr-buyer-form__error" v-if="errors.email">
+                                        <i class="fa fa-exclamation-circle"></i> {{ errors.email }}
+                                    </span>
+                                </div>
+                                <div class="jr-buyer-form__field">
+                                    <label class="jr-buyer-form__label">@Localizer["JR_Booking_ClientEmail"]<span class="jr-buyer-form__required">*</span></label>
+                                    <input type="email" class="jr-buyer-form__input" v-model="form.clientEmail"
+                                           :class="{ 'has-error': errors.clientEmail }"/>
+                                    <span class="jr-buyer-form__error" v-if="errors.clientEmail">
+                                        <i class="fa fa-exclamation-circle"></i> {{ errors.clientEmail }}
+                                    </span>
+                                </div> 
+                            </div>
+                            <div class="jr-buyer-form__row">
+                                <div class="jr-buyer-form__field jr-contact-form__field--wide">
+                                    <label class="jr-buyer-form__label">@Localizer["JR_Booking_OrderNote"]</label>
+                                    <textarea class="jr-buyer-form__input jr-contact-form__textarea" rows="3" v-model="form.orderNote"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{/* ⑥ How to Use */}}
+                    <div class="jr-booking-card" v-if="ticket.step.howToUse">
+                        <div class="jr-booking-card__title">
+                            <i class="fa fa-info-circle"></i>@Localizer["JR_Booking_HowToUse"]
+                        </div>
+                        <div class="how-to-use-section">
+                            <div class="hint" v-if="ticket.step.howToUse.description">
+                                <i class="fa fa-lightbulb-o"></i>
+                                <span class="hint__text">{{ ticket.step.howToUse.description }}</span>
+                            </div>
+                            <div v-for="(content, idx) in ticket.step.howToUse.contents" :key="idx">
+                                <div class="info-item-title" v-if="content.title">{{ content.title }}</div>
+                                <ul class="disc-list how-to-use-list">
+                                    <li v-for="(item, i) in content.items" :key="i">{{ item }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{/* ⑦ Purchase Information */}}
+                    <div class="jr-booking-card" v-if="ticket.step.purchaseInformation">
+                        <div class="jr-booking-card__title">
+                            <i class="fa fa-file-text-o"></i>@Localizer["JR_Booking_PurchaseInfo"]
+                        </div>
+                        <div class="booking-info-section">
+                            <div class="booking-info-item" v-for="(content, idx) in ticket.step.purchaseInformation.contents" :key="idx">
+                                <div class="info-item-title" v-if="content.title">{{ content.title }}</div>
+                                <ul class="disc-list info-item-list">
+                                    <li v-for="(item, i) in content.items" :key="i">{{ item }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>{{/* end jr-booking-main */}}
+
+                {{/* ── Right: Sidebar ── */}}
+                <div class="jr-booking-sidebar">
+                    <div class="jr-price-summary">
+                        <div class="jr-price-summary__title">@Localizer["JR_Booking_CostBreakdown"]</div>
+                        <div class="jr-price-summary__block">
+                            <template v-for="row in priceBreakdownRows">
+                                <div class="jr-price-row" :key="row.spec + '-price'">
+                                    <span class="jr-price-row__label">{{ row.label }} × {{ row.qty }}</span>
+                                    <span class="jr-price-row__val">@displayCurrency{{ formatPrice(row.subtotal) }}</span>
+                                </div>
+                                <div class="jr-price-row" :key="row.spec + '-fee'">
+                                    <span class="jr-price-row__label">@Localizer["JR_Booking_BookingFee"]</span>
+                                    <span class="jr-price-row__val">@displayCurrency{{ formatPrice(row.feeSubtotal) }}</span>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="jr-price-summary__divider"></div>
+                        <div class="jr-price-total-row">
+                            <span class="jr-price-total-row__label">@Localizer["JR_Booking_Total"]</span>
+                            <span class="jr-price-total-row__val">@displayCurrency<strong>{{ formatPrice(totalPrice) }}</strong></span>
+                        </div>
+                        <div class="jr-price-total-row jr-price-total-row--b2b">
+                            <span class="jr-price-total-row__label">@Localizer["JR_Booking_B2BReceived"]</span>
+                            <span class="jr-price-total-row__val">@displayCurrency{{ formatPrice(b2bTotal) }}</span>
+                        </div>
+                        <button class="jr-btn-confirm" type="button" v-on:click="confirmOrder" :disabled="isSubmitting || !canSubmit">
+                            <i class="fa fa-lock"></i>
+                            {{ isSubmitting ? bookingI18n.processing : bookingI18n.pay }}
+                        </button>
+                        <span class="jr-buyer-form__error" v-if="submitError" style="display:block;text-align:center;">
+                            <i class="fa fa-exclamation-circle"></i> {{ submitError }}
+                        </span>
+                    </div>
+                </div>{{/* end jr-booking-sidebar */}}
+
+            </div>{{/* end jr-booking-layout */}}
+        </div>
+    </div>
+
+    {{/* ── Ticket Detail Modal ── */}}
+    <div class="modal" tabindex="-1" role="dialog"
+         v-if="showTicketDetail"
+         v-on:click.self="closeTicketDetail"
+         style="display:block; background:rgba(0,0,0,.5); z-index:2000;">
+        <div role="document" class="modal-dialog modal-dialog-centered jr-car-detail-modal__dialog">
+            <div class="modal-content">
+                <div class="jr-car-detail-modal__header">
+                    <div class="jr-car-detail-modal__tabs">
+                        <button type="button" class="jr-car-detail-modal__tab"
+                                v-for="t in ticketTypes" :key="t.key"
+                                :class="{ 'is-active': activeTicketDetailKey === t.key }"
+                                v-on:click="selectTicketDetailTab(t.key)">
+                            {{ t.name }}
+                        </button>
+                    </div>
+                    <button type="button" class="jr-car-detail-modal__close" v-on:click="closeTicketDetail"><span>&times;</span></button>
+                </div>
+                <div class="modal-body jr-car-detail-modal__body">
+                    <template v-if="ticketDetailRule">
+                        <h4 class="jr-car-detail-modal__section-title">@Localizer["JR_Booking_Tab_Plan"]</h4>
+                        <div class="jr-car-detail-modal__plan-title" v-if="ticketDetailRule.tranClassTitle">{{ ticketDetailRule.tranClassTitle }}</div>
+                        <p class="jr-car-detail-modal__plan-desc" v-if="ticketDetailRule.tranClassDescription">{{ ticketDetailRule.tranClassDescription }}</p>
+                        <img v-if="ticketDetailRule.image" :src="ticketDetailRule.image" alt="" class="jr-car-detail-modal__image">
+                        <div class="jr-car-detail-modal__plan-title" v-if="ticketDetailRule.seatTitle">{{ ticketDetailRule.seatTitle }}</div>
+                        <p class="jr-car-detail-modal__plan-desc" v-if="ticketDetailRule.seatDescription">{{ ticketDetailRule.seatDescription }}</p>
+                    </template>
+
+                    <div class="jr-car-detail-modal__divider"></div>
+
+                    <h4 class="jr-car-detail-modal__section-title">@Localizer["JR_Booking_CancelPolicy"]</h4>
+
+                    <template v-if="ticket.cancelDescription && ticket.cancelDescription.length">
+                        <h5 class="jr-car-detail-modal__sub-title">@Localizer["JR_Booking_CancelConditionTitle"]</h5>
+                        <div class="jr-cancel-table">
+                            <div class="jr-cancel-table__head">
+                                <span>@Localizer["JR_Booking_CancelTimeCol"]</span>
+                                <span>@Localizer["JR_Booking_CancelFeeCol"]</span>
+                            </div>
+                            <div class="jr-cancel-table__row" v-for="item in ticket.cancelDescription" :key="item.title">
+                                <span class="jr-cancel-table__time">{{ item.title }}</span>
+                                <span class="jr-cancel-table__fee">{{ item.value }}</span>
+                            </div>
+                        </div>
+                    </template>
+                    <p class="text-muted" v-else>@Localizer["JR_Booking_NoCancelPolicy"]</p>
+
+                    <template v-if="ticket.step.specificCaseExplanation">
+                        <h5 class="jr-car-detail-modal__sub-title">@Localizer["JR_Booking_Tab_SpecificCase"]</h5>
+                        <div v-for="(content, idx) in ticket.step.specificCaseExplanation.contents" :key="'case'+idx">
+                            <h6 v-if="content.title">{{ content.title }}</h6>
+                            <ul class="disc-list jr-car-detail-modal__list">
+                                <li v-for="(item, i) in content.items" :key="i">{{ item }}</li>
+                            </ul>
+                        </div>
+                    </template>
+
+                    <template v-if="ticket.step.preCaution">
+                        <h5 class="jr-car-detail-modal__sub-title">@Localizer["JR_Booking_Tab_Precaution"]</h5>
+                        <div v-for="(content, idx) in ticket.step.preCaution.contents" :key="'pre'+idx">
+                            <h6 v-if="content.title">{{ content.title }}</h6>
+                            <ul class="disc-list jr-car-detail-modal__list">
+                                <li v-for="(item, i) in content.items" :key="i">{{ item }}</li>
+                            </ul>
+                        </div>
+                    </template>
+
+                    <div class="jr-car-detail-modal__info-box">
+                        <i class="fa fa-info-circle"></i>
+                        <span>@Localizer["common_cancel_policy_explanation"]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{/* ── Price Changed Modal ── */}}
+    <div class="modal" tabindex="-1" role="dialog"
+         v-if="showPriceChanged"
+         style="display:block; background:rgba(0,0,0,.5); z-index:2000;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <h3 class="mb-3">@Localizer["JR_Booking_PriceChanged"]</h3>
+                    <button type="button" class="btn btn-primary" v-on:click="acknowledgePriceChanged">@Localizer["JR_Booking_ConfirmBtn"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{/* ── Success Modal ── */}}
+    <div class="modal" tabindex="-1" role="dialog"
+         v-if="orderNo"
+         style="display:block; background:rgba(0,0,0,.5); z-index:2000;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <i class="fa fa-check-circle" style="font-size:3.6rem;color:var(--jr-primary);display:block;margin-bottom:12px;"></i>
+                    <h3 class="mb-3">@Localizer["JR_Booking_Success_Title"]</h3>
+                    <p>@Localizer["JR_Booking_Success_Message"]</p>
+                    <p><strong>@Localizer["JR_Booking_OrderNo"]: {{ orderNo }}</strong></p>
+                    <a :href="_root_path" class="btn btn-primary">@Localizer["JR_Booking_BackHome"]</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="jr-booking-route-data" data-payload="@ViewData["JrBookingRouteData"]" style="display:none;"></div>
+</div>
+
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
+    <script src="https://unpkg.com/vue-select@latest"></script>
+    <script type="text/javascript">
+        const bookingI18n = @Html.Raw(bookingI18nJson);
+
+        Vue.component('v-select', VueSelect.VueSelect);
+
+        const app = new Vue({
+            el: '#jr-booking-app',
+            data: {
+                loaded: false,
+                ticket: null,
+                ticketTypes: [],
+                seatOptionFee: [],
+                selectedTicketType: '',
+                passengerCounts: {},
+                ticketRule: { minQuantity: 1, maxQuantity: 9 },
+                selectedSeatPref: 'none',
+                form: {
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    country: '',
+                    phoneCountryCode: '',
+                    phone: '',
+                    clientEmail: '',
+                    partnerOrderNo: '',
+                    orderNote: ''
+                },
+                errors: {},
+                submitError: '',
+                showPriceChanged: false,
+                showTicketDetail: false,
+                activeTicketDetailKey: '',
+                isSubmitting: false,
+                orderNo: '',
+                query: {},
+                countryOptions: [],
+                _root_path: _root_path,
+                bookingI18n: bookingI18n
+            },
+
+            computed: {
+                backUrl: function () {
+                    var params = new URLSearchParams();
+                    if (this.query.depCode) params.append('depCode', this.query.depCode);
+                    if (this.query.arrCode) params.append('arrCode', this.query.arrCode);
+                    if (this.query.depDate) params.append('depDate', this.query.depDate);
+                    var qs = params.toString();
+                    return `${_root_path}Vert/JR` + (qs ? '?' + qs : '');
+                },
+
+                selectedTicketTypeName: function () {
+                    const t = this.ticketTypes.find(x => x.key === this.selectedTicketType);
+                    return t ? t.name : '';
+                },
+
+                availableSeatPrefs: function () {
+                    const self = this;
+                    const baseTicket = this.ticketTypes.find(x => x.key === this.selectedTicketType);
+                    const basePrice = baseTicket ? baseTicket.b2bPrice : 0;
+                    const options = (this.ticket && this.ticket.seatOptions) || [];
+                    return options.map(function (o) {
+                        const fee = self.seatOptionFee.find(f => f.key === o.key);
+                        const rate = fee ? fee.rate : 1;
+                        return { id: o.key, name: o.name, price: basePrice * rate };
+                    });
+                },
+
+                priceBreakdownRows: function () {
+                    const self = this;
+                    const plan = this.ticketTypes.find(x => x.key === this.selectedTicketType);
+                    if (!plan) return [];
+                    const guests = (this.ticket && this.ticket.step && this.ticket.step.guestsConfig) || [];
+                    return guests.map(function (g) {
+                        const qty = self.passengerCounts[g.spec] || 0;
+                        const priceInfo = plan.prices[g.spec] || {};
+                        return {
+                            spec: g.spec,
+                            label: `${plan.name} (${g.name})`,
+                            qty: qty,
+                            subtotal: (priceInfo.mspPrice || 0) * qty,
+                            feeSubtotal: (priceInfo.bookingFee || 0) * qty,
+                            b2bSubtotal: (priceInfo.b2bPrice || 0) * qty
+                        };
+                    }).filter(function (row) { return row.qty > 0; });
+                },
+
+                totalPrice: function () {
+                    return this.priceBreakdownRows.reduce((sum, row) => sum + row.subtotal + row.feeSubtotal, 0);
+                },
+
+                b2bTotal: function () {
+                    return this.priceBreakdownRows.reduce((sum, row) => sum + row.b2bSubtotal, 0);
+                },
+
+                canSubmit: function () {
+                    return !!(this.form.firstName && this.form.lastName && this.form.email &&
+                        this.form.country && this.form.phoneCountryCode && this.form.phone && this.form.clientEmail);
+                },
+
+                activeTicketDetailType: function () {
+                    return this.ticketTypes.find(t => t.key === this.activeTicketDetailKey) || null;
+                },
+
+                ticketDetailRule: function () {
+                    if (!this.activeTicketDetailType) return null;
+                    const ruleList = (this.ticketRule && this.ticketRule.ruleList) || [];
+                    return ruleList.find(r => r.name === this.activeTicketDetailType.name) || null;
+                }
+            },
+
+            methods: {
+                selectTicketType: function (key) {
+                    this.selectedTicketType = key;
+                    this.errors.ticket = '';
+                },
+
+                openTicketDetail: function (ticketType) {
+                    this.activeTicketDetailKey = ticketType.key;
+                    this.showTicketDetail = true;
+                },
+
+                selectTicketDetailTab: function (key) {
+                    this.activeTicketDetailKey = key;
+                },
+
+                closeTicketDetail: function () {
+                    this.showTicketDetail = false;
+                    this.activeTicketDetailKey = '';
+                },
+
+                totalPassengerCount: function () {
+                    const counts = this.passengerCounts || {};
+                    return Object.keys(counts).reduce((sum, k) => sum + (counts[k] || 0), 0);
+                },
+
+                canIncrementGuest: function (spec) {
+                    return this.totalPassengerCount() < this.ticketRule.maxQuantity;
+                },
+
+                canDecrementGuest: function (spec) {
+                    return (this.passengerCounts[spec] || 0) > 0 && this.totalPassengerCount() > this.ticketRule.minQuantity;
+                },
+
+                incrementGuestQty: function (spec) {
+                    if (!this.canIncrementGuest(spec)) return;
+                    this.$set(this.passengerCounts, spec, (this.passengerCounts[spec] || 0) + 1);
+                },
+
+                decrementGuestQty: function (spec) {
+                    if (!this.canDecrementGuest(spec)) return;
+                    this.$set(this.passengerCounts, spec, this.passengerCounts[spec] - 1);
+                },
+
+                guestPrice: function (spec) {
+                    const plan = this.ticketTypes.find(t => t.key === this.selectedTicketType);
+                    if (!plan || !plan.prices[spec]) return 0;
+                    return plan.prices[spec].mspPrice;
+                },
+
+                formatTime: function (raw) {
+                    if (!raw) return '';
+                    const str = String(raw).replace(/\D/g, '');
+                    if (str.length !== 4) return raw;
+                    return str.slice(0, 2) + ':' + str.slice(2);
+                },
+
+                formatDate: function (raw) {
+                    if (!raw) return '';
+                    const str = String(raw).replace(/\D/g, '');
+                    if (str.length !== 8) return raw;
+                    return str.slice(0, 4) + '-' + str.slice(4, 6) + '-' + str.slice(6, 8);
+                },
+
+                formatDuration: function (raw) {
+                    if (!raw) return '';
+                    const str = String(raw).replace(/\D/g, '');
+                    if (str.length < 3) return raw;
+                    const hours = parseInt(str.slice(0, str.length - 2), 10);
+                    const minutes = parseInt(str.slice(-2), 10);
+                    if (hours === 0) return minutes + bookingI18n.minuteSuffix;
+                    if (minutes === 0) return hours + bookingI18n.hourSuffix;
+                    return hours + bookingI18n.hourSuffix + minutes + bookingI18n.minuteSuffix;
+                },
+
+                formatPrice: function (value) {
+                    const num = Number(value);
+                    if (!isFinite(num)) return value;
+                    return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
+                },
+
+                validate: function () {
+                    const errors = {};
+                    if (!this.selectedTicketType || this.totalPassengerCount() < 1) errors.ticket = bookingI18n.selectTicket;
+                    if (!this.form.firstName) errors.firstName = bookingI18n.required;
+                    if (!this.form.lastName) errors.lastName = bookingI18n.required;
+                    if (!this.form.email) errors.email = bookingI18n.required;
+                    if (!this.form.country) errors.country = bookingI18n.required;
+                    if (!this.form.phoneCountryCode) errors.phoneCountryCode = bookingI18n.required;
+                    if (!this.form.phone) errors.phone = bookingI18n.required;
+                    if (!this.form.clientEmail) errors.clientEmail = bookingI18n.required;
+                    this.errors = errors;
+                    return Object.keys(errors).length === 0;
+                },
+
+                buildPayload: function () {
+                    const step = this.ticket.step;
+                    const guests = step.guestsConfig || [];
+                    const plan = this.ticketTypes.find(x => x.key === this.selectedTicketType);
+                    const seats = [];
+                    const ticketQty = [];
+                    guests.forEach(g => {
+                        const qty = this.passengerCounts[g.spec] || 0;
+                        if (qty <= 0) return;
+                        const priceInfo = plan && plan.prices[g.spec];
+                        const fullKey = priceInfo ? priceInfo.key : `${g.spec}:${this.selectedTicketType}`;
+                        ticketQty.push({ key: fullKey, qty: qty, name: `${this.selectedTicketTypeName} (${g.name})` });
+                        for (let i = 0; i < qty; i++) {
+                            seats.push({ stepKey: step.stepKey, seatType: this.selectedSeatPref || 'none' });
+                        }
+                    });
+                    return {
+                        locale: this.query.locale,
+                        state: this.query.state,
+                        serviceName: this.query.serviceName,
+                        routeKey: this.query.routeKey,
+                        routeName: this.ticket.trainName || this.query.routeKey,
+                        depCityKey: this.query.depCode,
+                        arrCityKey: this.query.arrCode,
+                        depDate: this.query.depDate,
+                        depTime: step.depTime,
+                        depMeetTime: (step.schdList && step.schdList[0] && step.schdList[0].meetTime) || step.depTime,
+                        arrDate: this.query.arrDate || this.query.depDate,
+                        arrTime: step.arrTime,
+                        depSchdCode: step.depStationCode,
+                        arrSchdCode: step.arrStationCode,
+                        depName: this.ticket.depName,
+                        arrName: this.ticket.arrName,
+                        routeMap: [{ stepKey: step.stepKey, depSchdCode: step.depStationCode, arrSchdCode: step.arrStationCode }],
+                        seatOptions: (step.seatOptions || []).map(o => ({
+                            key: o.key, name: o.name, allowedSeatType: o.allowedSeatType, allowedPassengerCounts: o.allowedPassengerCounts
+                        })),
+                        seats: seats,
+                        ticketQty: ticketQty,
+                        totalPrice: this.b2bTotal,
+                        buyerFirstName: this.form.firstName,
+                        buyerLastName: this.form.lastName,
+                        buyerEmail: this.form.email,
+                        buyerTelCountryCode: this.form.phoneCountryCode,
+                        buyerTelNumber: this.form.phone,
+                        buyerCountry: this.form.country,
+                        orderNote: this.form.orderNote,
+                        clientEmail: this.form.clientEmail,
+                        partnerOrderNo: this.form.partnerOrderNo
+                    };
+                },
+
+                confirmOrder: async function () {
+                    this.submitError = '';
+                    if (!this.validate()) return;
+
+                    this.isSubmitting = true;
+                    try {
+                        const payload = this.buildPayload();
+                        const checkResp = await axios.post(`${_root_path}Vert/JR/booking/check`, payload);
+                        if (checkResp.data.priceChanged) {
+                            this.showPriceChanged = true;
+                            return;
+                        }
+
+                        const bookResp = await axios.post(`${_root_path}Vert/JR/Booking/CreateOrder`, payload);
+                        if (bookResp.data.status === 'OK') {
+                            this.orderNo = bookResp.data.orderNo;
+                        } else {
+                            this.submitError = bookResp.data.message || bookingI18n.bookingFailed;
+                        }
+                    } catch (error) {
+                        console.error('[JR Booking] confirmOrder error', error);
+                        this.submitError = bookingI18n.networkError;
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+
+                acknowledgePriceChanged: async function () {
+                    this.showPriceChanged = false;
+                    await this.loadFare();
+                },
+
+                loadFare: async function () {
+                    const step = this.ticket.step;
+                    try {
+                        const response = await axios.get(`${_root_path}Vert/JR/fare`, {
+                            params: {
+                                serviceName: this.query.serviceName,
+                                stepKey: step.stepKey,
+                                locale: this.query.locale,
+                                goDate: this.query.depDate,
+                                depSchdCode: step.depStationCode,
+                                arrSchdCode: step.arrStationCode
+                            }
+                        });
+                        const data = response.data;
+                        this.seatOptionFee = data.seatOptionFee || [];
+
+                        // ticket_list has one row per guest spec (adult/child/...) of the same plan,
+                        // sharing the same "name". Group by name so the ticket list shows one row per
+                        // plan (avoiding duplicate rows), keeping each spec's own key/price around for
+                        // the passenger-count section — matched to guests_config via specTicket <-> spec.
+                        const plans = {};
+                        (data.ticketList || []).forEach(function (t) {
+                            const groupKey = t.name;
+                            if (!plans[groupKey]) plans[groupKey] = { key: groupKey, name: t.name, prices: {} };
+                            plans[groupKey].prices[t.specTicket] = {
+                                key: t.key,
+                                mspPrice: t.mspPrice,
+                                b2bPrice: t.b2bPrice,
+                                bookingFee: t.bookingFee,
+                                isSoldOut: (t.sellableStatus || '').toUpperCase() !== 'AVAILABLE'
+                            };
+                        });
+
+                        this.ticketTypes = Object.keys(plans).map(function (groupKey) {
+                            const plan = plans[groupKey];
+                            const specs = Object.keys(plan.prices);
+                            const primarySpec = specs.indexOf('adult') !== -1 ? 'adult' : specs[0];
+                            const primary = plan.prices[primarySpec] || { mspPrice: 0, b2bPrice: 0, isSoldOut: true };
+                            return {
+                                key: plan.key,
+                                name: plan.name,
+                                prices: plan.prices,
+                                mspPrice: primary.mspPrice,
+                                b2bPrice: primary.b2bPrice,
+                                isSoldOut: specs.every(function (s) { return plan.prices[s].isSoldOut; })
+                            };
+                        });
+
+                        if (!this.ticketTypes.find(t => t.key === this.selectedTicketType)) {
+                            const firstAvailable = this.ticketTypes.find(t => !t.isSoldOut) || this.ticketTypes[0];
+                            this.selectedTicketType = firstAvailable ? firstAvailable.key : '';
+                        }
+                    } catch (error) {
+                        console.error('[JR Booking] loadFare error', error);
+                    }
+                },
+
+                fetchCountryList: async function () {
+                    try {
+                        const response = await axios.get(`${_root_path}Vert/JR/countryList`, {
+                            params: { locale: this.query.locale }
+                        });
+                        this.countryOptions = response.data.countries || [];
+                    } catch (error) {
+                        console.error('[JR Booking] countryList error', error);
+                    }
+                },
+
+                getCountryLabel: function (val) {
+                    if (val && typeof val === 'object') return `${val.name} ${val.code}`;
+                    const option = this.countryOptions.find(function (o) { return o.code === val; });
+                    return option ? `${option.name} ${option.code}` : val;
+                },
+
+                getTelAreaLabel: function (val) {
+                    if (val && typeof val === 'object') return `+${val.telArea}`;
+                    const option = this.countryOptions.find(function (o) { return o.telArea === val; });
+                    return option ? `+${option.telArea}` : (val ? `+${val}` : val);
+                }
+            },
+
+            created: async function () {
+                const routeDataEl = document.getElementById('jr-booking-route-data');
+                const routeQuery = JSON.parse(decodeURIComponent(escape(atob(routeDataEl.dataset.payload))));
+                console.log(`routeQuery => ${JSON.stringify(routeQuery)}`);
+                this.query = {
+                    routeKey: routeQuery.routeKey || '',
+                    serviceName: routeQuery.serviceName || '',
+                    depCode: routeQuery.depCode || '',
+                    arrCode: routeQuery.arrCode || '',
+                    depName: routeQuery.depName || '',
+                    arrName: routeQuery.arrName || '',
+                    depDate: routeQuery.depDate || '',
+                    arrDate: routeQuery.arrDate || '',
+                    locale: '@vertJrLocale',
+                    state: '@vertJrState'
+                };
+
+                if (!this.query.routeKey || !this.query.serviceName || !this.query.depCode ||
+                    !this.query.arrCode || !this.query.depDate) {
+                    this.loaded = true;
+                    return;
+                }
+
+                this.fetchCountryList();
+
+                try {
+                    const detailResp = await axios.get(`${_root_path}Vert/JR/detail`, {
+                        params: {
+                            serviceName: this.query.serviceName,
+                            locale: this.query.locale,
+                            routeKey: this.query.routeKey
+                        }
+                    });
+                    const steps = detailResp.data.stepDetailList || [];
+                    const step = steps[0];
+                    if (!step) {
+                        this.loaded = true;
+                        return;
+                    }
+
+                    this.ticketRule = step.ticketRule || { minQuantity: 1, maxQuantity: 9 };
+
+                    const guests = (step.guestsConfig && step.guestsConfig.length)
+                        ? step.guestsConfig
+                        : [{ spec: 'adult', name: '', description: '' }];
+                    const passengerCounts = {};
+                    guests.forEach((g, idx) => {
+                        passengerCounts[g.spec] = idx === 0 ? (this.ticketRule.minQuantity || 1) : 0;
+                    });
+                    this.passengerCounts = passengerCounts;
+
+                    this.ticket = {
+                        step: step,
+                        depName: this.query.depName || step.depStationName,
+                        arrName: this.query.arrName || step.arrStationName,
+                        depTime: step.depTime,
+                        arrTime: step.arrTime,
+                        duration: step.duration,
+                        trainName: step.trainName,
+                        seatOptions: step.seatOptions || [],
+                        cancelDescription: step.cancelDescription || []
+                    };
+
+                    await this.loadFare();
+                } catch (error) {
+                    console.error('[JR Booking] created error', error);
+                } finally {
+                    this.loaded = true;
+                }
+            }
+        });
+    </script>
+}
