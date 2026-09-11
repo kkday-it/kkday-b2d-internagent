@@ -1733,7 +1733,7 @@
 
                             <div class="critical-info">
                                 <div v-if="prod.is_cancel_free || prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">
-                                    <img src="https://cdn.kkday.com/pc-web/assets/img/ic_cancellation.svg"/>
+                                    <img src="~/img/ic_cancellation.svg"/>
                                     <span v-if="prod.description_module.PMDL_REFUND_POLICY?.content?.properties?.partial_refund?.list">@Localizer["Cancel_By_Condtion"]</span>
                                     <!-- Free Cancel -->
                                     <span v-if="prod.is_cancel_free">@Localizer["Cancel_Free"]</span>
@@ -2042,13 +2042,13 @@
                                                 <div class="col-md-6">
                                                     <ul class="price-include">
                                                         <li v-for="el in item.description_module.PMDL_INC_NINC.content?.properties.include_item?.list">
-                                                            <img src="https://cdn.kkday.com/pc-web/assets/img/ic_include.svg">{{el.desc}} </li>
+                                                            <img src="~/img/ic_include.svg">{{el.desc}} </li>
                                                     </ul>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <ul class="price-not">
                                                         <li v-for="el in item.description_module.PMDL_INC_NINC.content?.properties.not_include_item?.list">
-                                                            <img src="https://cdn.kkday.com/pc-web/assets/img/ic_notinclude.svg"/>{{ el.desc }} </li>
+                                                            <img src="~/img/ic_notinclude.svg"/>{{ el.desc }} </li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -2331,7 +2331,7 @@
                                                 <template
                                                     v-for="item in prod.description_module.PMDL_INC_NINC.content.properties.include_item?.list">
                                                     <li><img
-                                                            src="https://cdn.kkday.com/pc-web/assets/img/ic_include.svg">{{item.desc}}
+                                                            src="~/img/ic_include.svg">{{item.desc}}
                                                     </li>
                                                 </template>
                                             </ul>
@@ -2341,7 +2341,7 @@
                                                 <template
                                                     v-for="item in prod.description_module.PMDL_INC_NINC.content.properties.not_include_item?.list">
                                                     <li><img
-                                                            src="https://cdn.kkday.com/pc-web/assets/img/ic_notinclude.svg">{{
+                                                            src="~/img/ic_notinclude.svg">{{
                                                         item.desc }}
                                                     </li>
                                                 </template>

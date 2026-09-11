@@ -11929,7 +11929,7 @@ label {
 
 .intl-tel-input .selected-flag .iti-arrow {
     border: none;
-    background: url(https://cdn.kkday.com/pc-web/assets/img/bg_dropdown.svg);
+    background: url(../img/bg_dropdown.svg);
     background-size: 11px 6px;
     background-repeat: no-repeat;
     width: 11px;
@@ -12023,7 +12023,7 @@ select::-ms-expand {
 
 .input-dropdown, .select2-container .select2-selection--single, select.form-control {
     /* padding: 0 25px 0 8px; */
-    background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_dropdown.svg);
+    background-image: url(../img/bg_dropdown.svg);
     background-size: 11px 6px;
     background-position: center right 12px;
     background-repeat: no-repeat;
@@ -13168,7 +13168,7 @@ input[type=number].form-control::-webkit-inner-spin-button, input[type=number].f
     border: none;
     padding: 0 20px 0 8px;
     width: 80px;
-    background: url(https://cdn.kkday.com/pc-web/assets/img/ic_down.svg) #fff;
+    background: url(../img/ic_down.svg) #fff;
     background-position: 100%;
     background-repeat: no-repeat;
     background-size: 2.2rem 1.5rem;
@@ -14026,27 +14026,27 @@ ul.pagination {
 
     .product-star .star-0 {
         color: #ccc;
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_star4_0.svg)
+        background-image: url(../img/ic_star4_0.svg)
     }
 
     .product-star .star-25 {
         fill: url(#star_25);
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_star4_1.svg)
+        background-image: url(../img/ic_star4_1.svg)
     }
 
     .product-star .star-50 {
         fill: url(#star_50);
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_star4_2.svg)
+        background-image: url(../img/ic_star4_2.svg)
     }
 
     .product-star .star-75 {
         fill: url(#star_75);
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_star4_3.svg)
+        background-image: url(../img/ic_star4_3.svg)
     }
 
     .product-star .star-100 {
         color: #26bec9;
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/ic_star4_4.svg)
+        background-image: url(../img/ic_star4_4.svg)
     }
 
 .product-pricing {
@@ -14583,7 +14583,7 @@ ul.time-info {
         padding: 18px 45px 18px 8px;
         margin-left: -26px;
         margin-bottom: 15px;
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_time_info_day.svg);
+        background-image: url(../img/bg_time_info_day.svg);
         background-size: 100% 100%;
         background-repeat: no-repeat;
         position: relative
@@ -15355,7 +15355,7 @@ ul.map-info {
     animation: heartbroken 1s steps(20);
     vertical-align: middle;
     background-size: auto 17px;
-    background-image: url(https://cdn.kkday.com/pc-web/assets/img/ani_heartbroken_red.png)
+    background-image: url(../img/ani_heartbroken_red.png)
 }
 
 .btn-wish .ani-heart-red {
@@ -16735,7 +16735,7 @@ ul.rating {
 
 .coupon:after, .coupon:before {
     content: "";
-    background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_coupon.svg);
+    background-image: url(../img/bg_coupon.svg);
     background-size: auto 105%;
     width: 5px;
     height: 100%;
@@ -16780,7 +16780,7 @@ ul.rating {
 }
 
     .coupon-listview.disabled .coupon:after, .coupon-listview.disabled .coupon:before {
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_coupon_grey.svg)
+        background-image: url(../img/bg_coupon_grey.svg)
     }
 
 .coupon-listview ul li {
@@ -16899,7 +16899,7 @@ div.union {
         padding: 50px 0;
         color: #fff;
         background: #26bec9;
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_cities_green.png);
+        background-image: url(../img/bg_cities_green.png);
         background-position: 67% bottom;
         background-size: auto 100%;
         background-repeat: no-repeat
@@ -17197,7 +17197,7 @@ div.union .report-result {
 }
 
 #supplier .page1 {
-    background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_host.jpg);
+    background-image: url(../img/bg_host.jpg);
     background-repeat: no-repeat;
     background-size: 100%
 }
@@ -17211,7 +17211,7 @@ div.union .report-result {
     }
 
 #supplier .sprite-img {
-    background-image: url(https://cdn.kkday.com/pc-web/assets/img/sprite_marketing.png);
+    background-image: url(../img/sprite_marketing.png);
     background-repeat: no-repeat;
     background-size: 800px 1200px
 }
@@ -17266,7 +17266,7 @@ div.union .report-result {
 }
 
 #supplier .page4 .page4-image {
-    background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_feature03.jpg);
+    background-image: url(../img/bg_feature03.jpg);
     background-repeat: no-repeat;
     background-position: 100% 0;
     background-size: contain;
@@ -17305,7 +17305,7 @@ div.union .report-result {
 }
 
 #supplier .page8 {
-    background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_cities_dark.jpg);
+    background-image: url(../img/bg_cities_dark.jpg);
     background-size: cover;
     min-height: 250px
 }
@@ -18081,7 +18081,7 @@ div.union .report-result {
 
 .guide-hint {
     position: absolute;
-    background: url(https://cdn.kkday.com/pc-web/assets/img/bg_guide_hint.svg),#ffc612;
+    background: url(../img/bg_guide_hint.svg),#ffc612;
     background-position: 0 100%;
     background-repeat: no-repeat;
     background-size: 50px;
@@ -18589,7 +18589,7 @@ div.union .report-result {
     padding: 80px 0 180px;
     width: 100%;
     height: 80vh;
-    background: url(https://cdn.kkday.com/pc-web/assets/img/bg-404.svg);
+    background: url(../img/bg-404.svg);
     background-position: bottom;
     background-size: cover;
     background-repeat: no-repeat;
@@ -19072,7 +19072,7 @@ div.union .report-result {
     }
 
     #supplier .page1 {
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_host.jpg);
+        background-image: url(../img/bg_host.jpg);
         background-size: cover
     }
 
@@ -19494,7 +19494,7 @@ div.union .report-result {
     }
 
     #supplier .page1 {
-        background-image: url(https://cdn.kkday.com/pc-web/assets/img/bg_host.jpg);
+        background-image: url(../img/bg_host.jpg);
         background-size: cover;
         height: 1400px
     }
