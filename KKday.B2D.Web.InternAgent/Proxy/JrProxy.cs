@@ -8,6 +8,27 @@ namespace KKday.B2D.Web.InternAgent.Proxy
 {
     public class JrProxy
     {
+        // Vert/JR requires locale and state to be a matching pair (see /vert/jr/redoc, GetRoute):
+        // en->us, zh-tw->tw, zh-hk->hk, zh-cn->cn, ja->jp, ko->kr, th->th, vi->vn.
+        // Resolve state from locale here so every call site is guaranteed a valid combination,
+        // regardless of what state the caller (e.g. Website.Instance.Marketing) passed in.
+        private static readonly Dictionary<string, string> LocaleToState = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["en"] = "US",
+            ["zh-tw"] = "TW",
+            ["zh-hk"] = "HK",
+            ["zh-cn"] = "CN",
+            ["ja"] = "JP",
+            ["ko"] = "KR",
+            ["th"] = "TH",
+            ["vi"] = "VN"
+        };
+
+        private static string ResolveState(string locale)
+        {
+            return LocaleToState.TryGetValue(locale ?? "", out var state) ? state : locale;
+        }
+
         public async Task<JrApiResponse<JrSearchMetadata, JrSearchLocationData>> SearchAsync(
             string locale, string state, int start, int count, string query,
             string departureLocationCode, string arrivalLocationCode)
@@ -15,7 +36,7 @@ namespace KKday.B2D.Web.InternAgent.Proxy
             var qs = new List<string>
             {
                 $"locale={Uri.EscapeDataString(locale)}",
-                $"state={Uri.EscapeDataString(state)}",
+                $"state={Uri.EscapeDataString(ResolveState(locale))}",
                 $"start={start}",
                 $"count={count}"
             };
@@ -50,7 +71,7 @@ namespace KKday.B2D.Web.InternAgent.Proxy
             var qs = new List<string>
             {
                 $"locale={Uri.EscapeDataString(locale)}",
-                $"state={Uri.EscapeDataString(state)}",
+                $"state={Uri.EscapeDataString(ResolveState(locale))}",
                 $"dep_type={Uri.EscapeDataString(depType)}",
                 $"dep_code={Uri.EscapeDataString(depCode)}",
                 $"dep_date={Uri.EscapeDataString(depDate)}",
@@ -91,12 +112,14 @@ namespace KKday.B2D.Web.InternAgent.Proxy
 
         public async Task<JrApiResponse<JrMetadata, JrBookingCheckData>> CheckBookingAsync(JrBookingRequestDto dto)
         {
+            dto.state = ResolveState(dto.locale);
             var json = await PostAsync("/Booking/check", JsonConvert.SerializeObject(dto));
             return JsonConvert.DeserializeObject<JrApiResponse<JrMetadata, JrBookingCheckData>>(json);
         }
 
         public async Task<JrApiResponse<JrBookingMetadata, JrBookingResultData>> CreateBookingAsync(JrBookingRequestDto dto)
         {
+            dto.state = ResolveState(dto.locale);
             var json = await PostAsync("/Booking", JsonConvert.SerializeObject(dto));
             return JsonConvert.DeserializeObject<JrApiResponse<JrBookingMetadata, JrBookingResultData>>(json);
         }
@@ -112,7 +135,9 @@ namespace KKday.B2D.Web.InternAgent.Proxy
 
             for (var retry = 0; retry < 5; retry++)
             {
-                using var request = new HttpRequestMessage(HttpMethod.Get, $"{Website.Instance.VertJrApiUrl}{path}");
+                var url = $"{Website.Instance.VertJrApiUrl}{path}";
+                Console.WriteLine($"[VertJR] GET {url}");
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
                 request.Headers.Add("Authorization", $"Bearer {Website.Instance.VertJrApiAuthorizeToken}");
                 request.Headers.Add("Accept", "application/json");
 
@@ -143,7 +168,9 @@ namespace KKday.B2D.Web.InternAgent.Proxy
 
             for (var retry = 0; retry < 5; retry++)
             {
-                using var request = new HttpRequestMessage(HttpMethod.Post, $"{Website.Instance.VertJrApiUrl}{path}")
+                var url = $"{Website.Instance.VertJrApiUrl}{path}";
+                Console.WriteLine($"[VertJR] POST {url}");
+                using var request = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = new StringContent(content, Encoding.UTF8, "application/json")
                 };
