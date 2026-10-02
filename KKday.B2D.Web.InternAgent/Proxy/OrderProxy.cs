@@ -122,6 +122,50 @@ namespace KKday.B2D.Web.InternAgent.Proxy
             }
         }
 
+        // Order product/packages + meeting/pickup point (meeting_point)
+        public string GetOrderDetailInfo(string order_no)
+        {
+            try
+            {
+                var jsonResult = "";
+                var kkdayUrl = Website.Instance.KKdayApiUrl;
+                var authorToken = Website.Instance.KKdayApiAuthorizeToken;
+
+                using (var handler = new HttpClientHandler())
+                {
+                    // Ignore Certificate Error!!
+                    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+
+                    using (var client = new HttpClient(handler))
+                    {
+                        string reqUrl = $"{kkdayUrl}/Order/QueryOrderDtlInfo/" + order_no;
+                        using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, reqUrl))
+                        {
+                            request.Headers.Add("Authorization", $"Bearer {authorToken}");
+                            request.Headers.Add("Accept", "application/json");
+
+                            var response = client.SendAsync(request).Result;
+                            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                            {
+                                jsonResult = response.Content.ReadAsStringAsync().Result;
+                            }
+                            else
+                            {
+                                throw new Exception($"{response.StatusCode} => {response.Content.ReadAsStringAsync().Result} ");
+                            }
+                        }
+                    }
+                }
+
+                return jsonResult;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetOrderDetailInfo Exception => Message:{ex.Message}, StackTrace:{ex.StackTrace}");
+                throw ex;
+            }
+        }
+
         public CancelRespModel CancelOrder(CancelReqModel req)
         {
             try

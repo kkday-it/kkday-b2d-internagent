@@ -57,6 +57,19 @@
   "CancelDesc": "取消內容描述",
   "CancelConfirm": "您想要申請取消訂單嗎?",
   "CancelSuccessful": "取消申請成功!",
-  "CancelFailed": "取消申請失敗"
+  "CancelFailed": "取消申請失敗",
+  "Schedule_SpendTimeHourSuffix": "時",
+  "Schedule_SpendTimeMinuteSuffix": "分",
+  "Schedule_LocationPrefix_Gather": "集合：",
+  "Schedule_LocationPrefix_Shuttle": "接駁：",
+  "Schedule_VenueLocationConfirm_Gather": "實際集合時間將於訂購後確認",
+  "Schedule_VenueLocationConfirm_Shuttle": "實際接駁時間將於訂購後確認",
+  "Schedule_VenueLocationConfirm_ShuttleTimeLocation": "實際接駁時間/地點將於訂購後確認",
+  "Schedule_VenueLocationPendingConfirm_Gather": "實際集合時間待確認",
+  "Schedule_VenueLocationPendingConfirm_Shuttle": "實際接駁時間待確認",
+  "Schedule_VenueLocationPendingConfirm_ShuttleTimeLocation": "實際接駁時間/地點待確認",
+  "Schedule_VenueLocation_ShuttleTime": "接駁時間",
+  "Schedule_VenueLocation_ShuttleLocation": "接駁地點",
+  "Schedule_VenueLocation_Location": "地點",
+  "Schedule_VenueLocation_PendingConfirm": "待確認"
 }
-
