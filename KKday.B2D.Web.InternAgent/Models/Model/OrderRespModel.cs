@@ -9,5 +9,7 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         public string prod_name { get; set; }
         public string prod_img_url { get; set; }
         public string pkg_name { get; set; }
+        // QueryOrderDtlInfo: Product/Package Module + Meeting/Pick-up Point
+        public OrderDtlInfoRespModel dtl_info { get; set; }
     }
 }

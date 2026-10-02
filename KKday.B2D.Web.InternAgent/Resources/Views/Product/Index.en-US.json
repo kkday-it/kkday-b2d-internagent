@@ -82,6 +82,12 @@
   "PackageDetails_Title": "Package Details",
   "SelectOptions_Title": "Select Options",
   "InstantConfirm_Label": "Instant Confirmation",
-  "Package_Detail": "Package Detail"
+  "Package_Detail": "Package Detail",
+  "Schedule_SpendTimeHourSuffix": "h ",
+  "Schedule_SpendTimeMinuteSuffix": "min",
+  "Schedule_LocationPrefix_Gather": "Gather: ",
+  "Schedule_LocationPrefix_Shuttle": "Shuttle: ",
+  "Schedule_VenueLocationConfirm_Gather": "The actual gathering time will be confirmed after booking",
+  "Schedule_VenueLocationConfirm_Shuttle": "The actual shuttle time will be confirmed after booking",
+  "Schedule_VenueLocationConfirm_ShuttleTimeLocation": "The actual shuttle time/location will be confirmed after booking"
 }
-

@@ -295,6 +295,9 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
     public partial class Media
     {
+        [JsonPropertyName("source_type")]
+        public string SourceType { get; set; }
+
         [JsonPropertyName("source_content")]
         public string SourceContent { get; set; }
     }
@@ -529,6 +532,12 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
         [JsonPropertyName("module_title")]
         public string ModuleTitle { get; set; }
 
+        [JsonPropertyName("module_title_code")]
+        public string ModuleTitleCode { get; set; }
+
+        [JsonPropertyName("time_type")]
+        public string TimeType { get; set; }
+
         [JsonPropertyName("content")]
         public PmdlScheduleContent Content { get; set; }
     }
@@ -591,6 +600,46 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
 
         [JsonPropertyName("media")]
         public Video Media { get; set; }
+
+        [JsonPropertyName("spend_time")]
+        public SpendTime SpendTime { get; set; }
+
+        [JsonPropertyName("location")]
+        public PoiLocation Location { get; set; }
+    }
+
+    public partial class SpendTime
+    {
+        [JsonPropertyName("hour")]
+        public int? Hour { get; set; }
+
+        [JsonPropertyName("minute")]
+        public int? Minute { get; set; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+    }
+
+    public partial class PoiLocation
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+
+        [JsonPropertyName("photo")]
+        public Video Photo { get; set; }
+
+        [JsonPropertyName("latlng")]
+        public Latlng Latlng { get; set; }
+
+        // venue: meeting/transfer point
+        [JsonPropertyName("location_type")]
+        public string LocationType { get; set; }
+
+        [JsonPropertyName("destination_code")]
+        public string DestinationCode { get; set; }
     }
 
     public partial class DailyScheduleListTableKeyLangs
@@ -627,6 +676,14 @@ namespace KKday.B2D.Web.InternAgent.Models.Model
     {
         [JsonPropertyName("module_title")]
         public string ModuleTitle { get; set; }
+
+        // D0501: Meeting Point | D0502: Shuttle Service | D0503: Shuttle Service (Time/Location)
+        [JsonPropertyName("module_title_code")]
+        public string ModuleTitleCode { get; set; }
+
+        // fixed | confirm_after_booking
+        [JsonPropertyName("time_type")]
+        public string TimeType { get; set; }
 
         [JsonPropertyName("content")]
         public PmdlVenueLocationContent Content { get; set; }

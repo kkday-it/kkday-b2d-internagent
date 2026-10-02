@@ -27,6 +27,40 @@
             /* border-color: #e9ecef #e9ecef #dee2e6; */
             border-color: transparent;
         }
+
+        /* Schedule Timeline styles */
+        .schedule-node {
+            border-left: 1px solid #ddd;
+            padding-left: 15px;
+            margin-left: 15px;
+        }
+
+        .travel-schedule li {
+            margin-left: -30px;
+            list-style: none;
+        }
+
+        .timeline-title {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .timeline-title .time {
+            width: 40px;
+            min-width: 40px;
+            flex-shrink: 0;
+            color: #666;
+        }
+
+        .timeline-title .event {
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .travel-schedule .timeline-wrap {
+            padding-left: 50px;
+        }
     </style>
 }
 
@@ -224,7 +258,39 @@
 
                                     <!-- Tab: Itinerary -->
                                     <div class="tab-pane fade" id="itinerary-tab">
-                                        <div class="info-section" id="schedule-sec">
+                                        <div class="info-section" id="schedule-sec" v-if="scheduleModule">
+                                            <h4 class="info-title" v-html="scheduleModule.module_title"></h4>
+                                            <div class="critical-info" v-if="scheduleModule.content?.properties?.total_day">
+                                                <i class="icons icon-clock"></i>
+                                                <span v-html="`${scheduleModule.content.properties.total_day.title} : ${scheduleModule.content.properties.total_day.desc}`"></span>
+                                            </div>
+                                            <div class="schedule-node" v-for="sch_iter in scheduleModule.content?.properties?.schedule_list?.list">
+                                                <h5>{{ sch_iter.daily_title?.desc }}</h5>
+                                                <div class="travel-schedule">
+                                                    <ul>
+                                                        <template v-for="iter in sch_iter.daily_schedule_list?.list">
+                                                            <li class="text-warning" v-if="isVenueStop(iter) && !iter.time && venueModule?.time_type === 'confirm_after_booking' && venuePendingText(venueModule)">
+                                                                <i class="fa fa-exclamation-circle"></i> {{ venuePendingText(venueModule) }}
+                                                            </li>
+                                                            <li>
+                                                                <div class="timeline-title">
+                                                                    <span class="time">{{ iter.time?.desc }}</span>
+                                                                    <span class="event">
+                                                                        <span class="d-block" v-if="iter.location?.name">{{ scheduleLocationPrefix(venueModule, iter) }}{{ iter.location.name }}</span>
+                                                                        {{ iter.content?.desc }}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="row timeline-wrap" v-if="iter.media?.media">
+                                                                    <div v-for="media_el in iter.media.media" class="col-md-4">
+                                                                        <img :src="media_el.source_content" class="w-100" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="timeline-wrap text-grey" v-if="iter.spend_time">{{ formatSpendTime(iter.spend_time) }}</div>
+                                                            </li>
+                                                        </template>
+                                                    </ul>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -236,9 +302,79 @@
                                     </div>
 
                                     <!-- Tab: Location or Meeting Palce -->
-                                    <div class="tab-pane fade" id="howtouse-tab">
-                                        <div class="info-section" id="location-sec">
+                                    <div class="tab-pane fade" id="meeting-tab">
+                                        <div class="info-section" id="location-sec" v-if="venueModule">
+                                            <!-- Meeting point/pickup information (meeting_point) -->
+                                            <div class="board" v-if="meetingPoint.show">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div>@Localizer["Schedule_VenueLocation_ShuttleTime"]</div>
+                                                        <div class="text-warning" v-if="meetingPoint.timePending">@Localizer["Schedule_VenueLocation_PendingConfirm"]</div>
+                                                        <div v-else>{{ meetingPoint.time || '-' }}</div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div>{{ meetingPoint.locationLabel }}</div>
+                                                        <div class="text-warning" v-if="meetingPoint.addressPending">@Localizer["Schedule_VenueLocation_PendingConfirm"]</div>
+                                                        <div v-else>{{ meetingPoint.location || '-' }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
+                                            <h4 class="info-title" v-html="venueModule.module_title"></h4>
+                                            <!-- Confirmed: Based on order meeting_point -->
+                                            <div class="board map-board" v-if="meetingPoint.isConfirmed">
+                                                <div class="board-title">
+                                                    <h4>{{ meetingPoint.boardName || meetingPoint.boardAddress }}</h4>
+                                                    <div class="text-grey" v-if="meetingPoint.boardName && meetingPoint.boardAddress">{{ meetingPoint.boardAddress }}</div>
+                                                </div>
+                                                <div class="con">
+                                                    <div class="pd-info-img" v-if="meetingPoint.latitude != null && meetingPoint.longitude != null">
+                                                        <div class="ratio ratio-16x9">
+                                                            <iframe :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&q=${meetingPoint.latitude},${meetingPoint.longitude}&zoom=13&language=zh-tw`"
+                                                                    frameborder="0" allowfullscreen="allowfullscreen" style="border: 0px;"></iframe>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-10" v-if="meetingPoint.photos.length">
+                                                        <div class="col-md-4" v-for="photo in meetingPoint.photos">
+                                                            <img :src="photo" class="w-100" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Other: Primarily based on the product module PMDL_VENUE_LOCATION -->
+                                            <template v-else>
+                                                <div class="board map-board" v-for="el in venueModule.content?.list">
+                                                    <div class="board-title">
+                                                        <h4 class="break-word">{{ venueModule.content.table_key_langs?.location_name }} : {{ el.location_name?.desc }}</h4>
+                                                        <div class="text-grey break-word">{{ venueModule.content.table_key_langs?.latlng }} : {{ el.latlng?.desc }}</div>
+                                                    </div>
+                                                    <hr>
+                                                    <div class="con">
+                                                        <div class="row" v-if="el.gather">
+                                                            <div class="col-md-3"><b>{{ venueModule.content.table_key_langs?.gather }}</b></div>
+                                                            <div class="col-md-6"><b>{{ el.gather.desc }}</b></div>
+                                                        </div>
+                                                        <div class="row" v-if="el.setout">
+                                                            <div class="col-md-3"><b>{{ venueModule.content.table_key_langs?.setout }}</b></div>
+                                                            <div class="col-md-6"><b>{{ el.setout.desc }}</b></div>
+                                                        </div>
+                                                        <div class="pd-info-img" v-if="el.latlng?.latitude && el.latlng?.longitude">
+                                                            <div class="ratio ratio-16x9">
+                                                                <iframe :src="`https://www.google.com/maps/embed/v1/place?key=AIzaSyD_ncUVLw0kJwbHqd4OTiualgb9dcHsJkw&q=${el.latlng.latitude},${el.latlng.longitude}&zoom=17&language=zh-tw`"
+                                                                        frameborder="0" allowfullscreen="allowfullscreen" style="border: 0px;"></iframe>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mt-10" v-if="el.photo?.media">
+                                                            <div class="col-md-4" v-for="img in el.photo.media">
+                                                                <img :src="img.source_content" class="w-100" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
 
@@ -677,6 +813,123 @@
                 bsCancelModal: null,
             };
         },
+        computed: {
+            productModules() {
+                return this.order.dtl_info?.product_summary?.description_module_for_render;
+            },
+            packageModules() {
+                return this.order.dtl_info?.package_summary?.description_module_for_render;
+            },
+            scheduleModule() {
+                return this.productModules?.PMDL_SCHEDULE ?? this.packageModules?.PMDL_SCHEDULE ?? null;
+            },
+            venueModule() {
+                return this.productModules?.PMDL_VENUE_LOCATION ?? this.packageModules?.PMDL_VENUE_LOCATION ?? null;
+            },
+            // Status of meeting point/transfer point
+            meetingPoint() {
+                const mp = this.order.dtl_info?.meeting_point;
+                const venue = this.venueModule;
+                const view = {
+                    show: false, isConfirmed: false, timePending: false, addressPending: false,
+                    locationLabel: mp?.type === 'SHUTTLE' ? '@Localizer["Schedule_VenueLocation_ShuttleLocation"]' : '@Localizer["Schedule_VenueLocation_Location"]',
+                    time: null, location: null, boardName: null, boardAddress: null,
+                    latitude: null, longitude: null, photos: [],
+                };
+                if (!mp) return view;
+
+                const timeRange = (start, end) => (start || end) ? `${start ?? ''}~${end ?? ''}` : null;
+                const hasCustomerPickUp = p => !!p && !!(p.location || p.locationName || p.locationID
+                    || p.orderProdSetting?.locationName || p.orderProdSetting?.locationAddress);
+                // No location information is available for the meeting point, use the product module PMDL_VENUE_LOCATION.content.list instead.
+                const applyPmdlFallback = () => {
+                    const list = venue?.content?.list ?? [];
+                    const item = list[0];
+                    const lat = parseFloat(item?.latlng?.latitude);
+                    const lng = parseFloat(item?.latlng?.longitude);
+                    view.location = view.boardName = item?.location_name?.desc;
+                    view.boardAddress = item?.latlng?.desc;
+                    view.latitude = isNaN(lat) ? null : lat;
+                    view.longitude = isNaN(lng) ? null : lng;
+                    view.photos = (item?.photo?.media ?? []).map(m => m.source_content);
+                    return list.length;
+                };
+
+                let code = null, timeType = null, candidateCount = 0;
+                const pickUp = mp.shuttle?.designatedByCustomer?.pickUp;
+                const designated = mp.shuttle?.designatedLocation;
+
+                if (mp.type === 'SHUTTLE') {
+                    code = hasCustomerPickUp(pickUp) ? 'D0503' : 'D0502';
+                    timeType = venue?.time_type || 'confirm_after_booking';
+                    if (pickUp) {
+                        candidateCount = 1;
+                        view.time = timeRange(pickUp.pickupStart, pickUp.pickupEnd);
+                        view.location = pickUp.location;
+                        view.boardName = pickUp.locationName;
+                        view.boardAddress = pickUp.location;
+                        view.latitude = pickUp.latitude;
+                        view.longitude = pickUp.longitude;
+                        view.photos = pickUp.photoList ?? [];
+                    } else if (designated) {
+                        candidateCount = 1;
+                        view.time = timeRange(designated.pickupStart, designated.pickupEnd);
+                        view.location = view.boardName = designated.locationName;
+                        view.boardAddress = designated.locationAddress;
+                        view.latitude = designated.latitude;
+                        view.longitude = designated.longitude;
+                        view.photos = designated.photoList ?? [];
+                    } else {
+                        candidateCount = applyPmdlFallback();
+                    }
+                } else if (mp.type === 'VENUE_LOCATION') {
+                    code = mp.venueLocation?.moduleTitleCode ?? 'D0501';
+                    timeType = mp.venueLocation?.timeType ?? '';
+                    const list = (mp.venueLocation?.list ?? []).filter(x => x);
+                    const first = list[0];
+                    if (list.length) {
+                        candidateCount = list.length;
+                        view.location = view.boardName = first.location?.locationName;
+                        view.boardAddress = first.location?.queryAddress;
+                        view.latitude = first.location?.latitude;
+                        view.longitude = first.location?.longitude;
+                        view.photos = first.photoList ?? [];
+                    } else {
+                        candidateCount = applyPmdlFallback();
+                    }
+                    view.time = timeRange(first?.pickupStart, first?.pickupEnd);
+                }
+
+                const confirmed = mp.meetingPointStatus === 'FILLED';
+                const unfilledPending = !!mp.meetingPointStatus && !confirmed && code !== 'D0501';
+                const state = {
+                    'D0502|confirm_after_booking': 'time_confirm',
+                    'D0503|fixed': 'location_confirm',
+                    'D0503|confirm_after_booking': 'time_location_confirm',
+                }[`${code}|${timeType}`] ?? 'default';
+
+                // D0502 + fixed + Order already has a specified location: state. This combination is not found in the lookup table, please supplement accordingly.
+                let isFixedDesignated = false;
+                if (code === 'D0502' && timeType === 'fixed') {
+                    if (mp.type === 'VENUE_LOCATION') {
+                        isFixedDesignated = (mp.venueLocation?.list ?? []).some(x => x);
+                    } else if (mp.type === 'SHUTTLE') {
+                        const name = designated?.orderProdSetting?.locationName || designated?.locationName;
+                        const addr = designated?.orderProdSetting?.locationAddress || designated?.locationAddress;
+                        isFixedDesignated = !!(name || addr);
+                    }
+                }
+
+                view.isConfirmed = (state !== 'default' || isFixedDesignated) && confirmed;
+                const isPending = (state !== 'default' || isFixedDesignated || unfilledPending) && !confirmed;
+                // Multiple location candidates but the actual locations have not yet been converged, all such candidates must be confirmed.
+                view.timePending = !view.isConfirmed && ['time_confirm', 'time_location_confirm'].includes(state);
+                view.addressPending = !view.isConfirmed && (['location_confirm', 'time_location_confirm'].includes(state) || candidateCount > 1);
+                view.show = !!mp.type && (view.isConfirmed || isPending);
+                view.photos = (view.photos ?? []).filter(url => url);
+                return view;
+            },
+        },
         watch: {
             order_no(newValue, oldValue) {
                 this.cancel_req.order_no = newValue;
@@ -686,6 +939,35 @@
             this.Query();
         },
         methods: {
+            venuePendingText(venue) {
+                switch (venue?.module_title_code) {
+                    case 'D0501': return '@Localizer["Schedule_VenueLocationPendingConfirm_Gather"]';
+                    case 'D0502': return '@Localizer["Schedule_VenueLocationPendingConfirm_Shuttle"]';
+                    case 'D0503': return '@Localizer["Schedule_VenueLocationPendingConfirm_ShuttleTimeLocation"]';
+                    default: return null;
+                }
+            },
+            isVenueStop(iter) {
+                return iter.location?.location_type === 'venue';
+            },
+            scheduleLocationPrefix(venue, iter) {
+                if (!this.isVenueStop(iter)) return '';
+                switch (venue?.module_title_code) {
+                    case 'D0501': return '@Localizer["Schedule_LocationPrefix_Gather"]';
+                    case 'D0502':
+                    case 'D0503': return '@Localizer["Schedule_LocationPrefix_Shuttle"]';
+                    default: return '';
+                }
+            },
+            formatSpendTime(spend_time) {
+                const h = spend_time?.hour ?? 0;
+                const m = spend_time?.minute ?? 0;
+                const hourSuffix = '@Localizer["Schedule_SpendTimeHourSuffix"]';
+                const minuteSuffix = '@Localizer["Schedule_SpendTimeMinuteSuffix"]';
+                if (m === 0) return `${h}${hourSuffix}`;
+                if (h === 0) return `${m}${minuteSuffix}`;
+                return `${h}${hourSuffix}${m}${minuteSuffix}`;
+            },
             Query() {
                 console.log(`Query loading...`)
                 if (this.isLoading) return;

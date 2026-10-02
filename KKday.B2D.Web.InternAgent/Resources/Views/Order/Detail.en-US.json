@@ -57,6 +57,19 @@
   "CancelDesc": "Cancel Desc",
   "CancelConfirm": "Do you want to cancel the order?",
   "CancelSuccessful": "Cancellation application was successful!",
-  "CancelFailed": "Cancellation application was failed"
+  "CancelFailed": "Cancellation application was failed",
+  "Schedule_SpendTimeHourSuffix": "h ",
+  "Schedule_SpendTimeMinuteSuffix": "min",
+  "Schedule_LocationPrefix_Gather": "Gather: ",
+  "Schedule_LocationPrefix_Shuttle": "Shuttle: ",
+  "Schedule_VenueLocationConfirm_Gather": "The actual gathering time will be confirmed after booking",
+  "Schedule_VenueLocationConfirm_Shuttle": "The actual shuttle time will be confirmed after booking",
+  "Schedule_VenueLocationConfirm_ShuttleTimeLocation": "The actual shuttle time/location will be confirmed after booking",
+  "Schedule_VenueLocationPendingConfirm_Gather": "The actual gathering time is pending confirmation",
+  "Schedule_VenueLocationPendingConfirm_Shuttle": "The actual shuttle time is pending confirmation",
+  "Schedule_VenueLocationPendingConfirm_ShuttleTimeLocation": "The actual shuttle time/location is pending confirmation",
+  "Schedule_VenueLocation_ShuttleTime": "Shuttle time",
+  "Schedule_VenueLocation_ShuttleLocation": "Shuttle location",
+  "Schedule_VenueLocation_Location": "Location",
+  "Schedule_VenueLocation_PendingConfirm": "Pending confirmation"
 }
-
