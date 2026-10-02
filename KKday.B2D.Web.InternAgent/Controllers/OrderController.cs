@@ -97,7 +97,26 @@ namespace KKday.B2D.Web.InternAgent.Controllers
                 }
 
                 #endregion Product & Package Info
-            
+
+                #region Order Detail Info (PMDL & Meeting Point)
+
+                if (dtl != null)
+                {
+                    try
+                    {
+                        var dtl_info_result = orderProxy.GetOrderDetailInfo(id);
+                        Console.WriteLine($"Order DtlInfo Resp => {dtl_info_result}");
+                        dtl.dtl_info = JsonSerializer.Deserialize<OrderDtlInfoRespModel>(dtl_info_result);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Does not affect the display of main order data
+                        Console.WriteLine($"Order DtlInfo failed => message={ex.Message}");
+                    }
+                }
+
+                #endregion Order Detail Info (PMDL & Meeting Point)
+
                 return Json(dtl);
             }
             catch (Exception ex)

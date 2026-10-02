@@ -374,6 +374,39 @@
                         console.error(`Unable to fetch allotment(pkg:${pkg_no}) `, error);
                     });
             },
+            // Meeting/Pickup Location: "Actual time will be confirmed after ordering" (D0501 Meeting / D0502 Pickup / D0503 Pickup Time and Location)
+            venueConfirmText(venue) {
+                switch (venue?.module_title_code) {
+                    case 'D0501': return '@Localizer["Schedule_VenueLocationConfirm_Gather"]';
+                    case 'D0502': return '@Localizer["Schedule_VenueLocationConfirm_Shuttle"]';
+                    case 'D0503': return '@Localizer["Schedule_VenueLocationConfirm_ShuttleTimeLocation"]';
+                    default: return null;
+                }
+            },
+            showVenueConfirmTip(venue) {
+                return venue?.time_type === 'confirm_after_booking' && !!this.venueConfirmText(venue);
+            },
+            isVenueStop(iter) {
+                return iter.location?.location_type === 'venue';
+            },
+            scheduleLocationPrefix(venue, iter) {
+                if (!this.isVenueStop(iter)) return '';
+                switch (venue?.module_title_code) {
+                    case 'D0501': return '@Localizer["Schedule_LocationPrefix_Gather"]';
+                    case 'D0502':
+                    case 'D0503': return '@Localizer["Schedule_LocationPrefix_Shuttle"]';
+                    default: return '';
+                }
+            },
+            formatSpendTime(spend_time) {
+                const h = spend_time?.hour ?? 0;
+                const m = spend_time?.minute ?? 0;
+                const hourSuffix = '@Localizer["Schedule_SpendTimeHourSuffix"]';
+                const minuteSuffix = '@Localizer["Schedule_SpendTimeMinuteSuffix"]';
+                if (m === 0) return `${h}${hourSuffix}`;
+                if (h === 0) return `${m}${minuteSuffix}`;
+                return `${h}${hourSuffix}${m}${minuteSuffix}`;
+            },
             journeyTime() {
                 if (!(this.prod.days || this.prod.hours || this.prod.duration)) return '';
                 let duration = `${this.prod.days ? this.prod.days + ' @Localizer["Day"]' : ""} ${this.prod.hours ? this.prod.hours + ' @Localizer["Hour"]' : ""} ${this.prod.duration ? this.prod.duration + ' @Localizer["Minute"]' : ""}`;
@@ -2006,17 +2039,26 @@
                                             </div>
                                             <div class="travel-schedule">
                                                 <ul>
-                                                    <li v-for="iter in sch_iter.daily_schedule_list.list" :class="{ 'no-time': !iter.time?.desc, 'have-time': iter.time?.desc }">
-                                                        <div class="timeline-title">
-                                                            <span class="time">{{ iter.time?.desc }}</span>
-                                                            <span class="event">{{ iter.content?.desc }}</span>
-                                                        </div>
-                                                        <div class="row timeline-wrap" v-if="iter.media?.media">
-                                                            <div v-for="media_el in iter.media.media" class="col-md-4">
-                                                                <img :src="media_el.source_content" class="w-100 zoom-trigger" @@click="openDialog" />
+                                                    <template v-for="iter in sch_iter.daily_schedule_list.list">
+                                                        <li class="no-time text-warning" v-if="isVenueStop(iter) && showVenueConfirmTip(item.description_module.PMDL_VENUE_LOCATION)">
+                                                            <i class="fa fa-exclamation-circle"></i> {{ venueConfirmText(item.description_module.PMDL_VENUE_LOCATION) }}
+                                                        </li>
+                                                        <li :class="{ 'no-time': !iter.time?.desc, 'have-time': iter.time?.desc }">
+                                                            <div class="timeline-title">
+                                                                <span class="time">{{ iter.time?.desc }}</span>
+                                                                <span class="event">
+                                                                    <span class="d-block" v-if="iter.location?.name">{{ scheduleLocationPrefix(item.description_module.PMDL_VENUE_LOCATION, iter) }}{{ iter.location.name }}</span>
+                                                                    {{ iter.content?.desc }}
+                                                                </span>
+                                                            </div>
+                                                            <div class="row timeline-wrap" v-if="iter.media?.media">
+                                                                <div v-for="media_el in iter.media.media" class="col-md-4">
+                                                                    <img :src="media_el.source_content" class="w-100 zoom-trigger" @@click="openDialog" />
+                                                                </div> 
                                                             </div> 
-                                                        </div> 
-                                                    </li>
+                                                            <div class="timeline-wrap text-grey" v-if="iter.spend_time">{{ formatSpendTime(iter.spend_time) }}</div>
+                                                        </li>
+                                                    </template>
                                                 </ul>
                                             </div>
                                         </div>
@@ -2122,14 +2164,17 @@
                                 <!-- Venue Location -->
                                 <div id="meeting-sec" class="info-section" v-if="item.description_module.PMDL_VENUE_LOCATION">
                                     <h4 class="info-title fs-3" v-html="item.description_module.PMDL_VENUE_LOCATION.module_title"></h4>
+                                    <div class="text-warning mb-2" v-if="showVenueConfirmTip(item.description_module.PMDL_VENUE_LOCATION)">
+                                        <i class="fa fa-exclamation-circle"></i> {{ venueConfirmText(item.description_module.PMDL_VENUE_LOCATION) }}
+                                    </div>
                                     <div>
                                         <template v-for="el in item.description_module.PMDL_VENUE_LOCATION.content?.list">
                                             <div class="board map-board">
                                                 <div class="board-title">
                                                     <h4 class="break-word"
-                                                        v-html="`${item.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.location_name} : ${item.location_name?.desc}`"></h4>
+                                                        v-html="`${item.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.location_name} : ${el.location_name?.desc}`"></h4>
                                                     <div class="text-grey break-word"
-                                                         v-html="`${item.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.latlng} : ${item.latlng?.desc}`"></div>
+                                                         v-html="`${item.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.latlng} : ${el.latlng?.desc}`"></div>
                                                 </div>
                                                 <hr>
                                                 <div class="con">
@@ -2142,8 +2187,8 @@
                                                             <b class="text-lg bg-highlihgt pd-10">{{
                                                                 el.gather.desc }}</b></div>
                                                     </div>
-                                                    <hr v-if="item.gather && item.setout"/>
-                                                    <div class="row" v-if="el.Setout">
+                                                    <hr v-if="el.gather && el.setout"/>
+                                                    <div class="row" v-if="el.setout">
                                                         <div class="col-md-3">
                                                             <b>{{
                                                                 item.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.setout
@@ -2159,11 +2204,11 @@
                                                                 style="border: 0px;"></iframe>
                                                         </div>
                                                     </div>
-                                                    <ul class="photo-group" v-if="el.Photo">
+                                                    <ul class="photo-group" v-if="el.photo?.media">
                                                         <template v-for="img in el.photo.media">
                                                             <li class="photo-item">
                                                                 <div data-target="#venue-photo-modal-0" data-toggle="modal" class="img-bg"
-                                                                     :style="`background-image: url(&quot;${img.SourceContent}&quot;);`"></div>
+                                                                     :style="`background-image: url(&quot;${img.source_content}&quot;);`"></div>
                                                             </li>
                                                         </template>
                                                         <li class="clearfix"></li>
@@ -2295,17 +2340,26 @@
                                     </div>
                                     <div class="travel-schedule">
                                         <ul>
-                                            <li v-for="iter in sch_iter.daily_schedule_list.list" :class="{ 'no-time': !iter.time?.desc, 'have-time': iter.time?.desc }">
-                                                <div class="timeline-title">
-                                                    <span class="time">{{ iter.time?.desc }}</span>
-                                                    <span class="event">{{ iter.content?.desc }}</span>
-                                                </div>
-                                                <div class="row timeline-wrap" v-if="iter.media?.media">
-                                                    <div v-for="media_el in iter.media.media" class="col-md-4">
-                                                        <img :src="media_el.source_content" class="w-100 zoom-trigger" @@click="openDialog"/>
+                                            <template v-for="iter in sch_iter.daily_schedule_list.list">
+                                                <li class="no-time text-warning" v-if="isVenueStop(iter) && showVenueConfirmTip(prod.description_module.PMDL_VENUE_LOCATION)">
+                                                    <i class="fa fa-exclamation-circle"></i> {{ venueConfirmText(prod.description_module.PMDL_VENUE_LOCATION) }}
+                                                </li>
+                                                <li :class="{ 'no-time': !iter.time?.desc, 'have-time': iter.time?.desc }">
+                                                    <div class="timeline-title">
+                                                        <span class="time">{{ iter.time?.desc }}</span>
+                                                        <span class="event">
+                                                            <span class="d-block" v-if="iter.location?.name">{{ scheduleLocationPrefix(prod.description_module.PMDL_VENUE_LOCATION, iter) }}{{ iter.location.name }}</span>
+                                                            {{ iter.content?.desc }}
+                                                        </span>
                                                     </div>
-                                                </div>
-                                            </li>
+                                                    <div class="row timeline-wrap" v-if="iter.media?.media">
+                                                        <div v-for="media_el in iter.media.media" class="col-md-4">
+                                                            <img :src="media_el.source_content" class="w-100 zoom-trigger" @@click="openDialog"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="timeline-wrap text-grey" v-if="iter.spend_time">{{ formatSpendTime(iter.spend_time) }}</div>
+                                                </li>
+                                            </template>
                                         </ul>
                                     </div>
                                 </div>
@@ -2432,6 +2486,9 @@
                         <div id="meeting-sec" class="info-section" v-if="prod.description_module.PMDL_VENUE_LOCATION">
                             <h3 class="info-title"
                                 v-html="prod.description_module.PMDL_VENUE_LOCATION.module_title"></h3>
+                            <div class="text-warning mb-2" v-if="showVenueConfirmTip(prod.description_module.PMDL_VENUE_LOCATION)">
+                                <i class="fa fa-exclamation-circle"></i> {{ venueConfirmText(prod.description_module.PMDL_VENUE_LOCATION) }}
+                            </div>
                             <div>
                                 <template v-for="item in prod.description_module.PMDL_VENUE_LOCATION.content.list">
                                     <div class="board map-board">
@@ -2451,7 +2508,7 @@
                                                         item.gather.desc }}</b></div>
                                             </div>
                                             <hr v-if="item.gather && item.setout"/>
-                                            <div class="row" v-if="item.Setout">
+                                            <div class="row" v-if="item.setout">
                                                 <div class="col-md-3"><b>{{
                                                         prod.description_module.PMDL_VENUE_LOCATION.content.table_key_langs.setout
                                                         }}</b></div>
@@ -2466,12 +2523,12 @@
                                                         style="border: 0px;"></iframe>
                                                 </div>
                                             </div>
-                                            <ul class="photo-group" v-if="item.Photo">
+                                            <ul class="photo-group" v-if="item.photo?.media">
                                                 <template v-for="img in item.photo.media">
                                                     <li class="photo-item">
                                                         <div data-target="#venue-photo-modal-0" data-toggle="modal"
                                                              class="img-bg"
-                                                             :style="`background-image: url(&quot;${img.SourceContent}&quot;);`"></div>
+                                                             :style="`background-image: url(&quot;${img.source_content}&quot;);`"></div>
                                                     </li>
                                                 </template>
                                                 <li class="clearfix"></li>
